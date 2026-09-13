@@ -1,0 +1,12 @@
+bin/
+obj/
+.vs/
+.idea/
+.dotnet-cli/
+artifacts/test-results/*
+artifacts/diagnostics/*
+artifacts/releases/*
+!artifacts/**/.gitkeep
+*.user
+*.log
+GPT_HANDOFF.generated.md

@@ -1,0 +1,7 @@
+# ADR-0012 — Personalización segura de Companion
+
+Primera entrega de etapa 4: paletas contrastadas predefinidas, densidad compacta/cómoda/táctil (mínimo 44 DIP), tema Claro/Oscuro de Configuración e iconos con/sin texto. Preview de borrador, Guardar y Restablecer borrador. Cambios solo visuales; sin HWND nuevo, navegación, activación ni cambio de detección. El tema se persiste y aplica en vivo a Configuración; no altera la página web de Companion. La barra usa arte vectorial DPI-independiente y controles de imagen transparentes: navegación a la izquierda, añadir a favoritos (+ azul) y favoritos (marcador amarillo) a la derecha; Recargar es una flecha circular verde; Inicio y el título se ocultan. Cerrar (cruz roja) y recuperar/ocultar barra (ojo u ojo tachado) son siempre iconos y quedan fuera de la configuración.
+
+appearance.json por usuario con escritura atómica, validación de enums/título y defaults compatibles. Guardar publica apariencia solo después de persistir. App carga antes de construir ventanas; archivo dañado se conserva y se informa en Personalización, no impide usar Companion. Restablecer solo cambia borrador hasta Guardar explícito.
+
+Bindings de recursos por ventana y estado observable; no usar estilos globales que cambien Focusable/IsTabStop de Companion. Paletas y tamaños se prueban con datos aislados. Idiomas es/en desde el inicio. Temas completos claro/oscuro/sistema para Configuration y rediseño integral quedan para el siguiente bloque de etapa 4; no declarar etapa cerrada por esta entrega.

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Segunda página local</title>
+  <style>
+    body{margin:0;padding:32px;font:20px system-ui;background:#f1f5f9;color:#0f172a}
+    main{max-width:800px;margin:auto}section{background:white;padding:24px;margin:24px 0;border-radius:12px}
+    a,button{display:inline-block;font:inherit;padding:16px;margin:8px;border:1px solid #64748b;border-radius:8px}
+    output{font-weight:bold}p{line-height:1.5}
+  </style>
+</head>
+<body><main>
+  <h1>Segunda página local</h1>
+  <p>Esta navegación crea una entrada independiente para probar Atrás y Adelante.</p>
+  <section>
+    <p>Hora de carga: <output id="loaded"></output></p>
+    <button id="counter">Interacciones: 0</button>
+    <a href="index.html">Volver a la página táctil</a>
+    <p>Recargar reinicia el contador. Inicio debe abrir la dirección guardada.</p>
+  </section>
+  <section>
+    <h2>Comprobar rutas bloqueadas</h2>
+    <p>Estos enlaces deben informar un bloqueo sin abrir otra aplicación.</p>
+    <a href="file:///C:/Windows/win.ini">Archivo local no autorizado</a>
+    <a href="mailto:demo@example.invalid">Aplicación externa</a>
+    <a href="second.html" download="test.html">Descarga</a>
+  </section>
+</main>
+<script>
+  document.getElementById('loaded').textContent = new Date().toLocaleTimeString();
+  let count = 0;
+  document.getElementById('counter').addEventListener('click', e => {e.target.textContent = `Interacciones: ${++count}`;});
+</script>
+</body>
+</html>

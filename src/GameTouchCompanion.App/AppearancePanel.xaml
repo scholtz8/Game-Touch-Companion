@@ -1,0 +1,35 @@
+<UserControl x:Class="GameTouchCompanion.App.AppearancePanel"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ xmlns:local="clr-namespace:GameTouchCompanion.App">
+ <UserControl.Resources><ResourceDictionary><ResourceDictionary.MergedDictionaries>
+  <ResourceDictionary Source="TouchButtonResources.xaml"/>
+ </ResourceDictionary.MergedDictionaries></ResourceDictionary></UserControl.Resources>
+ <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Margin="24">
+  <TextBlock Text="{local:Tr AppearanceTitle}" FontSize="28" FontWeight="SemiBold"/>
+  <TextBlock Text="{local:Tr AppearanceHelp}" TextWrapping="Wrap" Margin="0,10,0,20"/>
+  <TextBlock Text="{local:Tr AppearancePalette}"/>
+  <ComboBox x:Name="Palette" SelectedValuePath="Tag" SelectionChanged="DraftChanged" MinHeight="38" Margin="0,6,0,14">
+   <ComboBoxItem Content="{local:Tr PaletteSlate}" Tag="slate"/><ComboBoxItem Content="{local:Tr PaletteOcean}" Tag="ocean"/>
+   <ComboBoxItem Content="{local:Tr PaletteForest}" Tag="forest"/><ComboBoxItem Content="{local:Tr PalettePlum}" Tag="plum"/>
+  </ComboBox>
+  <TextBlock Text="{local:Tr AppearanceSize}"/>
+  <ComboBox x:Name="Density" SelectedValuePath="Tag" SelectionChanged="DraftChanged" MinHeight="38" Margin="0,6,0,14">
+   <ComboBoxItem Content="{local:Tr DensityCompact}" Tag="compact"/><ComboBoxItem Content="{local:Tr DensityComfortable}" Tag="comfortable"/><ComboBoxItem Content="{local:Tr DensityTouch}" Tag="touch"/>
+  </ComboBox>
+  <TextBlock Text="{local:Tr AppearanceConfigurationTheme}"/>
+  <ComboBox x:Name="ConfigurationTheme" SelectedValuePath="Tag" SelectionChanged="DraftChanged" MinHeight="38" Margin="0,6,0,14">
+   <ComboBoxItem Content="{local:Tr ConfigurationThemeLight}" Tag="light"/><ComboBoxItem Content="{local:Tr ConfigurationThemeDark}" Tag="dark"/>
+  </ComboBox>
+  <CheckBox x:Name="Labels" Content="{local:Tr AppearanceLabels}" Checked="DraftChanged" Unchecked="DraftChanged" Margin="0,6,0,14"/>
+  <TextBlock Text="{local:Tr AppearancePreview}" FontWeight="SemiBold"/>
+  <Border x:Name="Preview" Padding="14" CornerRadius="12" Margin="0,10,0,18">
+   <StackPanel>
+    <DockPanel><WrapPanel x:Name="PreviewSavedActions" DockPanel.Dock="Right"/><WrapPanel x:Name="PreviewButtons"/></DockPanel>
+   </StackPanel>
+  </Border>
+  <WrapPanel><Button x:Name="SaveButton" Content="{local:Tr Ui111}" Click="Save_Click" Padding="18,10" Margin="0,0,10,0"/>
+   <Button x:Name="ResetButton" Content="{local:Tr AppearanceReset}" Click="Reset_Click" Padding="18,10"/></WrapPanel>
+  <TextBlock x:Name="Status" Visibility="Collapsed" Foreground="{Binding ConfigurationErrorForeground, Source={x:Static local:Appearance.Current}}" TextWrapping="Wrap" Margin="0,12"/>
+ </StackPanel></ScrollViewer>
+</UserControl>

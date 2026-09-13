@@ -1,0 +1,17 @@
+# Personalización — primer bloque de etapa 4
+
+La pestaña Personalización ofrece Pizarra/Océano/Bosque/Ciruela, tamaños Compacto (44 DIP), Cómodo (52) y Táctil (64), tema Claro/Oscuro para Configuración e iconos con/sin texto. Al desactivar «Mostrar texto junto a los iconos», cada botón conserva su icono y muestra su nombre al pasar el cursor. Las paletas son predefinidas; no hay aún selector RGB libre ni editor arbitrario de cada botón.
+
+Cambiar controles modifica solo el borrador y su vista previa. Guardar persiste y aplica en vivo, sin recrear HWND/WebView2 ni cambiar URL/detección. El tema Oscuro aplica fondo, superficies, controles, pestañas, listas y texto de Configuración inmediatamente; no modifica la página web de Companion. Restablecer borrador requiere Guardar para afectar la sesión y el siguiente arranque. Navegar atrás/adelante y recargar quedan a la izquierda; añadir a favoritos (símbolo + azul) y abrir favoritos (marcador amarillo) quedan siempre a la derecha. Recargar usa una flecha circular verde. Inicio y el título de la barra están ocultos; las acciones de recuperación de la página continúan disponibles ante un error. Cerrar (cruz roja) y mostrar/ocultar barra (ojo u ojo tachado) siempre son solo iconos y no se pueden quitar. Los controles de la barra son imágenes clickeables transparentes, con realce sutil al pasar/pulsar; siguen no enfocables y con mínimo 44 DIP. La vista previa usa el mismo tratamiento visual.
+
+appearance.json vive en LocalAppData/GameTouchCompanion, separado de idioma/monitores/perfiles/browser. Se valida antes de guardar y se usa archivo temporal más reemplazo atómico. Al fallar guardar, la apariencia activa no cambia. Si falla leer al inicio, se conserva el archivo, se usan defaults y Personalización avisa que Guardar lo reemplazará explícitamente. No se modificó el archivo real del usuario en las pruebas.
+
+El icono de aplicación, ventana y bandeja se vincula directamente a `assets/branding/GameTouchCompanion_Icons/ICO/GameTouchCompanion.ico`; esa es la fuente editable. Cambiarlo requiere recompilar y salir completamente de la instancia actual para cargar el nuevo recurso. Todos los iconos de barra, incluido Recargar, son `DrawingImage` vectoriales definidos en `ToolbarAppearance.cs`.
+
+Español/inglés y cambios de idioma en vivo incluidos. El título personalizado es dato del usuario, no se traduce. Paletas no modifican contenido web, pantalla completa, DPI del manifiesto ni lógica NoActivate.
+
+Verificación: build Release sin advertencias/errores; 187 normales PASS (Core143/Native15/Integration29), 11 SKIP. Smoke de escritorio focalizado PASS para el rediseño: guarda/carga, verifica mínimo/no foco, iconos, Inicio oculto, grupos izquierdo/derecho, caption, HWND/URL/detección y fallo/restablecimiento. No equivale a prueba física de touch/foco/multi-DPI. TRX exactos en artifacts/test-results/latest.txt.
+
+Pendiente: validación manual de esta entrega y siguientes bloques de etapa 4 (temas claro/oscuro/sistema de Configuration, diseño global y opciones visuales adicionales). Etapa 4 no cerrada. No nuevo ZIP/version; paquete histórico no incluye estas funciones.
+
+En una repetición paralela falló PackagePart.CleanUpRequestedStreamsList al cargar BrowserSettingsPanel (NullReferenceException interna de WPF). Los tests que crean ventanas ahora comparten colección no paralela; la aplicación no cambió por ese fallo. Regresión serial 10PASS; evidencia fallida conservada en latest.txt. No ocultar el incidente atribuyéndolo a una prueba física ni a un problema de foco.

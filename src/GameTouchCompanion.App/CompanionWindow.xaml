@@ -1,0 +1,101 @@
+<Window x:Class="GameTouchCompanion.App.CompanionWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:local="clr-namespace:GameTouchCompanion.App"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+        Title="{local:Tr Ui061}" Width="900" Height="700"
+        WindowStyle="None" ResizeMode="NoResize" ShowInTaskbar="False" Background="{Binding Background, Source={x:Static local:Appearance.Current}}">
+    <Window.Resources>
+        <ResourceDictionary>
+        <ResourceDictionary.MergedDictionaries><ResourceDictionary Source="TouchButtonResources.xaml"/></ResourceDictionary.MergedDictionaries>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+        <Style TargetType="Button">
+            <Setter Property="MinHeight" Value="{Binding ButtonSize, Source={x:Static local:Appearance.Current}}"/>
+            <Setter Property="MinWidth" Value="{Binding ButtonSize, Source={x:Static local:Appearance.Current}}"/>
+            <Setter Property="Margin" Value="3"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="FontSize" Value="{Binding FontSize, Source={x:Static local:Appearance.Current}}"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="IsTabStop" Value="False"/>
+            <Setter Property="Background" Value="{Binding ButtonBackground, Source={x:Static local:Appearance.Current}}"/>
+            <Setter Property="Foreground" Value="#0F172A"/>
+            <Setter Property="Template" Value="{StaticResource RoundedTouchButtonTemplate}"/>
+        </Style>
+        <Style x:Key="ToolbarImageButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="8,5"/>
+            <Setter Property="Template" Value="{StaticResource ToolbarImageButtonTemplate}"/>
+        </Style>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <!-- These controls always remain accessible, including when the toolbar is hidden. -->
+        <DockPanel Background="{Binding Background, Source={x:Static local:Appearance.Current}}" LastChildFill="True">
+            <Button x:Name="CloseAction" DockPanel.Dock="Right" Style="{StaticResource ToolbarImageButton}" Click="Close_Click" AutomationProperties.Name="{local:Tr Ui063}"/>
+            <Button x:Name="ToggleToolbarAction" DockPanel.Dock="Left" Style="{StaticResource ToolbarImageButton}" Click="ToggleToolbar_Click"/>
+        </DockPanel>
+        <Grid Grid.Row="1" Visibility="{Binding ShowToolbar, Converter={StaticResource BoolToVisibility}}">
+            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+            <DockPanel LastChildFill="True">
+                <WrapPanel x:Name="SavedActions" DockPanel.Dock="Right">
+                    <Button x:Name="SaveAction" Style="{StaticResource ToolbarImageButton}" Click="AddFavorite_Click" IsEnabled="{Binding IsReady}"/>
+                    <Button x:Name="FavoritesAction" Style="{StaticResource ToolbarImageButton}" Click="ToggleFavorites_Click"/>
+                </WrapPanel>
+                <WrapPanel x:Name="NavigationActions">
+                    <Button x:Name="BackAction" Style="{StaticResource ToolbarImageButton}" Click="Back_Click" IsEnabled="{Binding CanGoBack}"/>
+                    <Button x:Name="ForwardAction" Style="{StaticResource ToolbarImageButton}" Click="Forward_Click" IsEnabled="{Binding CanGoForward}"/>
+                    <Button x:Name="ReloadAction" Style="{StaticResource ToolbarImageButton}" Click="Reload_Click" IsEnabled="{Binding IsReady}"/>
+                    <Button x:Name="HomeAction" Click="Home_Click" Visibility="Collapsed"/>
+                </WrapPanel>
+            </DockPanel>
+            <TextBlock Grid.Row="1" Margin="12,4,12,8" Foreground="#E2E8F0" FontSize="14" Text="{Binding CurrentUrl}" TextTrimming="CharacterEllipsis"/>
+        </Grid>
+        <!-- In-window content avoids an activating Popup and WebView2 airspace overlap. -->
+        <Border x:Name="FavoritesPanel" Grid.Row="2" Background="{Binding Surface, Source={x:Static local:Appearance.Current}}" Visibility="Collapsed" Padding="8">
+            <ScrollViewer MaxHeight="180" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly" Focusable="False">
+                <ItemsControl ItemsSource="{Binding Favorites}" Focusable="False">
+                    <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Click="OpenFavorite_Click" Tag="{Binding}" MaxWidth="380">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Text="{Binding Url}" FontSize="12" TextTrimming="CharacterEllipsis"/>
+                                </StackPanel>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Border>
+        <Border Grid.Row="3" Background="{Binding Surface, Source={x:Static local:Appearance.Current}}" Padding="12,6" Visibility="{Binding HasSettingsError, Converter={StaticResource BoolToVisibility}}">
+            <StackPanel>
+                <TextBlock Text="{Binding SettingsError}" Foreground="#FCA5A5" TextWrapping="Wrap"
+                           Visibility="{Binding HasSettingsError, Converter={StaticResource BoolToVisibility}}"/>
+            </StackPanel>
+        </Border>
+        <wv2:WebView2 x:Name="Browser" Grid.Row="4"/>
+        <Border x:Name="ErrorPanel" Grid.Row="4" Visibility="Collapsed" Padding="24" Background="#7F1D1D">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" PanningMode="VerticalOnly" Focusable="False">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="620">
+                    <TextBlock FontSize="26" FontWeight="SemiBold" Foreground="White" Text="{local:Tr Ui076}" TextWrapping="Wrap"/>
+                    <TextBlock x:Name="ErrorText" Margin="0,14,0,20" Foreground="White" FontSize="16" TextWrapping="Wrap"/>
+                    <WrapPanel>
+                        <Button x:Name="RetryButton" Click="Retry_Click" Content="{local:Tr Ui077}"/>
+                        <Button Click="Home_Click" Content="{local:Tr Ui078}"/>
+                        <Button Click="Close_Click" Content="{local:Tr Ui063}"/>
+                    </WrapPanel>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</Window>

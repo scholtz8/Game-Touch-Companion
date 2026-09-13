@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <!-- WPF owns process DPI via app.manifest; Forms is only used for NotifyIcon, never Application.Run. -->
+    <NoWarn>$(NoWarn);WFO0003</NoWarn>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>..\..\assets\branding\GameTouchCompanion_Icons\ICO\GameTouchCompanion.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+    <ProjectReference Include="..\GameTouchCompanion.Core\GameTouchCompanion.Core.csproj" />
+    <ProjectReference Include="..\GameTouchCompanion.Native\GameTouchCompanion.Native.csproj" />
+    <PackageReference Include="Microsoft.Web.WebView2" />
+    <PackageReference Include="Serilog" />
+    <PackageReference Include="Serilog.Sinks.File" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Keep the editable branding package as the single source of truth for EXE, WPF and tray icons. -->
+    <Resource Include="..\..\assets\branding\GameTouchCompanion_Icons\ICO\GameTouchCompanion.ico" Link="Assets\GameTouchCompanion.ico" />
+    <Content Include="..\..\tools\TouchTestPage\index.html" Link="TouchTestPage\index.html" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="..\..\tools\TouchTestPage\second.html" Link="TouchTestPage\second.html" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

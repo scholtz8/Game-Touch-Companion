@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes">
+  <title>Game Touch Companion — Touch Test</title>
+  <style>
+    *{box-sizing:border-box} body{margin:0;font:18px system-ui;background:#f8fafc;color:#0f172a;touch-action:pan-x pan-y}
+    header{position:sticky;top:0;z-index:3;padding:18px;background:#0f172a;color:white} main{padding:22px;display:grid;gap:24px}
+    button,input,a{font-size:22px;min-height:54px}.big{padding:22px;border:0;border-radius:12px;background:#2563eb;color:white}
+    .panel{padding:20px;background:white;border:1px solid #cbd5e1;border-radius:12px}.horizontal{overflow-x:auto;white-space:nowrap}
+    .strip{width:1800px;height:100px;background:linear-gradient(90deg,#06b6d4,#8b5cf6,#f43f5e);color:white;padding:32px}
+    #dragArea{height:260px;position:relative;overflow:hidden;background:#dbeafe;touch-action:none}
+    #dragItem{position:absolute;width:110px;height:110px;border-radius:20px;background:#ea580c;color:white;display:grid;place-items:center;user-select:none}
+    #eventLog{height:220px;overflow:auto;background:#020617;color:#a7f3d0;padding:12px;font:14px Consolas,monospace;white-space:pre-wrap}
+    .spacer{height:700px;background:linear-gradient(#f8fafc,#bfdbfe);display:grid;place-items:center;font-size:34px}
+  </style>
+</head>
+<body>
+<header><strong>LOCAL TOUCH TEST</strong> · Events: <span id="count">0</span> · Clicks: <span id="clicks">0</span></header>
+<main>
+  <section class="panel"><button id="bigButton" class="big">BIG TEST BUTTON</button> <a href="#bottom">Jump to bottom</a></section>
+  <section class="panel">
+    <h2>Browser navigation test</h2>
+    <p><a href="second.html">Open second local page</a></p>
+    <p><a href="second.html" target="_blank">New-window link (opens in Companion)</a></p>
+    <p>Use the Companion toolbar to go back, forward, reload, save a favorite and return home.</p>
+  </section>
+  <section class="panel"><label>Text input <input placeholder="Keyboard may require configuration mode"></label></section>
+  <section class="panel horizontal"><div class="strip">HORIZONTAL SCROLL →</div></section>
+  <section class="panel"><h2>Draggable area</h2><div id="dragArea"><div id="dragItem">DRAG</div></div></section>
+  <section class="panel"><h2>Pointer/event diagnostics</h2><div id="eventLog">Waiting for input…</div></section>
+  <section class="spacer">VERTICAL SCROLL / PINCH ZOOM</section>
+  <section id="bottom" class="panel"><h2>Bottom reached</h2><button class="big" onclick="location.hash=''">Back to top</button></section>
+</main>
+<script>
+  const log=document.querySelector('#eventLog'), count=document.querySelector('#count'), clicks=document.querySelector('#clicks'); let events=0, clickCount=0;
+  function record(e){ events++; count.textContent=events; const p=`${new Date().toISOString().slice(11,23)} ${e.type} pointerType=${e.pointerType||'-'} pointerId=${e.pointerId||'-'} x=${Math.round(e.clientX||0)} y=${Math.round(e.clientY||0)}`; log.textContent=p+'\n'+log.textContent.slice(0,6000); }
+  ['pointerdown','pointermove','pointerup','click','wheel','touchstart','touchmove','touchend'].forEach(t=>document.addEventListener(t,record,{passive:true}));
+  document.querySelector('#bigButton').addEventListener('click',()=>{clicks.textContent=++clickCount});
+  const area=document.querySelector('#dragArea'), item=document.querySelector('#dragItem'); let dragging=false;
+  item.addEventListener('pointerdown',e=>{dragging=true;item.setPointerCapture(e.pointerId)});
+  item.addEventListener('pointermove',e=>{if(!dragging)return;const r=area.getBoundingClientRect();item.style.left=Math.max(0,Math.min(r.width-110,e.clientX-r.left-55))+'px';item.style.top=Math.max(0,Math.min(r.height-110,e.clientY-r.top-55))+'px'});
+  item.addEventListener('pointerup',()=>dragging=false);
+</script>
+</body></html>

@@ -1,0 +1,68 @@
+<UserControl x:Class="GameTouchCompanion.App.ProfilesPanel"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:local="clr-namespace:GameTouchCompanion.App"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources><BooleanToVisibilityConverter x:Key="BoolVisibility"/></UserControl.Resources>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="24">
+            <TextBlock Text="{local:Tr Ui093}" FontSize="26" FontWeight="SemiBold"/>
+            <TextBlock Margin="0,10" TextWrapping="Wrap" Text="{local:Tr Ui094}"/>
+            <StackPanel IsEnabled="{Binding CanEdit}">
+                <ListBox x:Name="ProfileList" ItemsSource="{Binding Profiles}" SelectedItem="{Binding SelectedProfile, Mode=TwoWay}"
+                         MinHeight="75" MaxHeight="140">
+                    <ListBox.ItemTemplate><DataTemplate><StackPanel Margin="4">
+                        <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding ProcessName}" Foreground="{Binding ConfigurationSecondaryForeground, Source={x:Static local:Appearance.Current}}"/>
+                    </StackPanel></DataTemplate></ListBox.ItemTemplate>
+                </ListBox>
+                <TextBlock Margin="0,10" TextWrapping="Wrap" Foreground="{Binding ConfigurationSecondaryForeground, Source={x:Static local:Appearance.Current}}"
+                           Text="{local:Tr Ui095}"/>
+                <TextBlock Text="{local:Tr Ui096}" Foreground="{Binding ConfigurationNoticeForeground, Source={x:Static local:Appearance.Current}}" FontWeight="SemiBold" Margin="0,4"
+                           Visibility="{Binding HasUnsavedChanges, Converter={StaticResource BoolVisibility}}"/>
+                <StackPanel Margin="0,8" Visibility="{Binding DiscardConfirmation, Converter={StaticResource BoolVisibility}}">
+                    <TextBlock Text="{local:Tr Ui097}" TextWrapping="Wrap" FontWeight="SemiBold"
+                               Foreground="{Binding ConfigurationNoticeForeground, Source={x:Static local:Appearance.Current}}"/>
+                    <WrapPanel Margin="0,8">
+                        <Button Content="{local:Tr Ui098}" Click="Discard_Click" Padding="12,8" Margin="0,0,10,0"/>
+                        <Button Content="{local:Tr Ui099}" Click="KeepDraft_Click" Padding="12,8"/>
+                    </WrapPanel>
+                </StackPanel>
+                <Button Content="{local:Tr Ui100}" Click="New_Click" HorizontalAlignment="Left" Padding="16,8"/>
+                <TextBlock Text="{local:Tr Ui101}" Margin="0,12,0,4"/>
+                <TextBox Text="{Binding DisplayName, UpdateSourceTrigger=PropertyChanged}" Padding="8" MaxLength="120"/>
+                <TextBlock Text="{local:Tr Ui102}" Margin="0,10,0,4"/>
+                <TextBox Text="{Binding ProcessName, UpdateSourceTrigger=PropertyChanged}" Padding="8" MaxLength="200"/>
+                <TextBlock Text="{local:Tr Ui103}" Margin="0,10,0,4"/>
+                <TextBox Text="{Binding Url, UpdateSourceTrigger=PropertyChanged}" Padding="8"/>
+                <TextBlock Text="{local:Tr Ui104}" Margin="0,10,0,4" TextWrapping="Wrap"/>
+                <ComboBox x:Name="AvailableMonitorCombo" ItemTemplate="{local:MonitorTemplate}" MinHeight="36" AutomationProperties.Name="{local:Tr Ui105}"/>
+                <WrapPanel Margin="0,8">
+                    <Button Content="{local:Tr Ui106}" Click="UseMonitor_Click" Padding="12,8" Margin="0,0,10,0"/>
+                    <Button Content="{local:Tr Ui107}" Click="UseCurrentMonitor_Click" Padding="12,8"/>
+                </WrapPanel>
+                <TextBox Text="{Binding CompanionMonitor, UpdateSourceTrigger=PropertyChanged}" Padding="8" MaxLength="128"/>
+                <TextBlock Text="{local:Tr Ui108}" Margin="0,4" TextWrapping="Wrap" Foreground="{Binding ConfigurationSecondaryForeground, Source={x:Static local:Appearance.Current}}"/>
+                <CheckBox Content="{local:Tr Ui109}"
+                          IsChecked="{Binding AutoLaunch}" Margin="0,14"/>
+                <TextBlock Text="{local:Tr Ui110}" Foreground="{Binding ConfigurationSecondaryForeground, Source={x:Static local:Appearance.Current}}"/>
+                <WrapPanel Margin="0,14">
+                    <Button Content="{local:Tr Ui111}" Click="Save_Click" Padding="16,10" Margin="0,0,10,0"/>
+                    <Button Content="{local:Tr Ui112}" Click="Apply_Click" Padding="16,10" Margin="0,0,10,0"/>
+                    <Button Content="{local:Tr Ui113}" Click="Delete_Click" Padding="16,10"/>
+                </WrapPanel>
+                <StackPanel Margin="0,8" Visibility="{Binding DeleteConfirmation, Converter={StaticResource BoolVisibility}}">
+                    <TextBlock Text="{local:Tr Ui114}" TextWrapping="Wrap" FontWeight="SemiBold"
+                               Foreground="{Binding ConfigurationNoticeForeground, Source={x:Static local:Appearance.Current}}"/>
+                    <WrapPanel Margin="0,10,0,0">
+                        <Button Content="{local:Tr Ui115}" Click="ConfirmDelete_Click" Padding="12,8" Margin="0,0,10,0"/>
+                        <Button Content="{local:Tr Ui116}" Click="CancelDelete_Click" Padding="12,8"/>
+                    </WrapPanel>
+                </StackPanel>
+            </StackPanel>
+            <!-- Passive profile status is logged in the background. Only errors remain visible. -->
+            <Border Background="{Binding ConfigurationError, Source={x:Static local:Appearance.Current}}" Padding="12" Visibility="{Binding HasError, Converter={StaticResource BoolVisibility}}">
+                <TextBlock Text="{Binding Error}" Foreground="{Binding ConfigurationErrorForeground, Source={x:Static local:Appearance.Current}}" TextWrapping="Wrap"/>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

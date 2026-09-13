@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+<resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+<resheader name="version"><value>2.0</value></resheader>
+  <data name="Ui000" xml:space="preserve"><value>Game Touch Companion — Configuración</value></data>
+  <data name="Ui001" xml:space="preserve"><value>Inicio</value></data>
+  <data name="Ui002" xml:space="preserve"><value>Configura tu Companion</value></data>
+  <data name="Ui003" xml:space="preserve"><value>Guía de configuración · puedes retomarla cuando quieras</value></data>
+  <data name="Ui004" xml:space="preserve"><value>Pantallas</value></data>
+  <data name="Ui005" xml:space="preserve"><value>Navegador</value></data>
+  <data name="Ui006" xml:space="preserve"><value>Perfiles</value></data>
+  <data name="Ui007" xml:space="preserve"><value>Atrás</value></data>
+  <data name="Ui008" xml:space="preserve"><value>Siguiente</value></data>
+  <data name="Ui009" xml:space="preserve"><value>Reiniciar guía</value></data>
+  <data name="Ui010" xml:space="preserve"><value>Cada panel guarda sus propios cambios. Reiniciar esta guía no los deshace, no cambia la Detección ni abre el Companion. La ventana de Configuración puede tomar el foco, así que termina de configurarlo todo antes de volver al juego.</value></data>
+  <data name="Ui011" xml:space="preserve"><value>GAME TOUCH COMPANION</value></data>
+  <data name="Ui012" xml:space="preserve"><value>Selecciona la pantalla de Companion y abre el navegador.</value></data>
+  <data name="Ui013" xml:space="preserve"><value>Runtime</value></data>
+  <data name="Ui014" xml:space="preserve"><value>Comprobando WebView2 Runtime…</value></data>
+  <data name="Ui015" xml:space="preserve"><value>Distribución del escritorio · esquema de referencia; no se detecta si una pantalla es táctil</value></data>
+  <data name="Ui016" xml:space="preserve"><value>Pantalla del juego:</value></data>
+  <data name="Ui017" xml:space="preserve"><value>Pantalla de Companion:</value></data>
+  <data name="Ui018" xml:space="preserve"><value>Permitir la misma pantalla para pruebas</value></data>
+  <data name="Ui019" xml:space="preserve"><value>Actualizar pantallas</value></data>
+  <data name="Ui020" xml:space="preserve"><value>Revisar selección</value></data>
+  <data name="Ui021" xml:space="preserve"><value>Confirmar selección actual</value></data>
+  <data name="Ui022" xml:space="preserve"><value>Abrir Companion en pantalla completa</value></data>
+  <data name="Ui023" xml:space="preserve"><value>Detección</value></data>
+  <data name="Ui024" xml:space="preserve"><value>Detección de juegos</value></data>
+  <data name="Ui025" xml:space="preserve"><value>Comprueba el sistema cada 2 segundos. La apertura automática requiere un único perfil coincidente, una ventana del juego estable en primer plano y una pantalla distinta para Companion. Game Touch Companion no inicia juegos ni fuerza la recuperación del foco.</value></data>
+  <data name="Ui026" xml:space="preserve"><value>Activar detección y apertura automática durante esta sesión</value></data>
+  <data name="Ui027" xml:space="preserve"><value>Restablecer apertura automática y contador de muestras</value></data>
+  <data name="Ui028" xml:space="preserve"><value>¿Cerraste Companion y quieres volver a abrirlo con el mismo juego? 1. Restablece la apertura automática. 2. Activa Detección. 3. Vuelve al juego. Restablecerla permite un nuevo intento; no reinicia el juego ni activa Detección. Cerrar Companion pausa Detección para evitar que se vuelva a abrir automáticamente.</value></data>
+  <data name="Ui029" xml:space="preserve"><value>Detección pausada.</value></data>
+  <data name="Ui030" xml:space="preserve"><value>Aún no hay muestras.</value></data>
+  <data name="Ui031" xml:space="preserve"><value>Guarda un perfil con el nombre exacto del ejecutable y activa la apertura automática. Luego activa Detección y vuelve al juego. Cerrar Companion o aplicar un perfil manualmente pausa Detección.</value></data>
+  <data name="Ui032" xml:space="preserve"><value>Para comprobar que el juego no pierde el foco, usa FocusProbe. El muestreo cada 2 segundos puede omitir cambios muy breves. Que coincida el nombre del ejecutable no confirma por sí solo la identidad ni la seguridad del juego.</value></data>
+  <data name="Ui033" xml:space="preserve"><value>Ajustes</value></data>
+  <data name="Ui034" xml:space="preserve"><value>Ajustes y seguridad</value></data>
+  <data name="Ui035" xml:space="preserve"><value>Protecciones del Companion</value></data>
+  <data name="Ui036" xml:space="preserve"><value>NoActivate siempre está activo. La restauración forzada del foco está deshabilitada y Game Touch Companion nunca inicia juegos. El inicio con Windows y la Detección se configuran por separado.</value></data>
+  <data name="Ui037" xml:space="preserve"><value>Permitir la misma pantalla en Pantallas sirve solo para pruebas manuales. La apertura automática sigue requiriendo una pantalla distinta.</value></data>
+  <data name="Ui038" xml:space="preserve"><value>Activar detección automáticamente al abrir la aplicación</value></data>
+  <data name="Ui039" xml:space="preserve"><value>Se aplicará la próxima vez que abras la app, después de cargar la configuración. Esta opción no inicia Windows ni ejecuta juegos. Cerrar Companion solo pausa Detección durante la sesión actual.</value></data>
+  <data name="Ui040" xml:space="preserve"><value>Inicio de Windows y bandeja</value></data>
+  <data name="Ui041" xml:space="preserve"><value>Iniciar Game Touch Companion al iniciar sesión en Windows</value></data>
+  <data name="Ui042" xml:space="preserve"><value>Se registra para tu usuario de Windows la ruta de esta copia de la aplicación. Si la mueves, tendrás que registrar la nueva ubicación. No ejecutes varias copias al mismo tiempo.</value></data>
+  <data name="Ui043" xml:space="preserve"><value>Registrar esta copia (reemplaza la ruta anterior)</value></data>
+  <data name="Ui044" xml:space="preserve"><value>Comprobar registro</value></data>
+  <data name="Ui045" xml:space="preserve"><value>Iniciar oculto en la bandeja del sistema</value></data>
+  <data name="Ui046" xml:space="preserve"><value>Al cerrar Configuración, mantener la app en la bandeja en lugar de salir</value></data>
+  <data name="Ui047" xml:space="preserve"><value>Ocultar en bandeja ahora</value></data>
+  <data name="Ui048" xml:space="preserve"><value>Salir completamente</value></data>
+  <data name="Ui049" xml:space="preserve"><value>Ocultar Configuración no cambia el estado de Companion ni de Detección. Cerrar Companion sigue pausando Detección. Abrir Configuración o usar el menú de la bandeja cambia la ventana activa, así que hazlo fuera de una prueba de foco.</value></data>
+  <data name="Ui050" xml:space="preserve"><value>Mostrar barra táctil en Companion</value></data>
+  <data name="Ui051" xml:space="preserve"><value>Pantallas y opciones de prueba</value></data>
+  <data name="Ui052" xml:space="preserve"><value>Inicio y favoritos</value></data>
+  <data name="Ui053" xml:space="preserve"><value>Detección de esta sesión</value></data>
+  <data name="Ui054" xml:space="preserve"><value>Privacidad: la configuración y los diagnósticos se guardan localmente. Las páginas web que abras sí pueden usar Internet. No compartas profiles.json, browser.json ni el perfil de WebView2: pueden contener información privada.</value></data>
+  <data name="Ui055" xml:space="preserve"><value>Accesibilidad: como Companion no toma el foco, el teclado, los lectores de pantalla y la entrada de texto pueden tener limitaciones. Usa la ventana de Configuración para escribir y cambiar ajustes.</value></data>
+  <data name="Ui056" xml:space="preserve"><value>Diagnóstico</value></data>
+  <data name="Ui057" xml:space="preserve"><value>Diagnóstico local</value></data>
+  <data name="Ui058" xml:space="preserve"><value>Actualizar muestra de ventana en primer plano</value></data>
+  <data name="Ui059" xml:space="preserve"><value>Última muestra de Detección (solo se actualiza mientras está activa)</value></data>
+  <data name="Ui060" xml:space="preserve"><value>Los eventos táctiles no se registran en producción; usa TouchTestPage. Aquí tampoco se contabilizan con precisión las pérdidas de foco; para eso usa FocusProbe. Abrir Configuración cambia intencionalmente la ventana en primer plano, así que hazlo fuera del intervalo de prueba.</value></data>
+  <data name="Ui061" xml:space="preserve"><value>Game Touch Companion</value></data>
+  <data name="Ui062" xml:space="preserve"><value>Cerrar ✕</value></data>
+  <data name="Ui063" xml:space="preserve"><value>Cerrar Companion</value></data>
+  <data name="Ui064" xml:space="preserve"><value>COMPANION · TÁCTIL</value></data>
+  <data name="Ui065" xml:space="preserve"><value>←</value></data>
+  <data name="Ui066" xml:space="preserve"><value>Atrás</value></data>
+  <data name="Ui067" xml:space="preserve"><value>→</value></data>
+  <data name="Ui068" xml:space="preserve"><value>Adelante</value></data>
+  <data name="Ui069" xml:space="preserve"><value>Recargar</value></data>
+  <data name="Ui070" xml:space="preserve"><value>⌂ Inicio</value></data>
+  <data name="Ui071" xml:space="preserve"><value>Guardar</value></data>
+  <data name="Ui072" xml:space="preserve"><value>Favoritos</value></data>
+  <data name="Ui073" xml:space="preserve"><value>Cerrar favoritos</value></data>
+  <data name="Ui074" xml:space="preserve"><value>Favoritos · se abren en Companion</value></data>
+  <data name="Ui075" xml:space="preserve"><value>Guarda la página actual con «Guardar» o añade direcciones desde Configuración.</value></data>
+  <data name="Ui076" xml:space="preserve"><value>No se pudo mostrar la página</value></data>
+  <data name="Ui077" xml:space="preserve"><value>Reintentar</value></data>
+  <data name="Ui078" xml:space="preserve"><value>Ir a inicio</value></data>
+  <data name="Ui079" xml:space="preserve"><value>Navegador Companion</value></data>
+  <data name="Ui080" xml:space="preserve"><value>Escribe una dirección aquí. Después vuelve al juego y usa la pantalla táctil de Companion para navegar.</value></data>
+  <data name="Ui081" xml:space="preserve"><value>Dirección HTTP o HTTPS</value></data>
+  <data name="Ui082" xml:space="preserve"><value>Ir</value></data>
+  <data name="Ui083" xml:space="preserve"><value>Abrir Companion</value></data>
+  <data name="Ui084" xml:space="preserve"><value>Página de prueba local</value></data>
+  <data name="Ui085" xml:space="preserve"><value>Establecer como página de inicio</value></data>
+  <data name="Ui086" xml:space="preserve"><value>Añadir a favoritos</value></data>
+  <data name="Ui087" xml:space="preserve"><value>Inicio: </value></data>
+  <data name="Ui088" xml:space="preserve"><value>Página actual: </value></data>
+  <data name="Ui089" xml:space="preserve"><value>Mostrar barra de navegación en Companion</value></data>
+  <data name="Ui090" xml:space="preserve"><value>Favoritos</value></data>
+  <data name="Ui091" xml:space="preserve"><value>Abrir favorito</value></data>
+  <data name="Ui092" xml:space="preserve"><value>Quitar favorito</value></data>
+  <data name="Ui093" xml:space="preserve"><value>Perfiles de juego</value></data>
+  <data name="Ui094" xml:space="preserve"><value>Guarda perfiles de juego para aplicarlos manualmente o usarlos con Detección. Game Touch Companion nunca inicia juegos.</value></data>
+  <data name="Ui095" xml:space="preserve"><value>Si cambias de perfil con cambios sin guardar, puedes cancelar o descartarlos. Aplicar siempre usa la versión guardada, no el borrador.</value></data>
+  <data name="Ui096" xml:space="preserve"><value>Cambios sin guardar</value></data>
+  <data name="Ui097" xml:space="preserve"><value>Hay cambios sin guardar. ¿Quieres descartarlos y cambiar de perfil? Si eliges Cancelar, conservarás el borrador para poder guardarlo después.</value></data>
+  <data name="Ui098" xml:space="preserve"><value>Descartar y continuar</value></data>
+  <data name="Ui099" xml:space="preserve"><value>Conservar borrador</value></data>
+  <data name="Ui100" xml:space="preserve"><value>Nuevo perfil</value></data>
+  <data name="Ui101" xml:space="preserve"><value>Nombre del perfil</value></data>
+  <data name="Ui102" xml:space="preserve"><value>Ejecutable (opcional para uso manual; ejemplo: Cyberpunk2077.exe)</value></data>
+  <data name="Ui103" xml:space="preserve"><value>URL del mapa (HTTP/HTTPS)</value></data>
+  <data name="Ui104" xml:space="preserve"><value>Pantalla de Companion (vacío = selección actual)</value></data>
+  <data name="Ui105" xml:space="preserve"><value>Pantallas disponibles para este perfil</value></data>
+  <data name="Ui106" xml:space="preserve"><value>Usar pantalla seleccionada</value></data>
+  <data name="Ui107" xml:space="preserve"><value>Usar selección actual</value></data>
+  <data name="Ui108" xml:space="preserve"><value>Ejemplo: \\.\DISPLAY2. La pantalla elegida debe estar conectada al aplicar el perfil; la app no cambiará a otra sin avisar.</value></data>
+  <data name="Ui109" xml:space="preserve"><value>Abrir Companion al detectar este juego (requiere Detección activa durante esta sesión)</value></data>
+  <data name="Ui110" xml:space="preserve"><value>NoActivate siempre está activo. No se usa ningún método alternativo para restaurar el foco.</value></data>
+  <data name="Ui111" xml:space="preserve"><value>Guardar</value></data>
+  <data name="Ui112" xml:space="preserve"><value>Aplicar perfil guardado</value></data>
+  <data name="Ui113" xml:space="preserve"><value>Eliminar…</value></data>
+  <data name="Ui114" xml:space="preserve"><value>¿Eliminar el perfil seleccionado de profiles.json? Esta acción no se puede deshacer desde la app.</value></data>
+  <data name="Ui115" xml:space="preserve"><value>Confirmar eliminación</value></data>
+  <data name="Ui116" xml:space="preserve"><value>Cancelar</value></data>
+  <data name="LanguageHeading" xml:space="preserve"><value>Idioma / Language</value></data>
+  <data name="LanguageApply" xml:space="preserve"><value>Guardar idioma</value></data>
+  <data name="LanguageHelp" xml:space="preserve"><value>El idioma cambia al guardar, sin reiniciar la app ni interrumpir Companion o Detección.</value></data>
+  <data name="LanguageSaved" xml:space="preserve"><value>Idioma actualizado.</value></data>
+  <data name="LanguageFailed" xml:space="preserve"><value>No se pudo guardar el idioma. Se conserva la preferencia anterior.</value></data>
+  <data name="ShowToolbar" xml:space="preserve"><value>Mostrar barra</value></data>
+  <data name="HideToolbar" xml:space="preserve"><value>Ocultar barra</value></data>
+  <data name="TrayOpen" xml:space="preserve"><value>Abrir Configuración</value></data>
+  <data name="TrayEnable" xml:space="preserve"><value>Activar detección</value></data>
+  <data name="TrayPause" xml:space="preserve"><value>Pausar detección</value></data>
+  <data name="TrayRearm" xml:space="preserve"><value>Restablecer apertura automática</value></data>
+  <data name="TrayActiveTip" xml:space="preserve"><value>Game Touch Companion · Detección activa</value></data>
+  <data name="TrayPausedTip" xml:space="preserve"><value>Game Touch Companion · Detección pausada</value></data>
+  <data name="Dynamic000" xml:space="preserve"><value>Detectando pantallas…</value></data>
+  <data name="Dynamic001" xml:space="preserve"><value>La configuración no se cargó correctamente. settings.json no se sobrescribirá.</value></data>
+  <data name="Dynamic002" xml:space="preserve"><value>No se pudo cargar la configuración. settings.json no se sobrescribirá.</value></data>
+  <data name="Dynamic003" xml:space="preserve"><value>Selecciona una pantalla para el juego y otra para Companion.</value></data>
+  <data name="Dynamic004" xml:space="preserve"><value>Revisa y confirma la selección en Pantallas antes de aplicar un perfil.</value></data>
+  <data name="Dynamic005" xml:space="preserve"><value>La pantalla guardada en este perfil no está disponible. Vuelve a conectarla o elige otra; no se aplicó ningún cambio.</value></data>
+  <data name="Dynamic006" xml:space="preserve"><value>La selección de pantallas de este perfil no es válida. Revisa la pestaña Pantallas y la opción que permite usar la misma pantalla para pruebas.</value></data>
+  <data name="Dynamic007" xml:space="preserve"><value>Preferencia de pantalla del perfil aplicada.</value></data>
+  <data name="Dynamic008" xml:space="preserve"><value>No se detectaron pantallas. Vuelve a actualizar después de reconectar una.</value></data>
+  <data name="Dynamic009" xml:space="preserve"><value>Introduce una dirección y abre Companion.</value></data>
+  <data name="Dynamic010" xml:space="preserve"><value>Navegador listo. Abre Companion para empezar a navegar.</value></data>
+  <data name="Dynamic011" xml:space="preserve"><value>No se pudo leer browser.json. Corrige el archivo y reinicia la app. La edición de preferencias está bloqueada para evitar sobrescribirlo.</value></data>
+  <data name="Dynamic012" xml:space="preserve"><value>Introduce una dirección HTTP o HTTPS válida, sin nombre de usuario ni contraseña. No se admiten otros tipos de dirección.</value></data>
+  <data name="Dynamic013" xml:space="preserve"><value>Cargando página…</value></data>
+  <data name="Dynamic014" xml:space="preserve"><value>Dirección lista. Se abrirá cuando inicies Companion.</value></data>
+  <data name="Dynamic015" xml:space="preserve"><value>El favorito necesita una dirección HTTP o HTTPS válida, sin nombre de usuario ni contraseña.</value></data>
+  <data name="Dynamic016" xml:space="preserve"><value>Esta dirección ya está en favoritos.</value></data>
+  <data name="Dynamic017" xml:space="preserve"><value>El nombre del favorito no puede contener caracteres de control.</value></data>
+  <data name="Dynamic018" xml:space="preserve"><value>Añadido a favoritos.</value></data>
+  <data name="Dynamic019" xml:space="preserve"><value>Eliminado de favoritos.</value></data>
+  <data name="Dynamic020" xml:space="preserve"><value>La página de inicio debe tener una dirección HTTP o HTTPS válida, sin nombre de usuario ni contraseña.</value></data>
+  <data name="Dynamic021" xml:space="preserve"><value>Página inicial guardada.</value></data>
+  <data name="Dynamic022" xml:space="preserve"><value>Barra de navegación mostrada.</value></data>
+  <data name="Dynamic023" xml:space="preserve"><value>Barra oculta. Pulsa «Mostrar barra» para recuperarla.</value></data>
+  <data name="Dynamic024" xml:space="preserve"><value>Navegador listo.</value></data>
+  <data name="Dynamic025" xml:space="preserve"><value>Companion cerrado. Puedes volver a abrirlo desde Pantallas o Navegador.</value></data>
+  <data name="Dynamic026" xml:space="preserve"><value>No se pudieron cargar las preferencias. Corrige browser.json y reinicia la app antes de guardar cambios.</value></data>
+  <data name="Dynamic027" xml:space="preserve"><value>No se pudieron guardar las preferencias. Los cambios actuales solo están en memoria; comprueba el acceso a browser.json.</value></data>
+  <data name="Dynamic028" xml:space="preserve"><value>Cargando perfiles…</value></data>
+  <data name="Dynamic029" xml:space="preserve"><value>Perfiles listos. La apertura automática requiere que Detección esté activa; también puedes aplicar los perfiles manualmente.</value></data>
+  <data name="Dynamic030" xml:space="preserve"><value>No se pudo leer profiles.json. El archivo se dejó sin cambios. Corrígelo y reinicia la app antes de editar perfiles.</value></data>
+  <data name="Dynamic031" xml:space="preserve"><value>Borrador nuevo. Pulsa «Guardar» para crear el perfil.</value></data>
+  <data name="Dynamic032" xml:space="preserve"><value>Perfil seleccionado. «Aplicar» usa la versión guardada.</value></data>
+  <data name="Dynamic033" xml:space="preserve"><value>Perfil guardado. «Aplicar» usará esta versión y no iniciará el juego.</value></data>
+  <data name="Dynamic034" xml:space="preserve"><value>No se pudo guardar profiles.json. El borrador sigue disponible y el perfil guardado no cambió.</value></data>
+  <data name="Dynamic035" xml:space="preserve"><value>Perfil eliminado. La página y la pantalla actuales de Companion no cambiaron.</value></data>
+  <data name="Dynamic036" xml:space="preserve"><value>No se pudo eliminar el perfil. La versión guardada sigue disponible.</value></data>
+  <data name="Dynamic037" xml:space="preserve"><value>Perfil guardado aplicado manualmente. Si Companion está cerrado, ábrelo desde Pantallas o Navegador. Aplicar un perfil manualmente pausa Detección.</value></data>
+  <data name="Dynamic038" xml:space="preserve"><value>No se pudo aplicar el perfil. Revisa Pantallas y el acceso a settings.json.</value></data>
+  <data name="Dynamic039" xml:space="preserve"><value>Preferencia guardada para el próximo inicio. La sesión actual no cambió.</value></data>
+  <data name="Dynamic040" xml:space="preserve"><value>No se pudo guardar la preferencia. Se mantiene el valor anterior.</value></data>
+  <data name="Dynamic041" xml:space="preserve"><value>Terminar guía</value></data>
+  <data name="Dynamic042" xml:space="preserve"><value>Primero revisa Pantallas: deben seleccionarse dos pantallas distintas, la selección debe ser válida y no puede quedar ninguna revisión pendiente.</value></data>
+  <data name="Dynamic043" xml:space="preserve"><value>Guía completada. Abre Companion manualmente desde Pantallas o activa Detección cuando estés listo. La guía no abrió ninguna ventana.</value></data>
+  <data name="Dynamic044" xml:space="preserve"><value>Juego + Companion</value></data>
+  <data name="Dynamic045" xml:space="preserve"><value>No hay pantallas para mostrar.</value></data>
+  <data name="Dynamic046" xml:space="preserve"><value>La bandeja del sistema está disponible. Haz doble clic en el icono para abrir Configuración o usa el menú para salir. Windows decide si el icono se muestra u oculta.</value></data>
+  <data name="Dynamic047" xml:space="preserve"><value>La bandeja del sistema no está disponible. Configuración permanecerá abierta y, al cerrarla, la aplicación finalizará.</value></data>
+  <data name="Dynamic048" xml:space="preserve"><value>No se pudo crear el icono de la bandeja del sistema. La ventana de Configuración seguirá disponible.</value></data>
+  <data name="Dynamic049" xml:space="preserve"><value>La bandeja del sistema no está disponible. Configuración no se ocultó.</value></data>
+  <data name="Dynamic050" xml:space="preserve"><value>Preferencias guardadas. «Iniciar oculto» se aplicará la próxima vez que abras la app; «cerrar a la bandeja» ya está activo. «Salir completamente» siempre cierra la aplicación.</value></data>
+  <data name="Dynamic051" xml:space="preserve"><value>No se pudo guardar. Se mantienen las preferencias anteriores.</value></data>
+  <data name="Dynamic052" xml:space="preserve"><value>El registro de inicio con Windows no está disponible en esta sesión de pruebas.</value></data>
+  <data name="Dynamic053" xml:space="preserve"><value>La app no está registrada para iniciarse con tu sesión de Windows. Windows no se modificará hasta que actives esta opción.</value></data>
+  <data name="Dynamic054" xml:space="preserve"><value>Esta copia está registrada para iniciarse con Windows. Windows puede retrasar o desactivar su inicio desde el Administrador de tareas.</value></data>
+  <data name="Dynamic055" xml:space="preserve"><value>El inicio con Windows apunta a otra copia o ruta. Desactiva la opción para quitarla o pulsa «Registrar esta copia» para reemplazarla.</value></data>
+  <data name="Dynamic056" xml:space="preserve"><value>No se pudo consultar la configuración de inicio con Windows. No se realizó ningún cambio.</value></data>
+  <data name="Dynamic057" xml:space="preserve"><value>No se pudo cambiar la configuración de inicio con Windows. Comprueba los permisos y asegúrate de que el EXE esté en una ubicación estable.</value></data>
+  <data name="Dynamic058" xml:space="preserve"><value>Detección pausada. Companion no se abrirá automáticamente.</value></data>
+  <data name="Dynamic059" xml:space="preserve"><value>Esperando a que terminen de cargarse los perfiles y se completen las operaciones pendientes.</value></data>
+  <data name="Dynamic060" xml:space="preserve"><value>Perfil aplicado y Companion abierto sin tomar el foco. Esta instancia del juego no volverá a abrirlo automáticamente hasta que restablezcas la apertura automática.</value></data>
+  <data name="Dynamic061" xml:space="preserve"><value>No se pudo abrir Companion automáticamente. Revisa la configuración y WebView2, y luego restablece la apertura automática.</value></data>
+  <data name="Dynamic062" xml:space="preserve"><value>No hay una muestra de Detección disponible, así que no se aplicará ningún perfil.</value></data>
+  <data name="Dynamic063" xml:space="preserve"><value>No se pudo consultar el escritorio. La app volverá a intentarlo sin permisos elevados.</value></data>
+  <data name="Dynamic064" xml:space="preserve"><value>No se detectó ningún juego. Si Companion ya está abierto, permanecerá abierto cuando cierres el juego.</value></data>
+  <data name="Dynamic065" xml:space="preserve"><value>Revisa y confirma la selección de Pantallas. Detección no puede omitir este requisito.</value></data>
+  <data name="Dynamic067" xml:space="preserve"><value>La pantalla preferida no está conectada.</value></data>
+  <data name="Dynamic068" xml:space="preserve"><value>La apertura automática requiere una pantalla distinta que no se superponga a la ventana del juego, incluso si está permitido usar la misma pantalla para pruebas manuales.</value></data>
+  <data name="Dynamic069" xml:space="preserve"><value>El perfil cambió o hay más de una selección automática posible.</value></data>
+  <data name="Dynamic070" xml:space="preserve"><value>La ventana, el tamaño, la instancia o el estado de primer plano del juego cambiaron mientras se abría Companion.</value></data>
+  <data name="Dynamic071" xml:space="preserve"><value>Apertura automática restablecida. Si Detección está pausada, actívala y vuelve al juego para obtener dos muestras estables.</value></data>
+  <data name="Dynamic072" xml:space="preserve"><value>Aplicar un perfil manualmente pausó Detección. Puedes volver a activarla desde la pestaña Detección.</value></data>
+  <data name="Dynamic075" xml:space="preserve"><value>WebView2 Runtime no está instalado.</value></data>
+  <data name="Dynamic077" xml:space="preserve"><value>Se necesita Microsoft Edge WebView2 Evergreen Runtime. Instálalo desde Microsoft y reinicia la app.</value></data>
+  <data name="Dynamic078" xml:space="preserve"><value>Falta WebView2 Runtime</value></data>
+  <data name="Dynamic082" xml:space="preserve"><value>La selección de pantallas no es válida</value></data>
+  <data name="Dynamic083" xml:space="preserve"><value>El juego y Companion usarán la misma pantalla. ¿Quieres continuar solo para realizar pruebas?</value></data>
+  <data name="Dynamic084" xml:space="preserve"><value>Prueba con la misma pantalla</value></data>
+  <data name="Dynamic085" xml:space="preserve"><value>Companion cerrado. Detección se pausó para evitar que se vuelva a abrir. Cuando quieras intentarlo de nuevo, activa Detección y restablece la apertura automática.</value></data>
+  <data name="Dynamic086" xml:space="preserve"><value>Revisa la selección y los avisos de la pestaña Pantallas antes de abrir Companion.</value></data>
+  <data name="Dynamic090" xml:space="preserve"><value>Iniciando navegador…</value></data>
+  <data name="Dynamic095" xml:space="preserve"><value>WebView2 Evergreen Runtime no está instalado. Instálalo desde Microsoft y vuelve a abrir Companion.</value></data>
+  <data name="Dynamic096" xml:space="preserve"><value>No se pudo iniciar WebView2. Reintenta o cierra y vuelve a abrir Companion. Comprueba que WebView2 Runtime esté instalado y que se pueda acceder al perfil local.</value></data>
+  <data name="Dynamic098" xml:space="preserve"><value>El proceso del navegador se cerró. Cierra Companion y vuelve a abrirlo desde la ventana principal.</value></data>
+  <data name="Dynamic099" xml:space="preserve"><value>Navegación bloqueada. Solo se permiten direcciones HTTP y HTTPS sin nombre de usuario ni contraseña.</value></data>
+  <data name="Dynamic100" xml:space="preserve"><value>Enlace bloqueado. Solo se permiten direcciones HTTP y HTTPS sin nombre de usuario ni contraseña.</value></data>
+  <data name="Dynamic102" xml:space="preserve"><value>Se bloqueó contenido incrustado porque usa una dirección no permitida.</value></data>
+  <data name="Dynamic103" xml:space="preserve"><value>Página lista. Edita las direcciones desde la ventana principal.</value></data>
+  <data name="Dynamic105" xml:space="preserve"><value>Se bloqueó una ventana emergente o una dirección no permitida.</value></data>
+  <data name="Dynamic106" xml:space="preserve"><value>Las descargas están deshabilitadas en Companion.</value></data>
+  <data name="Dynamic107" xml:space="preserve"><value>Se rechazó un permiso solicitado por la página.</value></data>
+  <data name="Dynamic108" xml:space="preserve"><value>Companion no puede abrir aplicaciones externas.</value></data>
+  <data name="Dynamic110" xml:space="preserve"><value>Esta página necesita una solicitud de autenticación del navegador que Companion no admite.</value></data>
+  <data name="Dynamic112" xml:space="preserve"><value>Esta página requiere un certificado de cliente. La solicitud se canceló.</value></data>
+  <data name="Dynamic114" xml:space="preserve"><value>El certificado de este sitio no es válido. Companion no continuará con una conexión insegura.</value></data>
+  <data name="Dynamic116" xml:space="preserve"><value>Se cerró un cuadro de diálogo de la página para mantener la interacción en la ventana actual.</value></data>
+  <data name="Dynamic117" xml:space="preserve"><value>La página intentó cerrar la ventana. Usa «Cerrar» para cerrar Companion.</value></data>
+  <data name="Dynamic118" xml:space="preserve"><value>La página dejó de responder. Reintenta o vuelve a la página de inicio.</value></data>
+  <data name="Dynamic119" xml:space="preserve"><value>No se pudo completar la navegación. Reintenta o cierra y vuelve a abrir Companion.</value></data>
+  <data name="Dynamic120" xml:space="preserve"><value>En Pantallas, revisa el esquema y selecciona pantallas distintas para el juego y Companion. Confirma cualquier aviso de desconexión. La guía solo puede continuar cuando la selección sea válida.</value></data>
+  <data name="Dynamic121" xml:space="preserve"><value>En Navegador, introduce una URL. En Perfiles puedes guardar el ejecutable, la URL y la pantalla de cada juego. Activa Detección manualmente o configura en Ajustes si debe iniciarse de forma automática. También puedes usar Companion sin crear perfiles.</value></data>
+  <data name="Dynamic122" xml:space="preserve"><value>La configuración está lista. Abre Companion manualmente o activa Detección y vuelve al juego. Usa FocusProbe para comprobar el comportamiento del foco. Terminar la guía no abre ventanas ni activa Detección.</value></data>
+  <data name="Dynamic123" xml:space="preserve"><value>Ningún juego configurado tiene una ventana válida.</value></data>
+  <data name="Dynamic124" xml:space="preserve"><value>Hay más de un perfil con apertura automática para este ejecutable. Déjala activada solo en uno.</value></data>
+  <data name="Dynamic125" xml:space="preserve"><value>Juego detectado, pero la apertura automática está desactivada en este perfil.</value></data>
+  <data name="Dynamic126" xml:space="preserve"><value>Esta instancia del juego ya fue procesada. Companion no volverá a abrirse automáticamente hasta que restablezcas la apertura automática o reinicies el juego.</value></data>
+  <data name="Dynamic127" xml:space="preserve"><value>Juego detectado en segundo plano. Esperando a que pase a primer plano.</value></data>
+  <data name="Dynamic128" xml:space="preserve"><value>Esperando una segunda muestra estable antes de abrir Companion.</value></data>
+  <data name="Dynamic129" xml:space="preserve"><value>El juego está estable. Todo listo para aplicar el perfil y abrir Companion.</value></data>
+  <data name="Dynamic130" xml:space="preserve"><value>No hay pantallas disponibles.</value></data>
+  <data name="Dynamic131" xml:space="preserve"><value>Solo hay una pantalla disponible, por lo que el juego y Companion deben compartirla.</value></data>
+  <data name="Dynamic132" xml:space="preserve"><value>El juego y Companion están usando la misma pantalla porque la opción de pruebas con una sola pantalla está activada.</value></data>
+  <data name="Dynamic133" xml:space="preserve"><value>El juego y Companion usarán la misma pantalla porque la opción de pruebas con una sola pantalla está activada.</value></data>
+  <data name="Dynamic134" xml:space="preserve"><value>Selecciona pantallas distintas para el juego y Companion o activa la opción de pruebas con una sola pantalla.</value></data>
+  <data name="Dynamic137" xml:space="preserve"><value>El ID del perfil no es válido.</value></data>
+  <data name="Dynamic138" xml:space="preserve"><value>El nombre debe tener entre 1 y 120 caracteres y no puede contener caracteres de control.</value></data>
+  <data name="Dynamic139" xml:space="preserve"><value>Introduce solo el nombre del ejecutable terminado en .exe, sin ruta ni argumentos.</value></data>
+  <data name="Dynamic140" xml:space="preserve"><value>La apertura automática requiere el nombre del ejecutable.</value></data>
+  <data name="Dynamic141" xml:space="preserve"><value>La URL del mapa debe ser una dirección HTTP o HTTPS válida y no puede incluir nombre de usuario ni contraseña.</value></data>
+  <data name="Dynamic142" xml:space="preserve"><value>La configuración de pantalla no es válida.</value></data>
+  <data name="Dynamic143" xml:space="preserve"><value>Los perfiles deben mantener NoActivate activo y no pueden usar un método alternativo para restaurar el foco.</value></data>
+  <data name="Dynamic144" xml:space="preserve"><value>profiles.json debe contener una colección de perfiles válida con schemaVersion 1.</value></data>
+  <data name="Dynamic145" xml:space="preserve"><value>Un perfil no puede ser nulo.</value></data>
+  <data name="Dynamic146" xml:space="preserve"><value>No puede haber IDs de perfil duplicados.</value></data>
+  <data name="Dynamic147" xml:space="preserve"><value>No se encontró el ejecutable actual.</value></data>
+  <data name="Dynamic148" xml:space="preserve"><value>El inicio con Windows ya contiene una entrada para otra ruta. Pulsa «Registrar esta copia» para reemplazarla.</value></data>
+  <data name="Dynamic150" xml:space="preserve"><value>La ruta es demasiado larga para registrarla en el inicio de Windows.</value></data>
+  <data name="Message000" xml:space="preserve"><value>Siguiente</value></data>
+  <data name="Message001" xml:space="preserve"><value>Juego</value></data>
+  <data name="Message002" xml:space="preserve"><value>Disponible</value></data>
+  <data name="Message003" xml:space="preserve"><value>selección lista</value></data>
+  <data name="Message004" xml:space="preserve"><value>revisa la selección y los avisos</value></data>
+  <data name="Message005" xml:space="preserve"><value>no seleccionada</value></data>
+  <data name="Message006" xml:space="preserve"><value>no seleccionada</value></data>
+  <data name="Message007" xml:space="preserve"><value>activa</value></data>
+  <data name="Message008" xml:space="preserve"><value>pausada</value></data>
+  <data name="Message009" xml:space="preserve"><value>1 de 3 · Elige tus pantallas</value></data>
+  <data name="Message010" xml:space="preserve"><value>2 de 3 · Prepara el contenido</value></data>
+  <data name="Message011" xml:space="preserve"><value>3 de 3 · Prueba y juega</value></data>
+  <data name="Message012" xml:space="preserve"><value>App: {0}
+</value></data>
+  <data name="Message013" xml:space="preserve"><value>Windows: {0} · Proceso: {1}</value></data>
+  <data name="Message014" xml:space="preserve"><value>Pantallas: {0}
+</value></data>
+  <data name="Message015" xml:space="preserve"><value>Juego: {0}
+</value></data>
+  <data name="Message016" xml:space="preserve"><value>Companion: {0}
+</value></data>
+  <data name="Message017" xml:space="preserve"><value>Perfiles guardados: {0}. Detección: {1}.</value></data>
+  <data name="Message018" xml:space="preserve"><value>Muestra manual: {0:yyyy-MM-dd HH:mm:ss zzz}
+</value></data>
+  <data name="Message019" xml:space="preserve"><value>Muestra no disponible ({0}). Detección no se modificó.</value></data>
+  <data name="Message020" xml:space="preserve"><value>Juego en primer plano: {0} · Límites: {1}</value></data>
+  <data name="Message021" xml:space="preserve"><value>Cambios fuera del juego observados en intervalos de 2 s: {0}. Este valor no equivale al contador de FocusProbe.</value></data>
+  <data name="Message022" xml:space="preserve"><value>Selección confirmada. Companion: {0}.</value></data>
+  <data name="Message023" xml:space="preserve"><value>Pantallas detectadas: {0}. Companion: {1}.</value></data>
+  <data name="Message024" xml:space="preserve"><value>settings.json contiene un JSON no válido. Corrige el archivo o muévelo como copia de seguridad: {0}</value></data>
+  <data name="Message025" xml:space="preserve"><value>No se pudieron detectar las pantallas: {0}</value></data>
+  <data name="Message026" xml:space="preserve"><value>No se pudo guardar la selección de pantallas: {0}</value></data>
+  <data name="Message027" xml:space="preserve"><value>No se pudieron actualizar las pantallas: {0}</value></data>
+  <data name="Message028" xml:space="preserve"><value>No se pudo cargar la página ({0}). Comprueba tu conexión y reintenta o vuelve a la página de inicio.</value></data>
+  <data name="Message029" xml:space="preserve"><value>El sitio devolvió HTTP {0}. Reintenta o vuelve a la página de inicio.</value></data>
+  <data name="Message030" xml:space="preserve"><value> Corrige el problema y restablece la apertura automática.</value></data>
+  <data name="MonitorMessage0" xml:space="preserve"><value>La pantalla de Companion seleccionada anteriormente ({0}) no está disponible. Companion se cerró. Revisa la pantalla alternativa antes de volver a abrirlo.</value></data>
+  <data name="MonitorMessage1" xml:space="preserve"><value>Se bloqueó una selección duplicada. Companion usará {0}.</value></data>
+  <data name="MonitorMessage2" xml:space="preserve"><value>La pantalla seleccionada para el juego {0} no está disponible.</value></data>
+  <data name="MonitorMessage3" xml:space="preserve"><value>La pantalla seleccionada para Companion {0} no está disponible.</value></data>
+  <data name="MonitorMessage4" xml:space="preserve"><value>La pantalla de {0} configurada como {1} no está disponible. Se usará {2}.</value></data>
+  <data name="MonitorMessage5" xml:space="preserve"><value>juego</value></data>
+  <data name="MonitorMessage6" xml:space="preserve"><value>Sí</value></data>
+  <data name="MonitorMessage7" xml:space="preserve"><value>No</value></data>
+  <data name="MonitorMessage8" xml:space="preserve"><value>Aceptar</value></data>
+  <data name="PrimaryDisplaySuffix" xml:space="preserve"><value> — Principal</value></data>
+  <data name="StartupPathInvalid" xml:space="preserve"><value>Usa la ruta completa de GameTouchCompanion.App.exe. El comando de inicio de Windows no puede superar los 260 caracteres.</value></data>
+  <data name="AppearanceTitle" xml:space="preserve"><value>Personalización</value></data>
+  <data name="AppearanceHelp" xml:space="preserve"><value>Personaliza la barra de Companion. Los cambios de la vista previa no afectan la sesión actual hasta que pulses «Guardar». Al guardar, se aplican de inmediato y sin reiniciar. El botón Cerrar y los controles para recuperar la barra siempre permanecen disponibles.</value></data>
+  <data name="AppearancePalette" xml:space="preserve"><value>Paleta de colores</value></data>
+  <data name="PaletteSlate" xml:space="preserve"><value>Pizarra</value></data>
+  <data name="PaletteOcean" xml:space="preserve"><value>Océano</value></data>
+  <data name="PaletteForest" xml:space="preserve"><value>Bosque</value></data>
+  <data name="PalettePlum" xml:space="preserve"><value>Ciruela</value></data>
+  <data name="AppearanceSize" xml:space="preserve"><value>Tamaño de controles</value></data>
+  <data name="AppearanceConfigurationTheme" xml:space="preserve"><value>Tema de Configuración</value></data>
+  <data name="ConfigurationThemeLight" xml:space="preserve"><value>Claro</value></data>
+  <data name="ConfigurationThemeDark" xml:space="preserve"><value>Oscuro</value></data>
+  <data name="DensityCompact" xml:space="preserve"><value>Compacto · 44 DIP</value></data>
+  <data name="DensityComfortable" xml:space="preserve"><value>Cómodo · 52 DIP</value></data>
+  <data name="DensityTouch" xml:space="preserve"><value>Táctil · 64 DIP</value></data>
+  <data name="AppearanceOrder" xml:space="preserve"><value>Distribución de botones</value></data>
+  <data name="OrderNavigation" xml:space="preserve"><value>Navegación primero</value></data>
+  <data name="OrderHome" xml:space="preserve"><value>Inicio y favoritos primero</value></data>
+  <data name="AppearanceLabels" xml:space="preserve"><value>Mostrar texto junto a los iconos (si se desactiva, aparecerá al pasar el cursor)</value></data>
+  <data name="AppearanceCaption" xml:space="preserve"><value>Título de la barra (opcional, hasta 40 caracteres)</value></data>
+  <data name="AppearancePreview" xml:space="preserve"><value>Vista previa</value></data>
+  <data name="AppearanceReset" xml:space="preserve"><value>Restablecer cambios</value></data>
+  <data name="AppearanceSaved" xml:space="preserve"><value>Apariencia guardada y aplicada.</value></data>
+  <data name="AppearanceFailed" xml:space="preserve"><value>No se pudo guardar la apariencia. Revisa el título y el acceso al archivo. La apariencia actual no cambió.</value></data>
+  <data name="AppearanceResetNotice" xml:space="preserve"><value>Cambios restablecidos. Pulsa «Guardar» para aplicar esta versión.</value></data>
+  <data name="AppearanceLoadFailed" xml:space="preserve"><value>No se pudo leer appearance.json. Se usarán los valores predeterminados sin modificar el archivo. Al guardar, se reemplazará la configuración de apariencia.</value></data>
+  <data name="GuideScreens" xml:space="preserve"><value>En Pantallas, selecciona una pantalla para el juego y otra para Companion. Revisa el esquema y cualquier aviso de desconexión.</value></data>
+  <data name="GuidePlay" xml:space="preserve"><value>Abre Companion desde Pantallas o activa Detección y vuelve al juego. Comprueba que el juego mantiene el foco mientras usas la barra de Companion.</value></data>
+</root>
