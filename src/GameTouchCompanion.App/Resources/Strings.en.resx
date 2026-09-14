@@ -993,13 +993,13 @@
     <value>Profile tabs</value>
   </data>
   <data name="Ui152" xml:space="preserve">
-    <value>Choose the pages that open with this profile. Mark one as primary to show it first.</value>
+    <value>Choose the pages that open with this profile. Each tab name is taken automatically from the website title. Mark one as primary to show it first.</value>
   </data>
   <data name="Ui153" xml:space="preserve">
     <value>★ Primary</value>
   </data>
   <data name="Ui154" xml:space="preserve">
-    <value>Tab name</value>
+    <value>Automatic website title</value>
   </data>
   <data name="Ui155" xml:space="preserve">
     <value>URL</value>
@@ -1071,12 +1071,33 @@
     <value>Page {0}</value>
   </data>
   <data name="Ui163" xml:space="preserve">
-    <value>New temporary tab</value>
+    <value>New tab</value>
   </data>
   <data name="Ui164" xml:space="preserve">
-    <value>Close active tab</value>
+    <value>Close tab</value>
   </data>
   <data name="Ui165" xml:space="preserve">
     <value>New tab</value>
+  </data>
+  <data name="Ui166" xml:space="preserve">
+    <value>Web address</value>
+  </data>
+  <data name="Ui167" xml:space="preserve">
+    <value>Go</value>
+  </data>
+  <data name="Ui168" xml:space="preserve">
+    <value>Touch keyboard</value>
+  </data>
+  <data name="Ui169" xml:space="preserve">
+    <value>Hide keyboard</value>
+  </data>
+  <data name="Ui170" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="Ui171" xml:space="preserve">
+    <value>Space</value>
+  </data>
+  <data name="Ui172" xml:space="preserve">
+    <value>Change keyboard size</value>
   </data>
 </root>

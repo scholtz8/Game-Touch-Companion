@@ -60,7 +60,8 @@ public sealed class BrowserRuntimeTests
                 // the navigation lifecycle assertions below so the test does not cancel startup work.
                 await WaitForDocumentReadyAsync(core, BrowserUrlPolicy.LocalHomeUrl);
                 Assert.False(core.Settings.AreHostObjectsAllowed);
-                Assert.False(core.Settings.IsWebMessageEnabled);
+                Assert.True(core.Settings.IsWebMessageEnabled);
+                Assert.Equal("true", await core.ExecuteScriptAsync("typeof window.__gtcKeyboard === 'object'"));
                 Assert.False(core.Settings.AreDefaultScriptDialogsEnabled);
                 Assert.False(core.Settings.AreDevToolsEnabled);
                 var windowService = new Win32ProcessWindowService();

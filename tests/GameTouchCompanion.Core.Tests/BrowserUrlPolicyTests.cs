@@ -12,6 +12,7 @@ public sealed class BrowserUrlPolicyTests
     [InlineData("https://touch-test.local/index.html", BrowserUrlPolicy.LocalHomeUrl)]
     [InlineData("https://touch-test.local/%69ndex.html", BrowserUrlPolicy.LocalHomeUrl)]
     [InlineData("https://touch-test.local:443/second.html?from=home#bottom", "https://touch-test.local/second.html?from=home#bottom")]
+    [InlineData(BrowserUrlPolicy.BlankPageUrl, BrowserUrlPolicy.BlankPageUrl)]
     [InlineData("http://[::1]:8080/test", "http://[::1]:8080/test")]
     public void AllowedAddressesAreNormalized(string input, string expected)
     {

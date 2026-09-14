@@ -156,3 +156,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/New-GptHandoff.ps1
 ```
 
 Comparte `GPT_HANDOFF.md` para el análisis; `GPT_HANDOFF.generated.md` solo aporta entorno/Git/resultados automáticos.
+
+
+### Navegación táctil en Companion
+
+Companion usa pestañas compactas similares a un navegador cuyo texto sigue el título de cada sitio, permite cerrar cada pestaña y crear pestañas temporales en blanco, incorpora una barra de direcciones editable por touch y un teclado táctil integrado en la zona inferior para campos de texto web sin abrir una ventana de teclado externa. Al ocultar la barra de navegación también se oculta la barra de pestañas.

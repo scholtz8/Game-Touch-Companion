@@ -27,6 +27,38 @@
             <Setter Property="Padding" Value="8,5"/>
             <Setter Property="Template" Value="{StaticResource ToolbarImageButtonTemplate}"/>
         </Style>
+        <Style x:Key="CompactTabButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="MinHeight" Value="32"/>
+            <Setter Property="MinWidth" Value="32"/>
+            <Setter Property="Margin" Value="1"/>
+            <Setter Property="Padding" Value="6,3"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+        <Style x:Key="BrowserTabContentButton" TargetType="Button" BasedOn="{StaticResource ToolbarImageButton}">
+            <Setter Property="MinHeight" Value="30"/>
+            <Setter Property="MinWidth" Value="0"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Padding" Value="8,3,3,3"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="#0F172A"/>
+        </Style>
+        <Style x:Key="BrowserTabCloseButton" TargetType="Button" BasedOn="{StaticResource ToolbarImageButton}">
+            <Setter Property="MinHeight" Value="22"/>
+            <Setter Property="MinWidth" Value="22"/>
+            <Setter Property="Width" Value="22"/>
+            <Setter Property="Height" Value="22"/>
+            <Setter Property="Margin" Value="0,0,4,0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="#0F172A"/>
+        </Style>
+        <Style x:Key="KeyboardKey" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="MinHeight" Value="48"/>
+            <Setter Property="MinWidth" Value="50"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="Padding" Value="6,4"/>
+            <Setter Property="FontSize" Value="18"/>
+        </Style>
         </ResourceDictionary>
     </Window.Resources>
     <Grid>
@@ -37,6 +69,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <DockPanel Background="{Binding Background, Source={x:Static local:Appearance.Current}}" LastChildFill="True">
@@ -61,19 +94,27 @@
             </ScrollViewer>
         </Border>
 
-        <DockPanel Grid.Row="2" Background="{Binding Surface, Source={x:Static local:Appearance.Current}}" LastChildFill="True">
-            <WrapPanel DockPanel.Dock="Right">
-                <Button Content="+" Click="AddTemporaryTab_Click" ToolTip="{local:Tr Ui163}" Padding="12,8"/>
-                <Button Content="×" Click="CloseActiveTab_Click" ToolTip="{local:Tr Ui164}" Padding="12,8"/>
-            </WrapPanel>
+        <DockPanel x:Name="TabsBar" Grid.Row="2" Background="{Binding Surface, Source={x:Static local:Appearance.Current}}" LastChildFill="True"
+                   Visibility="{Binding ShowToolbar, Converter={StaticResource BoolToVisibility}}">
+            <Button DockPanel.Dock="Right" Content="+" Style="{StaticResource CompactTabButton}" Click="AddTemporaryTab_Click"
+                    ToolTip="{local:Tr Ui163}" Width="34" Height="32"/>
             <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" PanningMode="HorizontalOnly" Focusable="False">
                 <ItemsControl x:Name="TabsList" Focusable="False">
                     <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Button Click="Tab_Click" Tag="{Binding}" Padding="16,9" MinWidth="100">
-                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" MaxWidth="220"/>
-                            </Button>
+                            <Border Width="144" Height="32" Margin="1" CornerRadius="7" BorderBrush="#64748B" BorderThickness="1"
+                                    Background="{Binding ButtonBackground, Source={x:Static local:Appearance.Current}}" ClipToBounds="True">
+                                <Grid>
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="26"/></Grid.ColumnDefinitions>
+                                    <Button Grid.Column="0" Click="Tab_Click" Tag="{Binding}" Style="{StaticResource BrowserTabContentButton}" ToolTip="{Binding Title}"
+                                            HorizontalContentAlignment="Left">
+                                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" MaxWidth="108"/>
+                                    </Button>
+                                    <Button Grid.Column="1" Click="CloseTab_Click" Tag="{Binding}" Style="{StaticResource BrowserTabCloseButton}" Content="×"
+                                            ToolTip="{local:Tr Ui164}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                </Grid>
+                            </Border>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
@@ -94,7 +135,12 @@
                     <Button x:Name="HomeAction" Click="Home_Click" Visibility="Collapsed"/>
                 </WrapPanel>
             </DockPanel>
-            <TextBlock Grid.Row="1" Margin="12,4,12,8" Foreground="#E2E8F0" FontSize="14" Text="{Binding CurrentUrl}" TextTrimming="CharacterEllipsis"/>
+            <DockPanel Grid.Row="1" Margin="10,3,10,7" LastChildFill="True">
+                <Button DockPanel.Dock="Right" Content="{local:Tr Ui167}" Click="NavigateAddress_Click" MinHeight="32" Padding="12,3" Margin="5,0,0,0"/>
+                <TextBox x:Name="AddressBox" MinHeight="32" Padding="8,5" FontSize="14" Focusable="False" IsTabStop="False"
+                         PreviewMouseDown="AddressBox_PreviewMouseDown" PreviewTouchDown="AddressBox_PreviewTouchDown"
+                         ToolTip="{local:Tr Ui166}" AutomationProperties.Name="{local:Tr Ui166}"/>
+            </DockPanel>
         </Grid>
 
         <Border x:Name="FavoritesPanel" Grid.Row="4" Background="{Binding Surface, Source={x:Static local:Appearance.Current}}" Visibility="Collapsed" Padding="8">
@@ -124,5 +170,60 @@
                 </ScrollViewer>
             </Border>
         </Grid>
+
+        <Border x:Name="TouchKeyboardPanel" Grid.Row="6" Visibility="Collapsed" Background="{Binding Surface, Source={x:Static local:Appearance.Current}}"
+                BorderBrush="#64748B" BorderThickness="0,1,0,0" Padding="5">
+            <StackPanel>
+                <DockPanel Margin="3,0,3,3">
+                    <Button DockPanel.Dock="Right" Content="⌄" Style="{StaticResource KeyboardKey}" Click="HideKeyboard_Click" ToolTip="{local:Tr Ui169}" Width="50"/>
+                    <Button x:Name="KeyboardSizeAction" DockPanel.Dock="Right" Content="A+" Style="{StaticResource KeyboardKey}" Click="ToggleKeyboardSize_Click"
+                            ToolTip="{local:Tr Ui172}" Width="56"/>
+                    <TextBlock Text="{local:Tr Ui168}" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="White"/>
+                </DockPanel>
+                <StackPanel x:Name="KeyboardKeysPanel">
+                    <StackPanel.LayoutTransform>
+                        <ScaleTransform x:Name="KeyboardScaleTransform" ScaleX="1" ScaleY="1"/>
+                    </StackPanel.LayoutTransform>
+                <WrapPanel HorizontalAlignment="Center">
+                    <Button Style="{StaticResource KeyboardKey}" Tag="1" Content="1" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="2" Content="2" Click="KeyboardKey_Click"/>
+                    <Button Style="{StaticResource KeyboardKey}" Tag="3" Content="3" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="4" Content="4" Click="KeyboardKey_Click"/>
+                    <Button Style="{StaticResource KeyboardKey}" Tag="5" Content="5" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="6" Content="6" Click="KeyboardKey_Click"/>
+                    <Button Style="{StaticResource KeyboardKey}" Tag="7" Content="7" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="8" Content="8" Click="KeyboardKey_Click"/>
+                    <Button Style="{StaticResource KeyboardKey}" Tag="9" Content="9" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="0" Content="0" Click="KeyboardKey_Click"/>
+                    <Button Style="{StaticResource KeyboardKey}" Tag="backspace" Content="⌫" Click="KeyboardSpecialKey_Click" Width="64"/>
+                </WrapPanel>
+                <WrapPanel HorizontalAlignment="Center">
+                    <Button Style="{StaticResource KeyboardKey}" Tag="q" Content="Q" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="w" Content="W" Click="KeyboardKey_Click"/>
+                    <Button Style="{StaticResource KeyboardKey}" Tag="e" Content="E" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="r" Content="R" Click="KeyboardKey_Click"/>
+                    <Button Style="{StaticResource KeyboardKey}" Tag="t" Content="T" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="y" Content="Y" Click="KeyboardKey_Click"/>
+                    <Button Style="{StaticResource KeyboardKey}" Tag="u" Content="U" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="i" Content="I" Click="KeyboardKey_Click"/>
+                    <Button Style="{StaticResource KeyboardKey}" Tag="o" Content="O" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="p" Content="P" Click="KeyboardKey_Click"/>
+                </WrapPanel>
+                <WrapPanel HorizontalAlignment="Center">
+                    <Button Style="{StaticResource KeyboardKey}" Tag="a" Content="A" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="s" Content="S" Click="KeyboardKey_Click"/>
+                    <Button Style="{StaticResource KeyboardKey}" Tag="d" Content="D" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="f" Content="F" Click="KeyboardKey_Click"/>
+                    <Button Style="{StaticResource KeyboardKey}" Tag="g" Content="G" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="h" Content="H" Click="KeyboardKey_Click"/>
+                    <Button Style="{StaticResource KeyboardKey}" Tag="j" Content="J" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="k" Content="K" Click="KeyboardKey_Click"/>
+                    <Button Style="{StaticResource KeyboardKey}" Tag="l" Content="L" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="ñ" Content="Ñ" Click="KeyboardKey_Click"/>
+                </WrapPanel>
+                <WrapPanel HorizontalAlignment="Center">
+                    <Button x:Name="KeyboardShiftAction" Style="{StaticResource KeyboardKey}" Tag="shift" Content="⇧" Click="KeyboardSpecialKey_Click" Width="64"/>
+                    <Button Style="{StaticResource KeyboardKey}" Tag="z" Content="Z" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="x" Content="X" Click="KeyboardKey_Click"/>
+                    <Button Style="{StaticResource KeyboardKey}" Tag="c" Content="C" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="v" Content="V" Click="KeyboardKey_Click"/>
+                    <Button Style="{StaticResource KeyboardKey}" Tag="b" Content="B" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="n" Content="N" Click="KeyboardKey_Click"/>
+                    <Button Style="{StaticResource KeyboardKey}" Tag="m" Content="M" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="." Content="." Click="KeyboardKey_Click"/>
+                    <Button Style="{StaticResource KeyboardKey}" Tag="-" Content="-" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="_" Content="_" Click="KeyboardKey_Click"/>
+                    <Button Style="{StaticResource KeyboardKey}" Tag="/" Content="/" Click="KeyboardKey_Click"/>
+                </WrapPanel>
+                <WrapPanel HorizontalAlignment="Center">
+                    <Button Style="{StaticResource KeyboardKey}" Tag="@" Content="@" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag=":" Content=":" Click="KeyboardKey_Click"/>
+                    <Button Style="{StaticResource KeyboardKey}" Tag=".com" Content=".com" Click="KeyboardKey_Click" Width="68"/>
+                    <Button Style="{StaticResource KeyboardKey}" Tag="space" Content="{local:Tr Ui171}" Click="KeyboardSpecialKey_Click" Width="240"/>
+                    <Button Style="{StaticResource KeyboardKey}" Tag="clear" Content="{local:Tr Ui170}" Click="KeyboardSpecialKey_Click" Width="72"/>
+                    <Button Style="{StaticResource KeyboardKey}" Tag="enter" Content="↵" Click="KeyboardSpecialKey_Click" Width="64"/>
+                </WrapPanel>
+                </StackPanel>
+            </StackPanel>
+        </Border>
     </Grid>
 </Window>

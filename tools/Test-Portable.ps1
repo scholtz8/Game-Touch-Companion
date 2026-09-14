@@ -30,7 +30,7 @@ $pe = [BitConverter]::ToInt32($bytes, 0x3c)
 if ([BitConverter]::ToUInt16($bytes, $pe + 4) -ne 0x8664) { throw 'WebView2 loader is not AMD64.' }
 $runtime = Get-Content -Raw -LiteralPath (Join-Path $packageRoot 'GameTouchCompanion.App.runtimeconfig.json') | ConvertFrom-Json
 if (!$runtime.runtimeOptions.includedFrameworks -or $runtime.runtimeOptions.framework -or $runtime.runtimeOptions.frameworks) { throw 'Not self-contained.' }
-foreach ($name in @('TouchTestPage/index.html','TouchTestPage/second.html','PORTABLE.md','PresentationFramework.dll','Microsoft.Web.WebView2.Wpf.dll')) {
+foreach ($name in @('TouchTestPage/index.html','TouchTestPage/second.html','TouchTestPage/blank.html','PORTABLE.md','PresentationFramework.dll','Microsoft.Web.WebView2.Wpf.dll')) {
     if (!(Test-Path -LiteralPath (Join-Path $packageRoot $name) -PathType Leaf)) { throw "Missing: $name" }
 }
 Write-Host "PASS: $($expected.Count) hashes, no unlisted files/user JSON/logs, AMD64 app/runtime/loader, self-contained config and required content."

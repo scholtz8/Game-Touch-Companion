@@ -993,13 +993,13 @@
     <value>Pestañas del perfil</value>
   </data>
   <data name="Ui152" xml:space="preserve">
-    <value>Define las páginas que se abrirán con este perfil. Marca una como principal para mostrarla primero.</value>
+    <value>Define las páginas que se abrirán con este perfil. El nombre de cada pestaña se obtiene automáticamente del título del sitio. Marca una como principal para mostrarla primero.</value>
   </data>
   <data name="Ui153" xml:space="preserve">
     <value>★ Principal</value>
   </data>
   <data name="Ui154" xml:space="preserve">
-    <value>Nombre de pestaña</value>
+    <value>Título automático del sitio</value>
   </data>
   <data name="Ui155" xml:space="preserve">
     <value>URL</value>
@@ -1071,12 +1071,33 @@
     <value>Página {0}</value>
   </data>
   <data name="Ui163" xml:space="preserve">
-    <value>Nueva pestaña temporal</value>
+    <value>Nueva pestaña</value>
   </data>
   <data name="Ui164" xml:space="preserve">
-    <value>Cerrar pestaña activa</value>
+    <value>Cerrar pestaña</value>
   </data>
   <data name="Ui165" xml:space="preserve">
     <value>Nueva pestaña</value>
+  </data>
+  <data name="Ui166" xml:space="preserve">
+    <value>Dirección web</value>
+  </data>
+  <data name="Ui167" xml:space="preserve">
+    <value>Ir</value>
+  </data>
+  <data name="Ui168" xml:space="preserve">
+    <value>Teclado táctil</value>
+  </data>
+  <data name="Ui169" xml:space="preserve">
+    <value>Ocultar teclado</value>
+  </data>
+  <data name="Ui170" xml:space="preserve">
+    <value>Limpiar</value>
+  </data>
+  <data name="Ui171" xml:space="preserve">
+    <value>Espacio</value>
+  </data>
+  <data name="Ui172" xml:space="preserve">
+    <value>Cambiar tamaño del teclado</value>
   </data>
 </root>

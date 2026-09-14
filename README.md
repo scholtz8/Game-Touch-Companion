@@ -249,3 +249,8 @@ Compatibility is not guaranteed for every game or website.
 ## License
 
 Game Touch Companion is licensed under the GNU General Public License v3.0 or later (`GPL-3.0-or-later`). See the [LICENSE](LICENSE) file for the complete license text.
+
+
+### Companion touch browsing
+
+The Companion uses browser-style compact tabs whose labels follow each website title, supports per-tab close controls and blank temporary tabs, includes an editable touch address bar, and provides an in-app bottom touch keyboard for web text fields without activating a separate OS keyboard window. Hiding the navigation toolbar also hides the tab strip.

@@ -13,8 +13,10 @@ namespace GameTouchCompanion.App;
 
 public partial class CompanionWindow : Window
 {
-    private sealed class TabRuntime(GameProfileTab definition)
+    private sealed class TabRuntime(GameProfileTab definition) : INotifyPropertyChanged
     {
+        private string title = BuildFallbackTabTitle(definition.Url);
+
         public GameProfileTab Definition { get; } = definition;
         public WebView2? View { get; set; }
         public CoreWebView2? Core { get; set; }
@@ -22,6 +24,20 @@ public partial class CompanionWindow : Window
         public string? LastNavigationTarget { get; set; }
         public ulong NavigationId { get; set; }
         public bool RequiresReopen { get; set; }
+        public string MessageToken { get; } = Guid.NewGuid().ToString("N");
+        public string Title
+        {
+            get => title;
+            set
+            {
+                var normalized = string.IsNullOrWhiteSpace(value) ? BuildFallbackTabTitle(CurrentUrl) : value.Trim();
+                if (string.Equals(title, normalized, StringComparison.Ordinal)) return;
+                title = normalized;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Title)));
+            }
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
     }
 
     private readonly BrowserViewModel viewModel;
@@ -171,7 +187,7 @@ public partial class CompanionWindow : Window
     private void RefreshTabList()
     {
         TabsList.ItemsSource = null;
-        TabsList.ItemsSource = sessionTabs.OrderBy(tab => tab.Order).ToList();
+        TabsList.ItemsSource = sessionTabs.OrderBy(tab => tab.Order).Select(tab => tabs[tab.Id]).ToList();
     }
 
     private async void AddTemporaryTab_Click(object sender, RoutedEventArgs e)
@@ -181,7 +197,7 @@ public partial class CompanionWindow : Window
         {
             Id = $"temp-{Guid.NewGuid():N}",
             Name = Localization.Get("Ui165"),
-            Url = viewModel.HomeUrl,
+            Url = BrowserUrlPolicy.BlankPageUrl,
             Order = sessionTabs.Count
         };
         sessionTabs.Add(definition);
@@ -191,23 +207,42 @@ public partial class CompanionWindow : Window
         Log.Information("Temporary Companion tab added. Tab={Tab}", definition.Id);
     }
 
-    private async void CloseActiveTab_Click(object sender, RoutedEventArgs e)
+    private async void CloseTab_Click(object sender, RoutedEventArgs e)
     {
-        if (activeTab is null || sessionTabs.Count <= 1) return;
-        var id = activeTab.Definition.Id;
+        if ((sender as FrameworkElement)?.Tag is not TabRuntime runtime) return;
+        await CloseTabAsync(runtime.Definition.Id);
+    }
+
+    private async Task CloseTabAsync(string id)
+    {
         var index = sessionTabs.FindIndex(tab => string.Equals(tab.Id, id, StringComparison.OrdinalIgnoreCase));
-        var nextIndex = index <= 0 ? 1 : index - 1;
-        var next = sessionTabs[nextIndex];
+        if (index < 0) return;
+
         if (tabs.Remove(id, out var runtime))
         {
             try { runtime.View?.Dispose(); } catch (Exception ex) { LogBrowserFailure("close-tab", ex); }
             if (runtime.View is not null) BrowserHost.Children.Remove(runtime.View);
         }
-        sessionTabs.RemoveAll(tab => string.Equals(tab.Id, id, StringComparison.OrdinalIgnoreCase));
+        sessionTabs.RemoveAt(index);
         for (var i = 0; i < sessionTabs.Count; i++) sessionTabs[i] = sessionTabs[i] with { Order = i };
         activeTab = null;
+
+        if (sessionTabs.Count == 0)
+        {
+            var replacement = new GameProfileTab
+            {
+                Id = $"temp-{Guid.NewGuid():N}",
+                Name = Localization.Get("Ui165"),
+                Url = BrowserUrlPolicy.BlankPageUrl,
+                Order = 0
+            };
+            sessionTabs.Add(replacement);
+            tabs[replacement.Id] = new TabRuntime(replacement);
+        }
+
         RefreshTabList();
-        await ActivateTabAsync(next.Id);
+        var nextIndex = Math.Clamp(index - 1, 0, sessionTabs.Count - 1);
+        await ActivateTabAsync(sessionTabs[nextIndex].Id);
         Log.Information("Companion tab closed. Tab={Tab}", id);
     }
 
@@ -219,8 +254,10 @@ public partial class CompanionWindow : Window
         if (activeTab?.View is not null) activeTab.View.Visibility = Visibility.Collapsed;
         activeTab = runtime;
         runtime.View!.Visibility = Visibility.Visible;
+        HideTouchKeyboard();
         viewModel.ReportReady();
         viewModel.ReportNavigation(runtime.CurrentUrl);
+        SyncAddressBar(runtime.CurrentUrl);
         UpdateHistory(runtime);
         ClearPageError();
         Log.Information("Companion tab activated. Profile={Profile}; Tab={Tab}; Url={Url}", activeProfile?.DisplayName ?? "manual", runtime.Definition.Name, runtime.CurrentUrl);
@@ -236,6 +273,7 @@ public partial class CompanionWindow : Window
         if (view.CoreWebView2 is null) throw new InvalidOperationException("WebView2 Core was not created.");
         runtime.Core = view.CoreWebView2;
         ConfigureBrowser(runtime.Core);
+        await InstallKeyboardBridgeAsync(runtime);
         var contentFolder = Path.Combine(AppContext.BaseDirectory, "TouchTestPage");
         runtime.Core.SetVirtualHostNameToFolderMapping("touch-test.local", contentFolder, CoreWebView2HostResourceAccessKind.Deny);
         AttachBrowserEvents(runtime);
@@ -247,7 +285,7 @@ public partial class CompanionWindow : Window
     {
         var settings = core.Settings;
         settings.AreHostObjectsAllowed = false;
-        settings.IsWebMessageEnabled = false;
+        settings.IsWebMessageEnabled = true;
         settings.IsStatusBarEnabled = false;
         settings.AreDefaultContextMenusEnabled = false;
         settings.AreDefaultScriptDialogsEnabled = false;
@@ -267,6 +305,8 @@ public partial class CompanionWindow : Window
         core.NavigationCompleted += (_, e) => NavigationCompleted(tab, e);
         core.SourceChanged += (_, _) => SourceChanged(tab);
         core.HistoryChanged += (_, _) => UpdateHistory(tab);
+        core.DocumentTitleChanged += (_, _) => UpdateDocumentTitle(tab);
+        core.WebMessageReceived += (_, e) => WebMessageReceived(tab, e);
         core.NewWindowRequested += (_, e) => NewWindowRequested(tab, e);
         core.DownloadStarting += (_, e) => { e.Cancel = true; e.Handled = true; ReportBlocked("download", "Las descargas están deshabilitadas en Companion."); };
         core.PermissionRequested += (_, e) => { e.State = CoreWebView2PermissionState.Deny; e.Handled = true; e.SavesInProfile = false; ReportBlocked("permission", "Se denegó un permiso solicitado por la página."); };
@@ -335,6 +375,7 @@ public partial class CompanionWindow : Window
     {
         if (isClosing || e.NavigationId != tab.NavigationId) return;
         UpdateHistory(tab);
+        UpdateDocumentTitle(tab);
         Log.Information("Browser navigation completed. Tab={Tab}; Success={Success}; Status={Status}; HttpStatus={HttpStatus}", tab.Definition.Name, e.IsSuccess, e.WebErrorStatus, e.HttpStatusCode);
         if (!ReferenceEquals(tab, activeTab)) return;
         if (!e.IsSuccess && e.WebErrorStatus != CoreWebView2WebErrorStatus.OperationCanceled)
@@ -348,7 +389,12 @@ public partial class CompanionWindow : Window
     {
         if (isClosing || tab.Core is null || !BrowserUrlPolicy.IsAllowed(tab.Core.Source)) return;
         tab.CurrentUrl = tab.Core.Source;
-        if (ReferenceEquals(tab, activeTab)) viewModel.ReportNavigation(tab.CurrentUrl);
+        if (string.IsNullOrWhiteSpace(tab.Core.DocumentTitle)) tab.Title = BuildFallbackTabTitle(tab.CurrentUrl);
+        if (ReferenceEquals(tab, activeTab))
+        {
+            viewModel.ReportNavigation(tab.CurrentUrl);
+            SyncAddressBar(tab.CurrentUrl);
+        }
     }
 
     private void UpdateHistory(TabRuntime tab)
@@ -400,7 +446,7 @@ public partial class CompanionWindow : Window
 
     private async void Tab_Click(object sender, RoutedEventArgs e)
     {
-        if ((sender as FrameworkElement)?.Tag is GameProfileTab tab) await ActivateTabAsync(tab.Id);
+        if ((sender as FrameworkElement)?.Tag is TabRuntime tab) await ActivateTabAsync(tab.Definition.Id);
     }
 
     private void ToggleProfiles_Click(object sender, RoutedEventArgs e)
@@ -446,7 +492,9 @@ public partial class CompanionWindow : Window
     {
         FavoritesPanel.Visibility = Visibility.Collapsed;
         ProfilesPanel.Visibility = Visibility.Collapsed;
-        await viewModel.SetToolbarVisibleAsync(!viewModel.ShowToolbar);
+        var visible = !viewModel.ShowToolbar;
+        await viewModel.SetToolbarVisibleAsync(visible);
+        if (!visible) HideTouchKeyboard();
         ApplyAppearance();
     }
     private void ToggleFavorites_Click(object sender, RoutedEventArgs e)
@@ -478,6 +526,22 @@ public partial class CompanionWindow : Window
             LogBrowserFailure(operation, ex);
             if (ReferenceEquals(tab, activeTab)) ShowError("No se pudo completar la navegación. Reintenta o cierra y vuelve a abrir Companion.");
         }
+    }
+
+    private static string BuildFallbackTabTitle(string? url)
+    {
+        if (string.Equals(url, BrowserUrlPolicy.BlankPageUrl, StringComparison.OrdinalIgnoreCase))
+            return Localization.Get("Ui165");
+        return Uri.TryCreate(url, UriKind.Absolute, out var uri) && !string.IsNullOrWhiteSpace(uri.Host)
+            ? uri.Host
+            : Localization.Get("Ui165");
+    }
+
+    private void UpdateDocumentTitle(TabRuntime tab)
+    {
+        if (tab.Core is null) return;
+        try { tab.Title = tab.Core.DocumentTitle; }
+        catch (Exception ex) { LogBrowserFailure("document-title", ex); }
     }
 
     private static void LogBrowserFailure(string operation, Exception ex) =>

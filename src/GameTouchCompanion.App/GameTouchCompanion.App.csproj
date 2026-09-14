@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -26,5 +26,6 @@
     <Resource Include="..\..\assets\branding\GameTouchCompanion_Icons\ICO\GameTouchCompanion.ico" Link="Assets\GameTouchCompanion.ico" />
     <Content Include="..\..\tools\TouchTestPage\index.html" Link="TouchTestPage\index.html" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <Content Include="..\..\tools\TouchTestPage\second.html" Link="TouchTestPage\second.html" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="..\..\tools\TouchTestPage\blank.html" Link="TouchTestPage\blank.html" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

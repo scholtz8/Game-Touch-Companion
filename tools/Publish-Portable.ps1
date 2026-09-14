@@ -11,7 +11,7 @@ $project = Join-Path $repo 'src/GameTouchCompanion.App/GameTouchCompanion.App.cs
 if ($LASTEXITCODE -ne 0) { throw "Publish failed; partial output retained at $output. No ZIP created." }
 foreach ($relative in @('GameTouchCompanion.App.exe','GameTouchCompanion.App.dll','GameTouchCompanion.App.runtimeconfig.json',
     'coreclr.dll','hostfxr.dll','hostpolicy.dll','PresentationFramework.dll','Microsoft.Web.WebView2.Wpf.dll',
-    'TouchTestPage/index.html','TouchTestPage/second.html')) {
+    'TouchTestPage/index.html','TouchTestPage/second.html','TouchTestPage/blank.html')) {
     if (!(Test-Path -LiteralPath (Join-Path $output $relative) -PathType Leaf)) { throw "Missing published file: $relative" }
 }
 if (!(Get-ChildItem -LiteralPath $output -Recurse -Filter WebView2Loader.dll)) { throw 'WebView2Loader.dll missing.' }

@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased — Touch browser UX
+
+### Added
+- Browser-style tab captions now follow the loaded website `document.title` with a host/new-tab fallback.
+- Each Companion tab has its own close button and new tabs open on a packaged blank page.
+- Editable Companion address bar with touch-friendly navigation; bare domains are promoted to HTTPS.
+- Built-in bottom touch keyboard for the Companion address bar and editable HTML fields.
+
+### Changed
+- Hiding the Companion toolbar now hides the tab strip as well.
+- Companion tabs use a substantially more compact browser-like size.
+- Profile tab configuration no longer asks the user to maintain a separate tab name; website titles are used at runtime.
+- Web messages are enabled only for the token-validated touch-keyboard visibility bridge.
+
+
 ## Unreleased
 
 ### Added
@@ -53,6 +68,8 @@
 
 ### Changed
 
+- UX de pestañas refinada: el botón `×` ahora vive dentro del mismo recuadro de cada pestaña, con apariencia más cercana a navegadores de escritorio.
+- Teclado táctil aumentado por defecto y nuevo control `A+`/`A−` para alternar un tamaño ampliado durante la sesión.
 - Revisión editorial completa del español visible: redacción más natural, `pantalla` como término consistente, `Autoarranque` → `apertura automática`, `Rearmar` → `restablecer apertura automática`, `foreground` → `primer plano`, y eliminación de anglicismos como `fallback`/`override` en la interfaz. Se simplificaron ayudas, estados, errores, perfiles, detección, bandeja y Personalización sin cambiar claves ni placeholders.
 - English UI copy received a full editorial pass for natural Windows-style phrasing rather than literal Spanish translation. `Configuration` is now `Settings` in user-facing English, display terminology is consistent, `Rearm` is presented as `Reset auto-launch`, and Personalization/help/error copy was simplified. Resource keys and format placeholders are unchanged.
 - The Spanish same-display testing label no longer says it shows a warning, matching the previously removed confirmation dialog.

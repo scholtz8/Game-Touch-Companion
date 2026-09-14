@@ -6,6 +6,7 @@ namespace GameTouchCompanion.Core;
 public static class BrowserUrlPolicy
 {
     public const string LocalHomeUrl = "https://touch-test.local/index.html";
+    public const string BlankPageUrl = "https://touch-test.local/blank.html";
     private const string LocalHost = "touch-test.local";
 
     public static bool IsAllowed(string? value) => TryNormalize(value, out _);
@@ -46,7 +47,7 @@ public static class BrowserUrlPolicy
             (!uri.IdnHost.Equals(LocalHost, StringComparison.OrdinalIgnoreCase) ||
              uri.Scheme != Uri.UriSchemeHttps ||
              !uri.IsDefaultPort ||
-             (uri.AbsolutePath != "/index.html" && uri.AbsolutePath != "/second.html")))
+             (uri.AbsolutePath != "/index.html" && uri.AbsolutePath != "/second.html" && uri.AbsolutePath != "/blank.html")))
         {
             return false;
         }
