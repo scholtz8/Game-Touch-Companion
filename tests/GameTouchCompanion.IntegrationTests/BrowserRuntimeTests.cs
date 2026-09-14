@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Windows.Controls;
 using System.Windows.Threading;
 using GameTouchCompanion.App;
 using GameTouchCompanion.Core;
@@ -30,7 +31,7 @@ public sealed class BrowserRuntimeTests
             var profiles = new ProfilesViewModel(new JsonGameProfileStore(Path.Combine(testDirectory, "profiles.json")));
             await profiles.InitializeAsync();
             profiles.DisplayName = "Runtime smoke";
-            profiles.Url = BrowserUrlPolicy.LocalHomeUrl;
+            profiles.Tabs[0].Url = BrowserUrlPolicy.LocalHomeUrl;
             await profiles.SaveAsync();
             Assert.False(profiles.HasError);
             await profiles.ApplyAsync(profile =>
@@ -48,9 +49,16 @@ public sealed class BrowserRuntimeTests
                 companion.ShowWithoutActivation();
                 await WaitUntilAsync(() => model.IsReady && model.CurrentUrl == BrowserUrlPolicy.LocalHomeUrl,
                     () => $"Local page did not initialize. {model.Status}");
-                var browser = Assert.IsType<WebView2>(companion.FindName("Browser"));
+                var host = Assert.IsType<Grid>(companion.FindName("BrowserHost"));
+                await WaitUntilAsync(() => host.Children.OfType<WebView2>().Any(view => view.CoreWebView2 is not null),
+                    () => "No WebView2 tab was initialized.");
+                var browser = Assert.Single(host.Children.OfType<WebView2>());
                 var core = browser.CoreWebView2;
                 Assert.NotNull(core);
+                // CurrentUrl now represents the selected tab target immediately, while WebView2 may
+                // still be completing its first navigation. Wait for the real document before starting
+                // the navigation lifecycle assertions below so the test does not cancel startup work.
+                await WaitForDocumentReadyAsync(core, BrowserUrlPolicy.LocalHomeUrl);
                 Assert.False(core.Settings.AreHostObjectsAllowed);
                 Assert.False(core.Settings.IsWebMessageEnabled);
                 Assert.False(core.Settings.AreDefaultScriptDialogsEnabled);
@@ -112,6 +120,29 @@ public sealed class BrowserRuntimeTests
             await Task.Delay(250);
             Assert.False(model.IsReady);
         }).WaitAsync(TimeSpan.FromSeconds(90));
+    }
+
+    private static async Task WaitForDocumentReadyAsync(CoreWebView2 core, string expectedUrl)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        while (stopwatch.Elapsed < TimeSpan.FromSeconds(20))
+        {
+            if (string.Equals(core.Source, expectedUrl, StringComparison.OrdinalIgnoreCase))
+            {
+                try
+                {
+                    var state = await core.ExecuteScriptAsync("document.readyState");
+                    if (state is "\"interactive\"" or "\"complete\"") return;
+                }
+                catch (InvalidOperationException)
+                {
+                    // WebView2 can reject script execution while the initial document is changing.
+                }
+            }
+            await Task.Delay(50);
+        }
+
+        Assert.Fail($"Initial WebView2 document did not become ready. Source={core.Source}");
     }
 
     private static async Task NavigateAsync(CoreWebView2 core, Action action, bool success = true)

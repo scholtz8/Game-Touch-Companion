@@ -9,11 +9,17 @@ public partial class App : Application
 {
     protected override async void OnStartup(StartupEventArgs e)
     {
-        var logDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "GameTouchCompanion", "Logs");
-        Directory.CreateDirectory(logDirectory);
+        var logDirectory = LogPathResolver.Resolve();
         Log.Logger = new LoggerConfiguration().MinimumLevel.Debug()
-            .WriteTo.File(Path.Combine(logDirectory, "app-.log"), rollingInterval: RollingInterval.Day)
+            .WriteTo.File(
+                Path.Combine(logDirectory, "app-.log"),
+                rollingInterval: RollingInterval.Day,
+                retainedFileCountLimit: 14,
+                fileSizeLimitBytes: 10 * 1024 * 1024,
+                rollOnFileSizeLimit: true,
+                flushToDiskInterval: TimeSpan.FromSeconds(2))
             .CreateLogger();
+        Log.Information("Logging initialized. Directory={LogDirectory}", logDirectory);
         Log.Information("Startup. Windows={Windows}; Runtime={Runtime}; AppVersion={AppVersion}",
             Environment.OSVersion,
             Environment.Version,

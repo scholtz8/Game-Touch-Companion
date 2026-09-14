@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using System.IO;
 using System.ComponentModel;
 using System.Reflection;
 using System.Windows;
@@ -88,6 +90,7 @@ public partial class MainWindow
     }
     private void ProfilesForGuideChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
     {
+        companion?.SetAvailableProfiles(profilesViewModel.Profiles);
         if (configurationReady) UpdateSetupGuide();
     }
     private void MonitorPreview_SizeChanged(object sender, SizeChangedEventArgs e) { if (configurationReady) DrawMonitorPreview(); }
@@ -120,6 +123,22 @@ public partial class MainWindow
         Localization.Text(MonitorPreviewLegend, () => Localization.T(legend.Count == 0 ? Localization.T("Sin pantallas para mostrar.") : string.Join("\n", legend)));
     }
     private void RefreshDiagnostics_Click(object sender, RoutedEventArgs e) => RefreshDiagnostics();
+    private void OpenLogs_Click(object sender, RoutedEventArgs e)
+    {
+        var path = LogPathResolver.Resolve();
+        try
+        {
+            Directory.CreateDirectory(path);
+            Process.Start(new ProcessStartInfo { FileName = path, UseShellExecute = true });
+            Serilog.Log.Information("Logs folder opened. Directory={LogDirectory}", path);
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Error(ex, "Could not open logs folder. Directory={LogDirectory}", path);
+            AppDialog.Show(Localization.T("No se pudo abrir la carpeta de logs. Revisa los logs manualmente."), "Game Touch Companion", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
     private void RefreshDiagnostics()
     {
         try

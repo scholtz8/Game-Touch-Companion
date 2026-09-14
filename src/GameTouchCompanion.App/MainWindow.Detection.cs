@@ -177,9 +177,15 @@ public partial class MainWindow
             EnsureAutomaticCandidate(game, cancellationToken);
             // No await or modal UI between final foreground validation and no-activate presentation.
             if (companion is not null) companion.PlaceOnMonitor(target);
-            browserViewModel.Navigate(game.Profile.Url);
             ShowCompanionOnSelectedMonitor();
-            Log.Information("Automatic profile opening completed. PID={PID}; HWND={HWND:X}", game.Process.ProcessId, game.Window.Handle);
+            if (companion is not null)
+            {
+                companion.SetAvailableProfiles(profilesViewModel.Profiles);
+                await companion.LoadProfileAsync(game.Profile);
+            }
+            else browserViewModel.Navigate(game.Profile.PrimaryTab.Url);
+            Log.Information("Automatic profile opening completed. PID={PID}; HWND={HWND:X}; Profile={Profile}; Tabs={TabCount}",
+                game.Process.ProcessId, game.Window.Handle, game.Profile.DisplayName, game.Profile.Tabs.Count);
         }
         finally { settingsOperationGate.Release(); if (!isClosed) ConfigurationTabs.IsEnabled = true; }
     }
@@ -189,7 +195,7 @@ public partial class MainWindow
         cancellationToken.ThrowIfCancellationRequested();
         if (isClosed) throw new OperationCanceledException(cancellationToken);
         _ = GameProfileValidation.Normalize(game.Profile);
-        if (!profilesViewModel.CanEdit || !profilesViewModel.Profiles.Contains(game.Profile) ||
+        if (!profilesViewModel.CanEdit || !profilesViewModel.Profiles.Any(p => string.Equals(p.Id, game.Profile.Id, StringComparison.OrdinalIgnoreCase)) ||
             profilesViewModel.Profiles.Count(p => p.AutoLaunch && string.Equals(p.ProcessName, game.Process.ProcessName, StringComparison.OrdinalIgnoreCase)) != 1)
             throw new InvalidDataException("El perfil cambió o la selección automática es ambigua.");
         if (!detectionSource.IsStillForeground(game))

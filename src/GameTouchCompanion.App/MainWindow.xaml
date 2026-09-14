@@ -332,7 +332,10 @@
               <TextBlock Text="{Binding MonitorStatus}" TextWrapping="Wrap" Margin="0,12"/>
               <TextBlock Text="{Binding SelectionReviewMessage}" TextWrapping="Wrap" Foreground="{Binding ConfigurationErrorForeground, Source={x:Static local:Appearance.Current}}"/>
               <TextBlock x:Name="DiagnosticsSnapshot" TextWrapping="Wrap" Margin="0,12"/>
-              <Button Content="{local:Tr Ui058}" Click="RefreshDiagnostics_Click" HorizontalAlignment="Left" Padding="14,10"/>
+              <WrapPanel>
+                  <Button Content="{local:Tr Ui058}" Click="RefreshDiagnostics_Click" HorizontalAlignment="Left" Padding="14,10" Margin="0,0,8,0"/>
+                  <Button Content="{local:Tr Ui162}" Click="OpenLogs_Click" HorizontalAlignment="Left" Padding="14,10"/>
+              </WrapPanel>
               <TextBlock Text="{local:Tr Ui059}" FontWeight="SemiBold" Margin="0,20,0,8"/>
               <TextBlock Text="{Binding Text, ElementName=DetectionStatus}" TextWrapping="Wrap"/>
               <TextBlock Text="{Binding Text, ElementName=DetectedGameText}" TextWrapping="Wrap" Margin="0,8"/>

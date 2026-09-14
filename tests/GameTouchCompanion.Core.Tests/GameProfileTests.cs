@@ -18,6 +18,9 @@ public sealed class GameProfileTests
         Assert.Equal("Juego", profile.DisplayName);
         Assert.Equal("Game.exe", profile.ProcessName);
         Assert.Equal("https://example.com/map", profile.Url);
+        Assert.Single(profile.Tabs);
+        Assert.Equal(profile.Tabs[0].Id, profile.PrimaryTabId);
+        Assert.Equal("https://example.com/map", profile.PrimaryTab.Url);
         Assert.Equal("DISPLAY2", profile.CompanionMonitor);
         Assert.True(profile.AutoLaunch);
         Assert.True(profile.NoActivate);
@@ -52,7 +55,7 @@ public sealed class GameProfileTests
     [Fact]
     public void RejectsFutureSchemaNullEntriesAndDuplicateIds()
     {
-        Assert.Throws<InvalidDataException>(() => GameProfileValidation.Normalize(new GameProfileDocument { SchemaVersion = 2 }));
+        Assert.Throws<InvalidDataException>(() => GameProfileValidation.Normalize(new GameProfileDocument { SchemaVersion = 3 }));
         Assert.Throws<InvalidDataException>(() => GameProfileValidation.Normalize(new GameProfileDocument { Profiles = [null!] }));
         Assert.Throws<InvalidDataException>(() => GameProfileValidation.Normalize(new GameProfileDocument { Profiles = [Valid(), Valid() with { Id = "TEST-GAME" }] }));
     }
@@ -72,8 +75,11 @@ public sealed class GameProfileTests
             var previousBrowser = await File.ReadAllTextAsync(browser.FilePath);
             await store.SaveAsync(new GameProfileDocument { Profiles = [Valid() with { AutoLaunch = true }] });
             var loaded = await store.LoadAsync();
-            Assert.True(Assert.Single(loaded.Profiles).AutoLaunch);
-            Assert.Equal(Valid() with { AutoLaunch = true }, loaded.Profiles[0]);
+            var loadedProfile = Assert.Single(loaded.Profiles);
+            Assert.True(loadedProfile.AutoLaunch);
+            Assert.Equal("test-game", loadedProfile.Id);
+            Assert.Single(loadedProfile.Tabs);
+            Assert.Equal(loadedProfile.PrimaryTab.Id, loadedProfile.PrimaryTabId);
             var before = await File.ReadAllTextAsync(store.FilePath);
             await Assert.ThrowsAnyAsync<OperationCanceledException>(() => store.SaveAsync(new GameProfileDocument(), new CancellationToken(true)));
             await Assert.ThrowsAsync<InvalidDataException>(() => store.SaveAsync(new GameProfileDocument { SchemaVersion = 99 }));
@@ -82,6 +88,28 @@ public sealed class GameProfileTests
             Assert.Empty((await store.LoadAsync()).Profiles);
             Assert.Equal(previousBrowser, await File.ReadAllTextAsync(browser.FilePath));
             Assert.Empty(Directory.GetFiles(folder, "*.tmp"));
+        }
+        finally { Directory.Delete(folder, recursive: true); }
+    }
+
+    [Fact]
+    public async Task SchemaOneProfilesAreMigratedToTabsAndPersistedAsSchemaTwo()
+    {
+        var folder = Path.Combine(Path.GetTempPath(), "GameTouchCompanion.Tests", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(folder);
+        try
+        {
+            var path = Path.Combine(folder, "profiles.json");
+            await File.WriteAllTextAsync(path, "{\"schemaVersion\":1,\"profiles\":[{\"id\":\"legacy\",\"displayName\":\"Legacy\",\"processName\":\"Game.exe\",\"url\":\"https://example.com/map\",\"noActivate\":true,\"restoreGameFocusFallback\":false}]}");
+            var store = new JsonGameProfileStore(path);
+            var document = await store.LoadAsync();
+            Assert.Equal(2, document.SchemaVersion);
+            var profile = Assert.Single(document.Profiles);
+            Assert.Single(profile.Tabs);
+            Assert.Equal("https://example.com/map", profile.PrimaryTab.Url);
+            var persisted = await File.ReadAllTextAsync(path);
+            Assert.Contains("\"schemaVersion\": 2", persisted);
+            Assert.Contains("\"tabs\"", persisted);
         }
         finally { Directory.Delete(folder, recursive: true); }
     }

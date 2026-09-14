@@ -75,6 +75,7 @@ public sealed class AutomaticOpeningTests
                 tabs.SelectedItem = main.FindName("ProfilesTab");
                 var panel = (ProfilesPanel)main.FindName("GameProfilesPanel");
                 var list = (ListBox)panel.FindName("ProfileList");
+                profile = Assert.Single(editor.Profiles);
                 list.SelectedItem = profile;
                 editor.DisplayName = "Unsaved UI draft";
                 list.SelectedItem = null;
@@ -90,7 +91,7 @@ public sealed class AutomaticOpeningTests
                 Assert.False(editor.HasUnsavedChanges);
                 // The overview reflects pending monitor review without clearing it.
                 monitors.RequireSelectionReview("UX review test");
-                Assert.Contains("revisa selección", ((TextBlock)main.FindName("SetupSummary")).Text);
+                Assert.Contains(Localization.Get("Message004"), ((TextBlock)main.FindName("SetupSummary")).Text);
                 Assert.True(monitors.IsSelectionReviewRequired);
                 monitors.ConfirmSelectionReview();
                 // Render Configuration surfaces for layout review, without screen capture or personal data.

@@ -2,17 +2,10 @@
 # Game Touch Companion
 # ============================================================
 
-# ------------------------------------------------------------
-# .NET / MSBuild
-# ------------------------------------------------------------
 **/[Bb]in/
 **/[Oo]bj/
 publish/
 *.binlog
-
-# ------------------------------------------------------------
-# IDE local state
-# ------------------------------------------------------------
 .vs/
 .idea/
 .vscode/
@@ -23,18 +16,10 @@ publish/
 *.sln.docstates
 *.DotSettings.user
 *.pubxml.user
-
-# ------------------------------------------------------------
-# Local .NET / NuGet state
-# ------------------------------------------------------------
 .dotnet/
 .dotnet-cli/
 .nuget/
 packages/
-
-# ------------------------------------------------------------
-# Tests / coverage
-# ------------------------------------------------------------
 TestResults/
 **/TestResults/
 *.trx
@@ -43,15 +28,7 @@ TestResults/
 coverage/
 coverage.*
 *.cobertura.xml
-
-# ------------------------------------------------------------
-# Generated artifacts
-# ------------------------------------------------------------
 artifacts/
-
-# ------------------------------------------------------------
-# WebView2 user data / cache
-# ------------------------------------------------------------
 **/*.WebView2/
 **/EBWebView/
 **/WebView2/
@@ -59,10 +36,6 @@ artifacts/
 **/Cache/
 **/Code Cache/
 **/GPUCache/
-
-# ------------------------------------------------------------
-# Logs / diagnostics / temporary files
-# ------------------------------------------------------------
 *.log
 *.dmp
 *.mdmp
@@ -72,10 +45,6 @@ artifacts/
 *.temp
 *.bak
 *.old
-
-# ------------------------------------------------------------
-# Local Game Touch Companion user data
-# ------------------------------------------------------------
 /settings.json
 /browser.json
 /profiles.json
@@ -83,10 +52,6 @@ artifacts/
 /appearance.json
 /Logs/
 /Diagnostics/
-
-# ------------------------------------------------------------
-# Local GPT / Codex development files
-# ------------------------------------------------------------
 GPT_HANDOFF.md
 GPT_HANDOFF.generated.md
 PROJECT_STATE.md
@@ -95,10 +60,6 @@ docs/*_COPY_REVIEW_*.md
 docs/UI_REVIEW_*.md
 .dev/
 CODEX_REPOSITORY_CLEANUP_INSTRUCTIONS.md
-
-# ------------------------------------------------------------
-# Secrets / private signing material
-# ------------------------------------------------------------
 .env
 .env.*
 !.env.example
@@ -109,67 +70,12 @@ CODEX_REPOSITORY_CLEANUP_INSTRUCTIONS.md
 secrets.json
 appsettings.Local.json
 appsettings.Development.local.json
-
-# ------------------------------------------------------------
-# Windows / macOS generated files
-# ------------------------------------------------------------
 Thumbs.db
 Thumbs.db:encryptable
 Desktop.ini
 .DS_Store
+.DS_Store
 $RECYCLE.BIN/
-
-# ------------------------------------------------------------
-# Archives
-# ------------------------------------------------------------
 *.zip
 *.7z
 *.rar
-
-# ------------------------------------------------------------
-# Windows packaging / MSIX / AppX
-# ------------------------------------------------------------
-AppPackages/
-BundleArtifacts/
-*.appx
-*.appxbundle
-*.msix
-*.msixbundle
-*.msixupload
-
-# ------------------------------------------------------------
-# Generated NuGet packages
-# ------------------------------------------------------------
-*.nupkg
-*.snupkg
-
-# ------------------------------------------------------------
-# Benchmarks / additional coverage
-# ------------------------------------------------------------
-BenchmarkDotNet.Artifacts/
-.coverage/
-*.lcov
-
-# ------------------------------------------------------------
-# Editor / merge temporary files
-# ------------------------------------------------------------
-*.swp
-*.swo
-*.orig
-*.rej
-*~
-
-# ------------------------------------------------------------
-# Additional IDE state
-# ------------------------------------------------------------
-*.userprefs
-*.pidb
-*.sdf
-*.opensdf
-_ReSharper*/
-
-# ------------------------------------------------------------
-# Windows crash / error reports
-# ------------------------------------------------------------
-*.wer
-*.crash

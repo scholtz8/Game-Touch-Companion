@@ -2,6 +2,8 @@ namespace GameTouchCompanion.Core;
 
 public static class GameProfileValidation
 {
+    public const int CurrentSchemaVersion = 2;
+
     public static GameProfile Normalize(GameProfile profile)
     {
         ArgumentNullException.ThrowIfNull(profile);
@@ -18,20 +20,64 @@ public static class GameProfileValidation
             throw new InvalidDataException("Usa solo el nombre del ejecutable terminado en .exe, sin ruta ni argumentos.");
         if (profile.AutoLaunch && process.Length == 0)
             throw new InvalidDataException("La opción de autoarranque requiere el nombre del ejecutable.");
-        if (!BrowserUrlPolicy.TryNormalize(profile.Url, out var url))
-            throw new InvalidDataException("La URL del mapa debe ser HTTP/HTTPS válida y sin credenciales.");
+
+        var tabs = NormalizeTabs(profile);
+        var primaryId = profile.PrimaryTabId;
+        if (string.IsNullOrWhiteSpace(primaryId) || !tabs.Any(tab => string.Equals(tab.Id, primaryId, StringComparison.OrdinalIgnoreCase)))
+            primaryId = tabs[0].Id;
+        var primary = tabs.First(tab => string.Equals(tab.Id, primaryId, StringComparison.OrdinalIgnoreCase));
+
         var monitor = string.IsNullOrWhiteSpace(profile.CompanionMonitor) ? null : profile.CompanionMonitor.Trim();
         if (monitor is not null && (monitor.Length > 128 || monitor.Any(char.IsControl)))
             throw new InvalidDataException("La preferencia de monitor no es válida.");
         if (!profile.NoActivate || profile.RestoreGameFocusFallback)
             throw new InvalidDataException("Los perfiles deben conservar NoActivate y no pueden restaurar el foco mediante fallback.");
-        return profile with { DisplayName = name, ProcessName = process, Url = url, CompanionMonitor = monitor };
+        return profile with
+        {
+            DisplayName = name,
+            ProcessName = process,
+            Url = primary.Url,
+            Tabs = tabs,
+            PrimaryTabId = primary.Id,
+            CompanionMonitor = monitor
+        };
+    }
+
+    private static List<GameProfileTab> NormalizeTabs(GameProfile profile)
+    {
+        var source = profile.Tabs ?? [];
+        if (source.Count == 0)
+        {
+            if (!BrowserUrlPolicy.TryNormalize(profile.Url, out var legacyUrl))
+                throw new InvalidDataException("El perfil debe contener al menos una URL HTTP/HTTPS válida y sin credenciales.");
+            return [new GameProfileTab { Id = "main", Name = "Principal", Url = legacyUrl, Order = 0 }];
+        }
+        if (source.Count > 20)
+            throw new InvalidDataException("Un perfil puede contener como máximo 20 pestañas.");
+
+        var ids = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var normalized = new List<GameProfileTab>(source.Count);
+        foreach (var (tab, index) in source.OrderBy(t => t.Order).Select((value, index) => (value, index)))
+        {
+            if (tab is null) throw new InvalidDataException("Una pestaña del perfil no puede ser null.");
+            var id = tab.Id?.Trim();
+            if (string.IsNullOrWhiteSpace(id) || id.Length > 80 ||
+                id.Any(c => !char.IsAsciiLetterOrDigit(c) && c is not '-' and not '_') || !ids.Add(id))
+                throw new InvalidDataException("Las pestañas deben tener identificadores válidos y únicos.");
+            var tabName = tab.Name?.Trim();
+            if (string.IsNullOrWhiteSpace(tabName) || tabName.Length > 80 || tabName.Any(char.IsControl))
+                throw new InvalidDataException("Cada pestaña debe tener un nombre de entre 1 y 80 caracteres.");
+            if (!BrowserUrlPolicy.TryNormalize(tab.Url, out var tabUrl))
+                throw new InvalidDataException("La URL de cada pestaña debe ser HTTP/HTTPS válida y sin credenciales.");
+            normalized.Add(tab with { Id = id, Name = tabName, Url = tabUrl, Order = index });
+        }
+        return normalized;
     }
 
     public static GameProfileDocument Normalize(GameProfileDocument? document)
     {
-        if (document is null || document.SchemaVersion != 1 || document.Profiles is null)
-            throw new InvalidDataException("profiles.json debe contener una colección válida con schemaVersion 1.");
+        if (document is null || document.Profiles is null || document.SchemaVersion is < 1 or > CurrentSchemaVersion)
+            throw new InvalidDataException("profiles.json contiene una versión de esquema no compatible.");
         var profiles = new List<GameProfile>();
         var ids = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (var profile in document.Profiles)
@@ -41,6 +87,6 @@ public static class GameProfileValidation
             if (!ids.Add(normalized.Id)) throw new InvalidDataException("Hay identificadores de perfil duplicados.");
             profiles.Add(normalized);
         }
-        return document with { Profiles = profiles };
+        return new GameProfileDocument { SchemaVersion = CurrentSchemaVersion, Profiles = profiles };
     }
 }

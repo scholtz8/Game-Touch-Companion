@@ -102,9 +102,13 @@ public partial class MainWindow : Window
             await RefreshMonitorsUnderGateAsync("profile application");
             await viewModel.ApplyProfileMonitorAsync(validated.CompanionMonitor);
             if (companion is not null && viewModel.SelectedCompanionMonitor is not null)
+            {
                 companion.PlaceOnMonitor(viewModel.SelectedCompanionMonitor);
-            browserViewModel.Navigate(validated.Url);
-            Log.Information("Saved game profile applied manually; detection paused");
+                companion.SetAvailableProfiles(profilesViewModel.Profiles);
+                await companion.LoadProfileAsync(validated);
+            }
+            else browserViewModel.Navigate(validated.PrimaryTab.Url);
+            Log.Information("Saved game profile applied manually. Profile={Profile}; Tabs={TabCount}", validated.DisplayName, validated.Tabs.Count);
         }
         finally { settingsOperationGate.Release(); ConfigurationTabs.IsEnabled = true; }
     }
@@ -229,7 +233,11 @@ public partial class MainWindow : Window
         if (isClosed || !viewModel.CanOpenCompanion || viewModel.SelectedCompanionMonitor is null) return;
         if (companion is null)
         {
-            companion = new CompanionWindow(viewModel.SelectedCompanionMonitor, browserViewModel, browserUserDataFolder);
+            companion = new CompanionWindow(viewModel.SelectedCompanionMonitor, browserViewModel, browserUserDataFolder)
+            {
+                SwitchProfileRequested = ApplyProfileAsync
+            };
+            companion.SetAvailableProfiles(profilesViewModel.Profiles);
             companion.Closed += (_, _) =>
             {
                 companion = null;
@@ -239,6 +247,7 @@ public partial class MainWindow : Window
         else
         {
             companion.PlaceOnMonitor(viewModel.SelectedCompanionMonitor);
+            companion.SetAvailableProfiles(profilesViewModel.Profiles);
         }
 
         companion.ShowWithoutActivation();

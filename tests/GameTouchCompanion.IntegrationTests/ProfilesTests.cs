@@ -8,6 +8,18 @@ namespace GameTouchCompanion.IntegrationTests;
 public sealed class ProfilesTests
 {
     [Fact]
+    public async Task InitializeCreatesCleanDefaultTabDraft()
+    {
+        var model = new ProfilesViewModel(new ProfileStore());
+        await model.InitializeAsync();
+
+        var tab = Assert.Single(model.Tabs);
+        Assert.True(tab.IsPrimary);
+        Assert.Equal(BrowserUrlPolicy.LocalHomeUrl, tab.Url);
+        Assert.False(model.HasUnsavedChanges);
+    }
+
+    [Fact]
     public async Task StartupPreferenceSurvivesSelectionRefreshProfileAndReload()
     {
         var store = new SettingsStore();
@@ -49,13 +61,13 @@ public sealed class ProfilesTests
         model.NewProfile(); model.DisplayName = "Dos";
         await model.SaveAsync();
         var second = model.SelectedProfile;
-        model.Url = "https://example.com/draft";
+        model.Tabs[0].Url = "https://example.com/draft";
         Assert.True(model.HasUnsavedChanges);
         model.SelectedProfile = first;
         Assert.True(model.DiscardConfirmation);
         Assert.Equal(second, model.SelectedProfile);
         model.CancelDiscard();
-        Assert.Equal("https://example.com/draft", model.Url);
+        Assert.Equal("https://example.com/draft", model.Tabs[0].Url);
         model.SelectedProfile = first;
         model.ConfirmDiscard();
         Assert.Equal(first, model.SelectedProfile);
@@ -107,7 +119,7 @@ public sealed class ProfilesTests
         await model.SaveAsync();
         Assert.Equal(saved.Id, Assert.Single(model.Profiles).Id);
         Assert.Equal("Dos", model.SelectedProfile!.DisplayName);
-        model.Url = "https://example.com/unsaved";
+        model.Tabs[0].Url = "https://example.com/unsaved";
         GameProfile? applied = null;
         await model.ApplyAsync(p => { applied = p; return Task.CompletedTask; });
         Assert.Equal(BrowserUrlPolicy.LocalHomeUrl, applied!.Url);
@@ -122,6 +134,29 @@ public sealed class ProfilesTests
         Assert.Empty(model.Profiles);
         Assert.Empty(store.Document.Profiles);
         Assert.Null(model.SelectedProfile);
+    }
+
+    [Fact]
+    public async Task ProfileEditorPersistsMultipleTabsOrderAndPrimarySelection()
+    {
+        var store = new ProfileStore();
+        var model = new ProfilesViewModel(store);
+        await model.InitializeAsync();
+        model.DisplayName = "Multi";
+        model.ProcessName = "Game.exe";
+        model.Tabs[0].Name = "Mapa";
+        model.Tabs[0].Url = "https://example.com/map";
+        model.AddTab();
+        model.Tabs[1].Name = "Wiki";
+        model.Tabs[1].Url = "https://example.com/wiki";
+        model.SetPrimary(model.Tabs[1]);
+        model.MoveTab(model.Tabs[1], -1);
+        await model.SaveAsync();
+        var saved = Assert.Single(store.Document.Profiles);
+        Assert.Equal(2, saved.Tabs.Count);
+        Assert.Equal("Wiki", saved.Tabs[0].Name);
+        Assert.Equal("Wiki", saved.PrimaryTab.Name);
+        Assert.Equal("https://example.com/wiki", saved.Url);
     }
 
     [Fact]

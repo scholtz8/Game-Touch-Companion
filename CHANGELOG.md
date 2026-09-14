@@ -4,6 +4,12 @@
 
 ### Added
 
+- Companion con múltiples pestañas: cada perfil puede guardar hasta 20 páginas, definir orden y pestaña principal; el Companion conserva un WebView2 independiente por pestaña creado de forma lazy para mantener el estado al alternar.
+- Cambio de perfil directamente desde Companion mediante panel táctil in-window, sin volver a Configuración. Cambiar de perfil reemplaza la sesión de pestañas actual por la definición guardada.
+- Pestañas temporales desde Companion con creación/cierre durante la sesión sin modificar el perfil guardado.
+- Migración automática de `profiles.json` schemaVersion 1 a schemaVersion 2 con `tabs` y `primaryTabId`, conservando la URL anterior como pestaña principal.
+- Logging persistente reforzado: carpeta `Logs` junto al ejecutable cuando es escribible, fallback a `%LOCALAPPDATA%`, rotación diaria, límite de 10 MB por archivo y retención de 14 archivos. Diagnóstico añade acceso para abrir la carpeta de logs.
+
 - Post-MVP etapa 1: preferencia persistente EnableDetectionOnStartup, false por defecto, aplicada una vez tras inicialización válida. Pausar/cerrar Companion no borra la preferencia. Plan de ampliaciones en docs/POST_MVP_PLAN.md; Windows/bandeja/idiomas/personalización siguen pendientes.
 
 - Iconos aportados por el usuario: paquete completo conservado en assets/branding, ICO multirresolución en el ejecutable y ventana Configuration. PNG/WindowsAssets reservados para uso posterior; no se modifica el portable ya entregado.
@@ -42,6 +48,7 @@
 
 ### Fixed
 
+- Corregido el estado inicial del editor de perfiles tras el upgrade multi-tab: ahora siempre crea una pestaña inicial limpia al cargar, conserva un baseline explícito del borrador y distingue correctamente entre borrador limpio, cambios pendientes y fallos de guardado. Esto evita colecciones de pestañas vacías y falsos positivos de cambios sin guardar.
 - Corregida la regresión del test de localización tras la revisión editorial: `LanguageStartupTests` ya no depende del antiguo prefijo `Link blocked:` / `Enlace bloqueado:` y compara el mensaje dinámico contra el recurso `Dynamic100` activo. No cambia comportamiento de producción.
 
 ### Changed

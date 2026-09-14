@@ -18,10 +18,17 @@ public sealed class JsonGameProfileStore : IGameProfileStore
         cancellationToken.ThrowIfCancellationRequested();
         try
         {
-            await using var stream = new FileStream(FilePath, FileMode.Open, FileAccess.Read, FileShare.Read,
-                4096, FileOptions.Asynchronous | FileOptions.SequentialScan);
-            return GameProfileValidation.Normalize(await JsonSerializer.DeserializeAsync<GameProfileDocument>(
-                stream, Options, cancellationToken).ConfigureAwait(false));
+            GameProfileDocument? document;
+            await using (var stream = new FileStream(FilePath, FileMode.Open, FileAccess.Read, FileShare.Read,
+                4096, FileOptions.Asynchronous | FileOptions.SequentialScan))
+            {
+                document = await JsonSerializer.DeserializeAsync<GameProfileDocument>(stream, Options, cancellationToken).ConfigureAwait(false);
+            }
+            var originalVersion = document?.SchemaVersion ?? 0;
+            var normalized = GameProfileValidation.Normalize(document);
+            if (originalVersion < GameProfileValidation.CurrentSchemaVersion)
+                await SaveAsync(normalized, cancellationToken).ConfigureAwait(false);
+            return normalized;
         }
         catch (FileNotFoundException) { return new GameProfileDocument(); }
         catch (DirectoryNotFoundException) { return new GameProfileDocument(); }
