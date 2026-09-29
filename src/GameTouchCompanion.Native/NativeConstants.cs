@@ -21,4 +21,5 @@ public static class NativeConstants
     public const uint SwpNoZOrder = 0x0004;
     public const uint MonitorInfoPrimary = 0x00000001;
     public const int CchDeviceName = 32;
+    public const uint EddGetDeviceInterfaceName = 0x00000001;
 }

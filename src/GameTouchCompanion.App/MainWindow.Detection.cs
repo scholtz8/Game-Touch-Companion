@@ -14,6 +14,7 @@ public partial class MainWindow
     private CancellationTokenSource? detectionCancellation;
     private Task detectionTask = Task.CompletedTask;
     private bool isClosed;
+    private DetectedGame? sampledGame;
     private GameProcessInfo? sampledProcess;
     private bool sampledForeground;
     private int sampledLosses;
@@ -21,6 +22,11 @@ public partial class MainWindow
     private string lastDetectionStatusLog = string.Empty;
     private string lastDetectionNoticeLog = string.Empty;
     private bool detectionNoticeHasError;
+    private DetectedGame? companionAssociatedGame;
+    private GameProcessInfo? failedAutomaticProcess;
+    private DateTimeOffset automaticRetryAfterUtc = DateTimeOffset.MinValue;
+
+    internal bool IsDetectionRunning => detectionCancellation is { IsCancellationRequested: false };
 
     private void SetDetectionStatus(string message, bool error = false)
     {
@@ -59,19 +65,14 @@ public partial class MainWindow
         DetectionErrorPanel.Visibility = Visibility.Collapsed;
     }
 
-    private void DetectionEnabled_Changed(object sender, RoutedEventArgs e)
+    private void StartDetection()
     {
-        tray?.UpdateDetection(DetectionEnabledCheck.IsChecked == true);
-        detectionCancellation?.Cancel();
+        if (isClosed || detectionCancellation is { IsCancellationRequested: false }) return;
         detectionCancellation?.Dispose();
-        detectionCancellation = null;
-        if (isClosed || DetectionEnabledCheck.IsChecked != true)
-        {
-            SetDetectionStatus("Detección pausada. No se abrirá Companion automáticamente.");
-            return;
-        }
         detectionCancellation = new CancellationTokenSource();
+        SetDetectionStatus("Detección activa. Esperando un juego configurado.");
         detectionTask = StartDetectionAfterAsync(detectionTask, detectionCancellation.Token);
+        Log.Information("Automatic game detection started and will remain active while Game Touch Companion is running");
     }
 
     private async Task StartDetectionAfterAsync(Task previousTask, CancellationToken cancellationToken)
@@ -81,6 +82,7 @@ public partial class MainWindow
             await previousTask;
             cancellationToken.ThrowIfCancellationRequested();
             detectionTracker.ClearObservation();
+            sampledGame = null;
             sampledProcess = null;
             sampledForeground = false;
             while (!cancellationToken.IsCancellationRequested)
@@ -99,20 +101,28 @@ public partial class MainWindow
                         captureFailureLogged = false;
                         var decision = detectionTracker.Observe(snapshot, profiles);
                         ShowDetectionState(decision, snapshot.ForegroundWindow);
-                        if (decision.ShouldLaunch && decision.Game is not null)
+                        if (decision.ShouldLaunch && decision.Game is not null && CanRetryAutomaticOpening(decision.Game.Process))
                         {
-                            detectionTracker.MarkAttempted(decision.Game);
                             try
                             {
                                 await OpenDetectedGameAsync(decision.Game, cancellationToken);
-                                SetDetectionNotice("Perfil aplicado y Companion abierto sin activación. La instancia no se reabrirá automáticamente.");
+                                detectionTracker.MarkAttended(decision.Game);
+                                companionAssociatedGame = decision.Game;
+                                failedAutomaticProcess = null;
+                                automaticRetryAfterUtc = DateTimeOffset.MinValue;
+                                SetDetectionNotice("Perfil aplicado y Companion abierto sin activación. Esta instancia quedó atendida y no se reabrirá automáticamente.");
                             }
                             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { throw; }
-                            catch (InvalidDataException ex) { SetDetectionNotice(Localization.T(ex.Message) + Localization.T(" Corrige la situación y pulsa Rearmar."), warning: true); }
+                            catch (InvalidDataException ex)
+                            {
+                                DelayAutomaticRetry(decision.Game.Process);
+                                SetDetectionNotice(Localization.T(ex.Message) + Localization.T(" La detección sigue activa y volverá a intentarlo automáticamente."), warning: true);
+                            }
                             catch (Exception ex)
                             {
+                                DelayAutomaticRetry(decision.Game.Process);
                                 Log.Warning("Automatic Companion opening failed. Type={Type}; Code={Code}", ex.GetType().Name, ex.HResult);
-                                SetDetectionNotice("No se pudo abrir Companion automáticamente. Revisa configuración/runtime y pulsa Rearmar.", warning: true);
+                                SetDetectionNotice("No se pudo abrir Companion automáticamente. La detección sigue activa y volverá a intentarlo.", warning: true);
                             }
                         }
                     }
@@ -120,12 +130,13 @@ public partial class MainWindow
                     catch (Exception ex)
                     {
                         detectionTracker.ClearObservation();
+                        sampledGame = null;
                         sampledProcess = null;
                         sampledForeground = false;
                         if (!captureFailureLogged) Log.Warning("Detection capture failed. Type={Type}; Code={Code}", ex.GetType().Name, ex.HResult);
                         captureFailureLogged = true;
                         Localization.Text(DetectedGameText, () => Localization.T("Muestra no disponible; no se aplicará ningún perfil."));
-                        SetDetectionStatus("No se pudo consultar el escritorio. Se intentará de nuevo sin elevar permisos.", error: true);
+                        SetDetectionStatus("No se pudo consultar el escritorio. La detección sigue activa y volverá a intentarlo sin elevar permisos.", error: true);
                     }
                 }
                 await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
@@ -134,10 +145,20 @@ public partial class MainWindow
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { }
     }
 
+    private bool CanRetryAutomaticOpening(GameProcessInfo process) =>
+        failedAutomaticProcess != process || DateTimeOffset.UtcNow >= automaticRetryAfterUtc;
+
+    private void DelayAutomaticRetry(GameProcessInfo process)
+    {
+        failedAutomaticProcess = process;
+        automaticRetryAfterUtc = DateTimeOffset.UtcNow.AddSeconds(10);
+    }
+
     private void ShowDetectionState(DetectionDecision decision, nint foreground)
     {
         SetDetectionStatus(decision.Status);
         var game = decision.Game;
+        sampledGame = game;
         if (game is not null)
         {
             if (sampledProcess == game.Process && sampledForeground && !decision.IsForeground) sampledLosses++;
@@ -163,17 +184,21 @@ public partial class MainWindow
         try
         {
             EnsureAutomaticCandidate(game, cancellationToken);
+            if (!runtimeAvailable)
+                throw new InvalidDataException("WebView2 Runtime no está disponible; instala el runtime para permitir la apertura automática de Companion.");
             if (!viewModel.CanOpenCompanion || viewModel.IsSelectionReviewRequired)
                 throw new InvalidDataException("Revisa y confirma la selección de Pantallas; la detección no puede omitir ese bloqueo.");
             await RefreshMonitorsUnderGateAsync("automatic game detection");
             cancellationToken.ThrowIfCancellationRequested();
-            var target = string.IsNullOrWhiteSpace(game.Profile.CompanionMonitor) ? viewModel.SelectedCompanionMonitor :
-                viewModel.Monitors.FirstOrDefault(m => string.Equals(m.DeviceName, game.Profile.CompanionMonitor, StringComparison.OrdinalIgnoreCase));
-            if (target is null) throw new InvalidDataException("El monitor preferido no está conectado.");
-            if (target == viewModel.SelectedGameMonitor || GameDetectionTracker.Intersects(target.Bounds, game.Window.Bounds))
+            var target = string.IsNullOrWhiteSpace(game.Profile.CompanionMonitor)
+                ? viewModel.SelectedCompanionMonitor
+                : viewModel.ResolveMonitorReference(game.Profile.CompanionMonitor);
+            if (target is null) throw new InvalidDataException("El monitor preferido no está conectado. Se conserva su identificador persistente y no se sustituirá por otra pantalla.");
+            if ((viewModel.SelectedGameMonitor is not null && MonitorSelectionService.IdentityEquals(target, viewModel.SelectedGameMonitor)) ||
+                GameDetectionTracker.Intersects(target.Bounds, game.Window.Bounds))
                 throw new InvalidDataException("La apertura automática exige una pantalla distinta que no cubra la ventana del juego, incluso con override de pruebas.");
             EnsureAutomaticCandidate(game, cancellationToken);
-            await viewModel.ApplyProfileMonitorAsync(target.DeviceName, cancellationToken);
+            await viewModel.ApplyProfileMonitorAsync(target.IdentityKey, cancellationToken);
             EnsureAutomaticCandidate(game, cancellationToken);
             // No await or modal UI between final foreground validation and no-activate presentation.
             if (companion is not null) companion.PlaceOnMonitor(target);
@@ -205,16 +230,33 @@ public partial class MainWindow
     private void RearmDetection_Click(object sender, RoutedEventArgs e)
     {
         detectionTracker.Reset();
+        sampledGame = null;
         sampledProcess = null;
         sampledForeground = false;
         sampledLosses = 0;
-        SetDetectionNotice("Rearmado. Activa la detección si está pausada y vuelve al juego para dos muestras estables.");
+        failedAutomaticProcess = null;
+        automaticRetryAfterUtc = DateTimeOffset.MinValue;
+        SetDetectionNotice("Apertura automática restablecida. La detección sigue activa; vuelve al juego para obtener dos muestras estables.");
     }
 
-    private void PauseDetection(string reason)
+    private void MarkCompanionDismissedByUser()
     {
-        detectionCancellation?.Cancel();
-        DetectionEnabledCheck.IsChecked = false;
-        SetDetectionNotice(reason);
+        // Prefer the instance that actually opened/reused Companion. If Companion was opened
+        // manually, fall back to the latest configured game sampled in foreground. Mark only
+        // one instance so dismissing one game never suppresses auto-opening another game.
+        var dismissed = companionAssociatedGame ?? (sampledForeground ? sampledGame : null);
+        if (dismissed is not null)
+        {
+            detectionTracker.MarkDismissed(dismissed);
+            Log.Information("Companion dismissed for game instance. Process={Process}; PID={PID}; Started={Started}",
+                dismissed.Process.ProcessName, dismissed.Process.ProcessId, dismissed.Process.StartTimeUtcTicks);
+        }
+
+        companionAssociatedGame = null;
+        failedAutomaticProcess = null;
+        automaticRetryAfterUtc = DateTimeOffset.MinValue;
+        SetDetectionNotice(dismissed is not null
+            ? "Companion cerrado. La detección sigue activa, pero esta instancia del juego quedó descartada y no se reabrirá automáticamente."
+            : "Companion cerrado. La detección sigue activa y continuará esperando juegos configurados.");
     }
 }

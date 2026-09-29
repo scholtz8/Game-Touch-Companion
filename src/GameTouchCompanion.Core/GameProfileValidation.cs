@@ -28,7 +28,7 @@ public static class GameProfileValidation
         var primary = tabs.First(tab => string.Equals(tab.Id, primaryId, StringComparison.OrdinalIgnoreCase));
 
         var monitor = string.IsNullOrWhiteSpace(profile.CompanionMonitor) ? null : profile.CompanionMonitor.Trim();
-        if (monitor is not null && (monitor.Length > 128 || monitor.Any(char.IsControl)))
+        if (monitor is not null && (monitor.Length > 512 || monitor.Any(char.IsControl)))
             throw new InvalidDataException("La preferencia de monitor no es válida.");
         if (!profile.NoActivate || profile.RestoreGameFocusFallback)
             throw new InvalidDataException("Los perfiles deben conservar NoActivate y no pueden restaurar el foco mediante fallback.");

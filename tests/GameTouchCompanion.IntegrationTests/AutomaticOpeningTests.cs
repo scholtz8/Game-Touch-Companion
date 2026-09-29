@@ -11,26 +11,23 @@ public sealed class AutomaticOpeningTests
 {
     [DesktopBrowserFact]
     [Trait("Category", "BrowserRuntime")]
-    public async Task SavedStartupPreferenceEnablesDetectionOnceWithoutOpeningWithoutGame()
+    public async Task DetectionAlwaysStartsWithoutOpeningCompanionWhenNoGameIsRunning()
     {
         await BrowserRuntimeTests.RunOnStaAsync(async () =>
         {
             var folder = Path.Combine(AppContext.BaseDirectory, "StartupSmoke", Guid.NewGuid().ToString("N"));
-            var settings = new TestSettings(true);
-            var main = new MainWindow(new TestMonitors(), settings,
+            var source = new ControlledSource();
+            var main = new MainWindow(new TestMonitors(), new TestSettings(),
                 new JsonBrowserSettingsStore(Path.Combine(folder, "browser.json")),
-                new JsonGameProfileStore(Path.Combine(folder, "profiles.json")), new ControlledSource(), Path.Combine(folder, "webview-profile"));
+                new JsonGameProfileStore(Path.Combine(folder, "profiles.json")), source, Path.Combine(folder, "webview-profile"));
             try
             {
                 main.ShowActivated = false;
                 main.Show();
-                var toggle = (CheckBox)main.FindName("DetectionEnabledCheck");
-                await BrowserRuntimeTests.WaitUntilAsync(() => toggle.IsChecked == true, () => "Startup detection was not enabled.");
+                await BrowserRuntimeTests.WaitUntilAsync(() => main.IsDetectionRunning, () => "Automatic detection did not start.");
+                Assert.Null(main.FindName("DetectionEnabledCheck"));
+                Assert.Null(main.FindName("StartupDetectionCheck"));
                 Assert.Null(main.CurrentCompanion);
-                toggle.IsChecked = false;
-                main.RaiseEvent(new System.Windows.RoutedEventArgs(System.Windows.FrameworkElement.LoadedEvent));
-                Assert.False(toggle.IsChecked);
-                Assert.True((await settings.LoadAsync()).EnableDetectionOnStartup);
             }
             finally { main.Close(); }
         }).WaitAsync(TimeSpan.FromSeconds(60));
@@ -44,7 +41,7 @@ public sealed class AutomaticOpeningTests
         {
             var folder = Path.Combine(AppContext.BaseDirectory, "DetectionSmoke", Guid.NewGuid().ToString("N"));
             var monitorService = new TestMonitors();
-            var profile = new GameProfile { DisplayName = "Test game", ProcessName = "TestGame.exe", AutoLaunch = true, CompanionMonitor = "TEST_COMPANION" };
+            var profile = new GameProfile { DisplayName = "Test game", ProcessName = "TestGame.exe", AutoLaunch = true, CompanionMonitor = "TEST_COMPANION_ID" };
             var profileStore = new JsonGameProfileStore(Path.Combine(folder, "profiles.json"));
             await profileStore.SaveAsync(new GameProfileDocument { Profiles = [profile] });
             var source = new ControlledSource();
@@ -58,14 +55,12 @@ public sealed class AutomaticOpeningTests
                 var monitors = (MainWindowViewModel)main.DataContext;
                 var browser = (BrowserViewModel)((BrowserSettingsPanel)main.FindName("BrowserPanel")).DataContext;
                 await BrowserRuntimeTests.WaitUntilAsync(() => editor.CanEdit && monitors.CanOpenCompanion, () => "Configuration did not initialize.");
-                Assert.False(((CheckBox)main.FindName("DetectionEnabledCheck")).IsChecked);
                 var tabs = (TabControl)main.FindName("ConfigurationTabs");
-                Assert.Equal(8, tabs.Items.Count);
+                Assert.Equal(7, tabs.Items.Count);
                 Assert.Same(main.FindName("SetupTab"), tabs.SelectedItem);
                 Assert.Null(main.FindName("SetupNext"));
                 Assert.NotEmpty(((TextBlock)main.FindName("SetupSummary")).Text);
                 Assert.Null(main.CurrentCompanion);
-                Assert.False(((CheckBox)main.FindName("DetectionEnabledCheck")).IsChecked);
                 tabs.SelectedItem = main.FindName("ScreensTab");
                 main.UpdateLayout();
                 Assert.Equal(2, ((Canvas)main.FindName("MonitorPreviewCanvas")).Children.Count);
@@ -139,7 +134,49 @@ public sealed class AutomaticOpeningTests
                 Assert.Equal("TEST_COMPANION", monitors.SelectedCompanionMonitor!.DeviceName);
                 main.CurrentCompanion!.Close();
                 Assert.Null(main.CurrentCompanion);
-                Assert.False(((CheckBox)main.FindName("DetectionEnabledCheck")).IsChecked);
+            }
+            finally { main.Close(); }
+        }).WaitAsync(TimeSpan.FromSeconds(90));
+    }
+
+    [DesktopBrowserFact]
+    [Trait("Category", "BrowserRuntime")]
+    public async Task ClosingCompanionDismissesCurrentInstanceButRestartedGameCanOpenAgain()
+    {
+        await BrowserRuntimeTests.RunOnStaAsync(async () =>
+        {
+            var folder = Path.Combine(AppContext.BaseDirectory, "DetectionDismissSmoke", Guid.NewGuid().ToString("N"));
+            var profile = new GameProfile
+            {
+                DisplayName = "Test game",
+                ProcessName = "TestGame.exe",
+                AutoLaunch = true,
+                CompanionMonitor = "TEST_COMPANION"
+            };
+            var profileStore = new JsonGameProfileStore(Path.Combine(folder, "profiles.json"));
+            await profileStore.SaveAsync(new GameProfileDocument { Profiles = [profile] });
+            var source = new ControlledSource();
+            source.SetGame(new GameProcessInfo(123, "TestGame.exe", 1000), 456);
+            var main = new MainWindow(new TestMonitors(), new TestSettings(),
+                new JsonBrowserSettingsStore(Path.Combine(folder, "browser.json")), profileStore, source, Path.Combine(folder, "webview-profile"));
+            try
+            {
+                main.ShowActivated = false;
+                main.Show();
+                await BrowserRuntimeTests.WaitUntilAsync(() => main.IsDetectionRunning && main.CurrentCompanion is not null,
+                    () => "First game instance did not open Companion.");
+
+                main.CurrentCompanion!.Close();
+                Assert.Null(main.CurrentCompanion);
+                Assert.True(main.IsDetectionRunning);
+
+                await Task.Delay(TimeSpan.FromSeconds(5));
+                Assert.Null(main.CurrentCompanion);
+
+                source.SetGame(new GameProcessInfo(124, "TestGame.exe", 2000), 457);
+                await BrowserRuntimeTests.WaitUntilAsync(() => main.CurrentCompanion is not null,
+                    () => "Restarted game instance did not open Companion.");
+                Assert.True(main.IsDetectionRunning);
             }
             finally { main.Close(); }
         }).WaitAsync(TimeSpan.FromSeconds(90));
@@ -148,21 +185,34 @@ public sealed class AutomaticOpeningTests
     // Simulated game/monitors isolate automation policy; real WPF/WebView2 are exercised, not physical focus.
     private sealed class ControlledSource : IGameDetectionSource
     {
+        private GameDetectionSnapshot snapshot = new([], [], 0);
         public bool Current { get; set; } = true;
-        public GameDetectionSnapshot Capture(IReadOnlyCollection<string> names) => new([], [], 0);
+        public GameDetectionSnapshot Capture(IReadOnlyCollection<string> names) => snapshot;
         public bool IsStillForeground(DetectedGame game) => Current;
+        public void SetGame(GameProcessInfo process, nint windowHandle)
+        {
+            var window = new ProcessWindowInfo(windowHandle, process.ProcessId, new DisplayRect(0, 0, 500, 500), true, false, false, false);
+            snapshot = new([process], [window], windowHandle);
+        }
     }
     private sealed class TestMonitors : IMonitorService
     {
         public IReadOnlyList<MonitorProfile> GetMonitors() =>
         [
-            new("TEST_GAME", new DisplayRect(0, 0, 600, 600), new DisplayRect(0, 0, 600, 600), true),
-            new("TEST_COMPANION", new DisplayRect(600, 0, 800, 700), new DisplayRect(600, 0, 800, 700), false),
+            new("TEST_GAME", new DisplayRect(0, 0, 600, 600), new DisplayRect(0, 0, 600, 600), true, "TEST_GAME_ID", "Test game display"),
+            new("TEST_COMPANION", new DisplayRect(600, 0, 800, 700), new DisplayRect(600, 0, 800, 700), false, "TEST_COMPANION_ID", "Test companion display"),
         ];
     }
-    private sealed class TestSettings(bool startup = false) : IApplicationSettingsStore
+    private sealed class TestSettings : IApplicationSettingsStore
     {
-        private ApplicationSettings value = new() { GameMonitorDeviceName = "TEST_GAME", CompanionMonitorDeviceName = "TEST_COMPANION", AllowSameMonitorForTesting = true, EnableDetectionOnStartup = startup };
+        private ApplicationSettings value = new()
+        {
+            GameMonitorId = "TEST_GAME_ID",
+            CompanionMonitorId = "TEST_COMPANION_ID",
+            GameMonitorDeviceName = "TEST_GAME",
+            CompanionMonitorDeviceName = "TEST_COMPANION",
+            AllowSameMonitorForTesting = true
+        };
         public string FilePath => "memory";
         public Task<ApplicationSettings> LoadAsync(CancellationToken cancellationToken = default) => Task.FromResult(value);
         public Task SaveAsync(ApplicationSettings settings, CancellationToken cancellationToken = default) { value = settings; return Task.CompletedTask; }

@@ -20,34 +20,23 @@ public sealed class ProfilesTests
     }
 
     [Fact]
-    public async Task StartupPreferenceSurvivesSelectionRefreshProfileAndReload()
+    public async Task TrayPreferencesSurviveSelectionRefreshProfileAndReload()
     {
         var store = new SettingsStore();
         var model = new MainWindowViewModel(new Monitors(), store, new MonitorSelectionService());
-        await Assert.ThrowsAsync<InvalidDataException>(() => model.SetDetectionOnStartupAsync(true));
         await model.InitializeAsync();
-        Assert.False(model.EnableDetectionOnStartup);
-        await model.SetDetectionOnStartupAsync(true);
         await model.SetTrayPreferencesAsync(true, true);
         await model.RefreshAsync();
         await model.ApplySelectionAsync();
         await model.ApplyProfileMonitorAsync("DISPLAY3");
-        Assert.True(store.Settings.EnableDetectionOnStartup);
         var reloaded = new MainWindowViewModel(new Monitors(), store, new MonitorSelectionService());
         await reloaded.InitializeAsync();
-        Assert.True(reloaded.EnableDetectionOnStartup);
         Assert.True(reloaded.StartMinimizedToTray);
         Assert.True(reloaded.CloseToTray);
         store.FailSave = true;
         await Assert.ThrowsAsync<IOException>(() => reloaded.SetTrayPreferencesAsync(false, false));
         Assert.True(reloaded.StartMinimizedToTray);
         Assert.True(reloaded.CloseToTray);
-        await Assert.ThrowsAsync<IOException>(() => reloaded.SetDetectionOnStartupAsync(false));
-        Assert.True(reloaded.EnableDetectionOnStartup);
-        Assert.True(store.Settings.EnableDetectionOnStartup);
-        store.FailSave = false;
-        await reloaded.SetDetectionOnStartupAsync(false);
-        Assert.False(store.Settings.EnableDetectionOnStartup);
     }
 
     [Fact]
@@ -205,6 +194,78 @@ public sealed class ProfilesTests
         Assert.True(model.HasError);
     }
 
+
+
+    [Fact]
+    public async Task MissingPersistentMonitorCannotBeAcceptedAsFallbackWithoutExplicitReselection()
+    {
+        var store = new SettingsStore
+        {
+            Settings = new ApplicationSettings
+            {
+                GameMonitorId = "MONITOR-1",
+                CompanionMonitorId = "MONITOR-MISSING",
+                CompanionMonitorDeviceName = "DISPLAY2",
+            }
+        };
+        var model = new MainWindowViewModel(new Monitors(), store, new MonitorSelectionService());
+
+        await model.InitializeAsync();
+
+        Assert.True(model.IsSelectionReviewRequired);
+        Assert.False(model.CanOpenCompanion);
+        Assert.False(model.ConfirmSelectionReview());
+        Assert.False(model.CanOpenCompanion);
+        Assert.Equal("MONITOR-MISSING", store.Settings.CompanionMonitorId);
+
+        model.SelectedCompanionMonitor = model.Monitors.Single(m => m.StableId == "MONITOR-2");
+        await model.ApplySelectionAsync();
+        Assert.True(model.ConfirmSelectionReview());
+        Assert.True(model.CanOpenCompanion);
+        Assert.Equal("MONITOR-2", store.Settings.CompanionMonitorId);
+    }
+
+    [Fact]
+    public async Task LegacyProfileMonitorAliasMigratesToPersistentIdentity()
+    {
+        var store = new ProfileStore();
+        var model = new ProfilesViewModel(store);
+        await model.InitializeAsync();
+        model.DisplayName = "Legacy monitor profile";
+        model.CompanionMonitor = "DISPLAY2";
+        await model.SaveAsync();
+
+        var migrated = await model.MigrateLegacyMonitorReferencesAsync(reference =>
+            string.Equals(reference, "DISPLAY2", StringComparison.OrdinalIgnoreCase) ? "MONITOR-2" : null);
+
+        Assert.Equal(1, migrated);
+        Assert.Equal("MONITOR-2", Assert.Single(store.Document.Profiles).CompanionMonitor);
+        Assert.Equal("MONITOR-2", Assert.Single(model.Profiles).CompanionMonitor);
+        Assert.Equal("MONITOR-2", model.CompanionMonitor);
+    }
+
+
+    [Fact]
+    public async Task LegacyMonitorMigrationDoesNotOverwriteDirtyDraft()
+    {
+        var store = new ProfileStore();
+        var model = new ProfilesViewModel(store);
+        await model.InitializeAsync();
+        model.DisplayName = "Legacy monitor profile";
+        model.CompanionMonitor = "DISPLAY2";
+        await model.SaveAsync();
+
+        model.DisplayName = "Unsaved user edit";
+        Assert.True(model.HasUnsavedChanges);
+
+        var migrated = await model.MigrateLegacyMonitorReferencesAsync(reference =>
+            string.Equals(reference, "DISPLAY2", StringComparison.OrdinalIgnoreCase) ? "MONITOR-2" : null);
+
+        Assert.Equal(0, migrated);
+        Assert.Equal("Unsaved user edit", model.DisplayName);
+        Assert.Equal("DISPLAY2", Assert.Single(store.Document.Profiles).CompanionMonitor);
+    }
+
     [Fact]
     public async Task ApplyMonitorUsesExactPreferenceAndPreservesReviewAndSameMonitorRules()
     {
@@ -228,6 +289,7 @@ public sealed class ProfilesTests
         await model.ApplyProfileMonitorAsync("display3");
         Assert.Equal("DISPLAY3", model.SelectedCompanionMonitor!.DeviceName);
         Assert.Equal("DISPLAY3", store.Settings.CompanionMonitorDeviceName);
+        Assert.Equal("MONITOR-3", store.Settings.CompanionMonitorId);
         await model.ApplyProfileMonitorAsync(null);
         Assert.Equal("DISPLAY3", model.SelectedCompanionMonitor.DeviceName);
         model.AllowSameMonitorForTesting = true;
@@ -257,12 +319,12 @@ public sealed class ProfilesTests
     {
         public IReadOnlyList<MonitorProfile> GetMonitors() => Enumerable.Range(1, 3).Select(i =>
             new MonitorProfile($"DISPLAY{i}", new DisplayRect((i - 1) * 1920, 0, 1920, 1080),
-                new DisplayRect((i - 1) * 1920, 0, 1920, 1040), i == 1)).ToList();
+                new DisplayRect((i - 1) * 1920, 0, 1920, 1040), i == 1, $"MONITOR-{i}", $"Monitor {i}")).ToList();
     }
     private sealed class SettingsStore : IApplicationSettingsStore
     {
         public string FilePath => "memory";
-        public ApplicationSettings Settings { get; private set; } = new();
+        public ApplicationSettings Settings { get; set; } = new();
         public bool FailSave { get; set; }
         public Task<ApplicationSettings> LoadAsync(CancellationToken cancellationToken = default) => Task.FromResult(Settings);
         public Task SaveAsync(ApplicationSettings settings, CancellationToken cancellationToken = default)

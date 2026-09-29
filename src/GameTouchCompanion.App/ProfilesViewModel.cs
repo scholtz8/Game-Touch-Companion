@@ -257,6 +257,49 @@ public sealed class ProfilesViewModel(IGameProfileStore store) : INotifyProperty
         finally { SetBusy(false); }
     }
 
+    public async Task<int> MigrateLegacyMonitorReferencesAsync(Func<string, string?> resolveLegacyReference)
+    {
+        ArgumentNullException.ThrowIfNull(resolveLegacyReference);
+        // Topology refreshes can happen while the user is editing a profile. Migration must
+        // never overwrite an in-progress draft or dismiss a pending confirmation. It can retry
+        // on the next safe refresh/save/startup once the editor is clean.
+        if (!CanEdit || HasUnsavedChanges || DiscardConfirmation || DeleteConfirmation) return 0;
+
+        var next = Profiles.ToList();
+        var migrated = 0;
+        for (var i = 0; i < next.Count; i++)
+        {
+            var reference = next[i].CompanionMonitor;
+            if (string.IsNullOrWhiteSpace(reference)) continue;
+            var stable = resolveLegacyReference(reference);
+            if (string.IsNullOrWhiteSpace(stable) || string.Equals(stable, reference, StringComparison.OrdinalIgnoreCase)) continue;
+            next[i] = next[i] with { CompanionMonitor = stable };
+            migrated++;
+        }
+        if (migrated == 0) return 0;
+
+        SetBusy(true);
+        try
+        {
+            await store.SaveAsync(new GameProfileDocument { SchemaVersion = GameProfileValidation.CurrentSchemaVersion, Profiles = next });
+            var selectedId = selectedProfile?.Id;
+            Profiles.Clear();
+            foreach (var profile in next) Profiles.Add(profile);
+            selectedProfile = selectedId is null ? null : Profiles.FirstOrDefault(p => string.Equals(p.Id, selectedId, StringComparison.OrdinalIgnoreCase));
+            Changed(nameof(SelectedProfile));
+            LoadDraft(selectedProfile);
+            Log.Information("Migrated legacy profile monitor aliases to persistent monitor ids. Count={Count}", migrated);
+            return migrated;
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Could not migrate legacy profile monitor aliases; saved profiles were left unchanged");
+            SetError("No se pudieron migrar las referencias antiguas de pantalla. Los perfiles guardados no se modificaron.");
+            return 0;
+        }
+        finally { SetBusy(false); }
+    }
+
     public void RefreshLanguage()
     {
         Changed(nameof(Status));

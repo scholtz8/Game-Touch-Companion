@@ -9,7 +9,7 @@
 
 ## Idioma
 
-- Guardar idioma actualiza la interfaz inmediatamente. Si falla el guardado, conserva el idioma anterior y muestra aviso. No necesita reinicio ni cerrar a bandeja.
+- En **Ajustes generales**, idioma, inicio con Windows y preferencias de bandeja se aplican con **Guardar cambios**. Al guardar, el idioma se actualiza en vivo; no requiere reinicio ni cerrar a bandeja.
 - Instalaciones anteriores preguntan una vez por usuario de Windows. language.json es independiente de settings.json/perfiles; no borres estos últimos para repetir el selector.
 - Si language.json es ilegible o está dañado, el arranque falla y no lo sobrescribe. Con App cerrada, conserva un respaldo antes de corregirlo o moverlo para elegir otra vez.
 - Guía/Next, roles de pantallas, diagnóstico, diálogos y estados propios se traducen. Contenido web, nombres/URLs del usuario, códigos y mensajes externos del sistema no se modifican. Si un texto propio sigue en el otro idioma, registra panel, acción y captura para corregir la clave.
@@ -21,8 +21,8 @@
 - La posición del icono visible/oculto depende de Windows. Si no hay bandeja disponible al iniciar, Configuración se muestra. No ejecutar copias simultáneas; no hay IPC de instancia única.
 - El portable histórico no incluye estas opciones. Usa el build actual; no mezcles sus DLL con el ZIP anterior.
 
-- **No abre automáticamente:** activa Detección en esta sesión, guarda un único perfil Autoarranque para el ejecutable exacto y deja la ventana de juego foreground durante dos muestras. Revisa monitor/revisión y el aviso persistente. Tras corregir un intento fallido pulsa Rearmar.
-- **Cerré Companion y no vuelve:** por diseño el cierre pausa Detección y la instancia atendida no se reabre. Reactiva y Rearma explícitamente.
+- **No abre automáticamente:** la detección ya está activa mientras la aplicación se ejecuta. Guarda un único perfil con apertura automática para el ejecutable exacto y deja la ventana del juego en primer plano durante dos muestras. Revisa la pantalla configurada y Diagnóstico. Tras corregir un intento fallido usa **Rearmar apertura automática** en Diagnóstico o bandeja.
+- **Cerré Companion y no vuelve:** es intencional para esa ejecución concreta del juego. La instancia queda descartada, pero la detección sigue activa. Reiniciar el juego crea una nueva instancia elegible; **Rearmar apertura automática** permite reintentar la instancia actual.
 - **EnumWindows falla en tests:** requiere sesión de escritorio; el sandbox puede devolver false sin código. No se eleva la aplicación ni se fuerzan permisos. Ejecuta las pruebas opt-in desde una sesión normal.
 - **Contador de Detección distinto de FocusProbe:** Detección muestrea cada 2 s y puede omitir cambios breves. Para aprobar foco usa siempre FocusProbe y un intervalo sin cambios deliberados a Configuration.
 
@@ -31,7 +31,7 @@
 - **Página local no carga:** confirme que `TouchTestPage/index.html` está junto al ejecutable publicado.
 - **SDK equivocado:** ejecute `dotnet --list-sdks`; se requiere 10.x.
 - **NuGet bloqueado:** permita acceso HTTPS a `api.nuget.org` y repita `dotnet restore`.
-- **Monitor guardado ya no existe:** la app selecciona un fallback, cierra Companion si estaba abierto y muestra un banner persistente. Confirme la selección actual o cambie el selector antes de reabrir.
+- **Pantalla guardada ya no está conectada:** la identidad persistente se conserva y no se reemplaza por el `DISPLAYn` que ocupe ahora ese lugar. Reconecta la pantalla original o selecciona explícitamente otra y guarda esa elección. Si cambió solo la numeración `DISPLAY1/2/3`, la selección debe resolverse automáticamente por el ID persistente.
 - **Selección no persiste:** revise permisos y JSON en `%LOCALAPPDATA%\GameTouchCompanion\settings.json`; JSON corrupto se informa y no se sobrescribe silenciosamente.
 - **Fullscreen desalineado con DPI mixto:** confirme el manifiesto PerMonitorV2 y capture bounds/logs; no convierta manualmente los píxeles Win32 en DIPs.
 - **Favoritos/inicio no se guardan:** revise el aviso persistente y `%LOCALAPPDATA%\GameTouchCompanion\browser.json`. Si está corrupto, haga copia antes de corregirlo y reinicie; no se sobrescribe automáticamente. Si falla el guardado, los cambios solo están en memoria hasta un guardado exitoso.
@@ -43,10 +43,10 @@
 ## Fase 6: guía y borradores
 
 - La guía no avanza: requiere selección válida, monitores distintos y ninguna revisión pendiente. Confirma Pantallas; el override de una pantalla solo permite pruebas manuales fuera de la guía.
-- Terminar guía no abre nada: es intencional. Usa Abrir Companion o activa Detección explícitamente. Reiniciar guía no restaura ni borra settings.
+- Terminar guía no abre nada: es intencional. Usa **Abrir Companion**; la detección automática ya funciona en segundo plano sin activación manual. Reiniciar guía no restaura ni borra settings.
 - Al elegir otro perfil no cambia el editor: hay un borrador pendiente. Conservar borrador cancela el cambio; Descartar y continuar lo confirma. Guardar primero es otra opción. Los borradores no sobreviven al cierre de la app.
 - Elegir monitor del desplegable no modifica la preferencia: pulsa Usar monitor elegido y después Guardar. Esto evita reemplazar automáticamente un monitor desconectado.
-- Diagnóstico muestra muestras antiguas: la detección está pausada o no ha completado otra captura. Actualizar muestra manual consulta solo foreground; no reactiva el sondeo ni mide pérdidas exactas.
+- Diagnóstico muestra muestras antiguas: la detección puede no haber completado otra captura todavía. Actualizar muestra manual consulta solo primer plano; no reinicia el sondeo ni mide pérdidas exactas.
 - El esquema no coincide con numeración de Windows: usa índices locales y representa bounds/roles. No detecta qué pantalla tiene touch. La leyenda muestra nombres y coordenadas reales.
 - Restore NU1900 en sandbox: la consulta de vulnerabilidades de NuGet requiere red. Reintenta con acceso autorizado; no desactives auditoría ni ignores el error como evidencia de build.
 

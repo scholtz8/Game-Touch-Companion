@@ -12,37 +12,10 @@ namespace GameTouchCompanion.App;
 
 public partial class MainWindow
 {
-    private async void StartupDetection_Click(object sender, RoutedEventArgs e)
-    {
-        var requested = StartupDetectionCheck.IsChecked == true;
-        StartupDetectionCheck.IsEnabled = false;
-        await settingsOperationGate.WaitAsync();
-        try
-        {
-            if (isClosed) return;
-            await viewModel.SetDetectionOnStartupAsync(requested);
-            Localization.Text(StartupPreferenceStatus, () => Localization.T("Preferencia guardada para el próximo inicio. La sesión actual no cambió."));
-            ClearSettingsError();
-            Serilog.Log.Information("Startup detection preference saved. Enabled={Enabled}", requested);
-        }
-        catch (Exception ex)
-        {
-            Serilog.Log.Warning("Startup preference save failed. Type={Type}; Code={Code}", ex.GetType().Name, ex.HResult);
-            Localization.Text(StartupPreferenceStatus, () => Localization.T("No se pudo guardar la preferencia. Se conserva el valor anterior."));
-            ShowSettingsError(() => Localization.T("No se pudo guardar la preferencia. Se conserva el valor anterior."), "startup-detection-preference");
-        }
-        finally
-        {
-            settingsOperationGate.Release();
-            StartupDetectionCheck.SetCurrentValue(System.Windows.Controls.Primitives.ToggleButton.IsCheckedProperty, viewModel.EnableDetectionOnStartup);
-            StartupDetectionCheck.SetCurrentValue(IsEnabledProperty, viewModel.SettingsLoaded);
-        }
-    }
     private bool configurationReady;
 
     private void InitializeConfigurationUx()
     {
-        BrowserPreferences.DataContext = browserViewModel;
         GameProfilesPanel.SetMonitors(viewModel.Monitors);
         viewModel.PropertyChanged += ConfigurationStateChanged;
         viewModel.Monitors.CollectionChanged += MonitorsForPreviewChanged;
@@ -54,29 +27,23 @@ public partial class MainWindow
 
     private bool SetupMonitorsReady => viewModel.CanOpenCompanion && !viewModel.IsSelectionReviewRequired &&
         viewModel.SelectedGameMonitor is not null && viewModel.SelectedCompanionMonitor is not null &&
-        viewModel.SelectedGameMonitor.DeviceName != viewModel.SelectedCompanionMonitor.DeviceName &&
+        !MonitorSelectionService.IdentityEquals(viewModel.SelectedGameMonitor, viewModel.SelectedCompanionMonitor) &&
         viewModel.ValidateCurrentSelection().IsValid;
 
     private void UpdateSetupGuide()
     {
         Localization.Text(SetupSummary, () => Localization.T(Localization.F($"Pantallas: {(SetupMonitorsReady ? Localization.T("selección preparada") : Localization.T("revisa selección y avisos"))}\n") +
-            Localization.F($"Juego: {viewModel.SelectedGameMonitor?.DeviceName ?? Localization.T("sin seleccionar")}\n") +
-            Localization.F($"Companion: {viewModel.SelectedCompanionMonitor?.DeviceName ?? Localization.T("sin seleccionar")}\n") +
-            Localization.F($"Perfiles guardados: {profilesViewModel.Profiles.Count}. Detección: {(DetectionEnabledCheck.IsChecked == true ? Localization.T("activa") : Localization.T("pausada"))}.")));
+            Localization.F($"Juego: {Localization.MonitorLabel(viewModel.SelectedGameMonitor)}\n") +
+            Localization.F($"Companion: {Localization.MonitorLabel(viewModel.SelectedCompanionMonitor)}\n") +
+            Localization.F($"Perfiles guardados: {profilesViewModel.Profiles.Count}. Detección: {Localization.T("siempre activa")}.")));
     }
 
-    private void GoToTab_Click(object sender, RoutedEventArgs e)
-    {
-        if (sender is Button { Tag: string name } && FindName(name) is TabItem tab) ConfigurationTabs.SelectedItem = tab;
-    }
     private void ConfigurationTabs_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (!configurationReady || !ReferenceEquals(e.OriginalSource, ConfigurationTabs)) return;
         UpdateSetupGuide();
         if (DiagnosticsTab.IsSelected) RefreshDiagnostics();
     }
-    private async void SettingsToolbar_Click(object sender, RoutedEventArgs e) =>
-        await browserViewModel.SetToolbarVisibleAsync(SettingsToolbarCheck.IsChecked == true);
 
     private void ConfigurationStateChanged(object? sender, PropertyChangedEventArgs e)
     {
@@ -103,8 +70,8 @@ public partial class MainWindow
         foreach (var item in items)
         {
             var number = Array.IndexOf(monitors, item.Monitor) + 1;
-            var game = item.Monitor.DeviceName == viewModel.SelectedGameMonitor?.DeviceName;
-            var touch = item.Monitor.DeviceName == viewModel.SelectedCompanionMonitor?.DeviceName;
+            var game = viewModel.SelectedGameMonitor is not null && MonitorSelectionService.IdentityEquals(item.Monitor, viewModel.SelectedGameMonitor);
+            var touch = viewModel.SelectedCompanionMonitor is not null && MonitorSelectionService.IdentityEquals(item.Monitor, viewModel.SelectedCompanionMonitor);
             var role = Localization.T(game && touch ? "Juego + Companion" : game ? "Juego" : touch ? "Companion" : "Disponible");
             var description = $"{number} · {role} · {Localization.MonitorLabel(item.Monitor)}";
             legend.Add(description);

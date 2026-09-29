@@ -26,16 +26,30 @@ public interface IGameDetectionSource
 /// <summary>Pure state machine; no polling, native calls or side effects.</summary>
 public sealed class GameDetectionTracker
 {
-    private readonly HashSet<(string Profile, int Pid, long Started)> attempted = [];
+    private readonly HashSet<(string Process, int Pid, long Started)> attended = [];
     private DetectedGame? previous;
     private int stableSamples;
-    public void Reset() { attempted.Clear(); previous = null; stableSamples = 0; }
+
+    public void Reset() { attended.Clear(); previous = null; stableSamples = 0; }
     public void ClearObservation() { previous = null; stableSamples = 0; }
-    public void MarkAttempted(DetectedGame game) => attempted.Add(Key(game));
-    private static (string, int, long) Key(DetectedGame game) => (game.Profile.Id, game.Process.ProcessId, game.Process.StartTimeUtcTicks);
+    public void MarkAttended(DetectedGame game) => attended.Add(Key(game));
+    public void MarkDismissed(DetectedGame game) => MarkAttended(game);
+
+    private static (string, int, long) Key(DetectedGame game) =>
+        (game.Process.ProcessName.ToUpperInvariant(), game.Process.ProcessId, game.Process.StartTimeUtcTicks);
+
+    private void PruneEndedInstances(IReadOnlyList<GameProcessInfo> processes)
+    {
+        if (attended.Count == 0) return;
+        var running = processes
+            .Select(process => (process.ProcessName.ToUpperInvariant(), process.ProcessId, process.StartTimeUtcTicks))
+            .ToHashSet();
+        attended.RemoveWhere(key => !running.Contains(key));
+    }
 
     public DetectionDecision Observe(GameDetectionSnapshot snapshot, IReadOnlyList<GameProfile> profiles)
     {
+        PruneEndedInstances(snapshot.Processes);
         var candidates = (from process in snapshot.Processes
                           where profiles.Any(p => string.Equals(p.ProcessName, process.ProcessName, StringComparison.OrdinalIgnoreCase))
                           from window in snapshot.Windows
@@ -67,7 +81,7 @@ public sealed class GameDetectionTracker
             ClearObservation();
             return new(game, foreground, false, "Juego detectado; Autoarranque está desmarcado.");
         }
-        if (attempted.Contains(Key(game))) return new(game, foreground, false, "Instancia ya atendida. No se reabrirá hasta Rearmar o reiniciar el juego.");
+        if (attended.Contains(Key(game))) return new(game, foreground, false, "Instancia ya atendida o descartada. No se reabrirá automáticamente hasta Rearmar o reiniciar el juego.");
         if (!foreground) return new(game, false, false, "Juego detectado en segundo plano; esperando foreground.");
         if (stableSamples < 2) return new(game, true, false, "Esperando una segunda muestra estable antes de abrir.");
         return new(game, true, true, "Juego estable; preparado para aplicar perfil y abrir Companion.");

@@ -57,8 +57,7 @@ public sealed class LanguageStartupTests
             try
             {
                 using var realTray = new TrayService();
-                realTray.Initialize(() => { }, () => { }, () => { }, () => { });
-                realTray.UpdateDetection(true);
+                realTray.Initialize(() => { }, () => { }, () => { });
                 foreach (var language in new[] { "en", "es" })
                 {
                     Localization.Initialize(language);
@@ -68,13 +67,17 @@ public sealed class LanguageStartupTests
                         await main.StartShellAsync(false, forceShow: true);
                         Assert.Equal(Localization.Get("Ui033"), ((TabItem)main.FindName("SettingsTab")).Header);
                         Assert.Equal(language, ((ComboBox)main.FindName("LanguageCombo")).SelectedValue);
+                        Assert.Null(main.FindName("DetectionTab"));
+                        Assert.Null(main.FindName("SaveLanguageButton"));
+                        Assert.NotNull(main.FindName("SaveGeneralSettingsButton"));
+                        Assert.NotNull(main.FindName("DiagnosticsTab"));
                         var tabs = (TabControl)main.FindName("ConfigurationTabs");
                         for (var i = 0; i < tabs.Items.Count; i++)
                         {
                             tabs.SelectedIndex = i;
                             Render(main, Path.Combine(folder, $"{language}-tab-{i}.png"));
                         }
-                        Assert.True(((CheckBox)main.FindName("DetectionEnabledCheck")).IsChecked);
+                        Assert.True(main.IsDetectionRunning);
                         var mainHwnd = new WindowInteropHelper(main).Handle;
                         ((Button)main.FindName("OpenCompanionButton")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
                         await BrowserRuntimeTests.WaitUntilAsync(() => main.CurrentCompanion is not null &&
@@ -91,7 +94,7 @@ public sealed class LanguageStartupTests
                         var diagnostics = ((TextBlock)main.FindName("DiagnosticsSnapshot")).Text;
                         var diagnosticTimestamp = diagnostics.Split('\n')[0].Split(": ", 2)[1];
                         var choice = (ComboBox)main.FindName("LanguageCombo");
-                        var save = (Button)main.FindName("SaveLanguageButton");
+                        var save = (Button)main.FindName("SaveGeneralSettingsButton");
                         var nextLanguage = language == "en" ? "es" : "en";
                         choice.SelectedValue = nextLanguage;
                         save.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
@@ -100,9 +103,9 @@ public sealed class LanguageStartupTests
                         Assert.Equal(nextLanguage, Localization.Language); // live text update, no session recreation
                         Assert.True(realTray.IsAvailable);
                         Assert.Contains(Localization.Get("TrayOpen"), realTray.MenuLabels);
-                        Assert.Contains(Localization.Get("TrayPause"), realTray.MenuLabels);
+                        Assert.Contains(Localization.Get("TrayRearm"), realTray.MenuLabels);
                         Assert.Equal(Localization.Get("Ui033"), ((TabItem)main.FindName("SettingsTab")).Header);
-                        Assert.True(((CheckBox)main.FindName("DetectionEnabledCheck")).IsChecked);
+                        Assert.True(main.IsDetectionRunning);
                         Assert.Equal(mainHwnd, new WindowInteropHelper(main).Handle);
                         Assert.Same(activeCompanion, main.CurrentCompanion);
                         Assert.Equal(companionHwnd, new WindowInteropHelper(activeCompanion).Handle);
@@ -166,12 +169,12 @@ public sealed class LanguageStartupTests
                 Localization.Initialize("en");
                 await main.StartShellAsync(false, forceShow: true);
                 ((ComboBox)main.FindName("LanguageCombo")).SelectedValue = "es";
-                var save = (Button)main.FindName("SaveLanguageButton");
+                var save = (Button)main.FindName("SaveGeneralSettingsButton");
                 save.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
                 await BrowserRuntimeTests.WaitUntilAsync(() => save.IsEnabled, () => "Save did not finish");
                 Assert.Equal("en", Localization.Language);
                 Assert.Equal("en", ((ComboBox)main.FindName("LanguageCombo")).SelectedValue);
-                Assert.Contains("Could not save", ((TextBlock)main.FindName("LanguageStatus")).Text);
+                Assert.Contains("Could not save", ((TextBlock)main.FindName("GeneralSettingsStatus")).Text);
                 var result = AppDialog.Show(Localization.T("Game and Companion will use the same monitor. Continue only for testing?"),
                     Localization.T("Same monitor warning"), MessageBoxButton.YesNo, ready: dialog =>
                     {

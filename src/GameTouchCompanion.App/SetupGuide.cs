@@ -8,8 +8,8 @@ public sealed class SetupGuide
     public string Description => Localization.T(Step switch
     {
         0 => "En Pantallas revisa el esquema y selecciona juego y Companion. Confirma cualquier aviso de desconexión. Esta guía solo avanza con dos pantallas distintas y una selección válida.",
-        1 => "En Navegador prepara una URL o en Perfiles guarda el ejecutable, URL y monitor. Activa Detección manualmente o configura su preferencia de inicio en Ajustes. Puedes usar Companion manualmente sin crear perfiles.",
-        _ => "Configuración preparada: abre Companion manualmente o activa Detección y vuelve al juego. Verifica el foco con FocusProbe. Terminar esta guía no abre ventanas ni activa detección."
+        1 => "En Navegador prepara una URL o en Perfiles guarda el ejecutable, las pestañas y el monitor. La detección automática permanece activa mientras Game Touch Companion esté ejecutándose. Puedes usar Companion manualmente sin crear perfiles.",
+        _ => "Configuración preparada: abre Companion manualmente o vuelve al juego para usar la detección automática. Verifica el foco con FocusProbe. Terminar esta guía no abre ventanas."
     });
     public bool Next(bool monitorsReady)
     {

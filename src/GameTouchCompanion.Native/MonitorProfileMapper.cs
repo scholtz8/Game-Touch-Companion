@@ -14,7 +14,9 @@ internal static class MonitorProfileMapper
         monitor.DeviceName,
         ToDisplayRect(monitor.Bounds),
         ToDisplayRect(monitor.WorkingArea),
-        (monitor.Flags & NativeConstants.MonitorInfoPrimary) != 0);
+        (monitor.Flags & NativeConstants.MonitorInfoPrimary) != 0,
+        monitor.StableId,
+        monitor.FriendlyName);
 
     internal static IReadOnlyList<MonitorProfile> Order(IEnumerable<MonitorProfile> monitors)
     {
@@ -24,7 +26,8 @@ internal static class MonitorProfileMapper
             .OrderByDescending(static monitor => monitor.IsPrimary)
             .ThenBy(static monitor => monitor.Bounds.X)
             .ThenBy(static monitor => monitor.Bounds.Y)
-            .ThenBy(static monitor => monitor.DeviceName, StringComparer.OrdinalIgnoreCase)
+            .ThenBy(static monitor => monitor.FriendlyName ?? monitor.DeviceName, StringComparer.OrdinalIgnoreCase)
+            .ThenBy(static monitor => monitor.IdentityKey, StringComparer.OrdinalIgnoreCase)
             .ToArray();
     }
 }
@@ -33,4 +36,6 @@ internal readonly record struct MonitorSnapshot(
     string DeviceName,
     NativeRect Bounds,
     NativeRect WorkingArea,
-    uint Flags);
+    uint Flags,
+    string? StableId = null,
+    string? FriendlyName = null);

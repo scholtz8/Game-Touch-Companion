@@ -29,6 +29,7 @@ public sealed class BrowserViewModelTests
         Assert.Equal(stored.HomeUrl, viewModel.HomeUrl);
         Assert.Equal(stored.HomeUrl, viewModel.Address);
         Assert.False(viewModel.ShowToolbar);
+        Assert.False(viewModel.StartWithToolbarVisible);
         Assert.Equal(stored.Favorites, viewModel.Favorites);
         Assert.False(viewModel.IsReady);
         Assert.Empty(viewModel.CurrentUrl);
@@ -206,7 +207,7 @@ public sealed class BrowserViewModelTests
     }
 
     [Fact]
-    public async Task HomeAndToolbarPersistAndHomeNavigationUsesSavedUrl()
+    public async Task HomeAndStartupToolbarPreferencePersistWhileRuntimeToolbarIsSessionOnly()
     {
         var store = new MemoryBrowserSettingsStore(new BrowserSettings());
         var viewModel = new BrowserViewModel(store);
@@ -221,18 +222,30 @@ public sealed class BrowserViewModelTests
         Assert.Equal("https://example.com/start", store.Current.HomeUrl);
         Assert.Equal(store.Current.HomeUrl, viewModel.HomeUrl);
         Assert.Equal(store.Current.HomeUrl, viewModel.Address);
+        Assert.True(store.Current.ShowToolbar);
+        Assert.False(viewModel.ShowToolbar);
+        Assert.True(viewModel.StartWithToolbarVisible);
+        Assert.Equal(1, store.SaveAttempts);
+        Assert.Empty(navigations);
+
+        await viewModel.SetStartToolbarVisibleAsync(false);
         Assert.False(store.Current.ShowToolbar);
+        Assert.False(viewModel.StartWithToolbarVisible);
         Assert.False(viewModel.ShowToolbar);
         Assert.Equal(2, store.SaveAttempts);
-        Assert.Empty(navigations);
+
+        await viewModel.SetToolbarVisibleAsync(true);
+        Assert.True(viewModel.ShowToolbar);
+        Assert.False(viewModel.StartWithToolbarVisible);
+        Assert.False(store.Current.ShowToolbar);
+        Assert.Equal(2, store.SaveAttempts);
+
+        viewModel.ResetRuntimeToolbarToPreference();
+        Assert.False(viewModel.ShowToolbar);
 
         viewModel.Address = "https://example.com/elsewhere";
         Assert.True(viewModel.GoHome());
         Assert.Equal("https://example.com/start", Assert.Single(navigations));
-
-        await viewModel.SetToolbarVisibleAsync(true);
-        Assert.True(viewModel.ShowToolbar);
-        Assert.True(store.Current.ShowToolbar);
     }
 
     [Fact]
@@ -260,12 +273,13 @@ public sealed class BrowserViewModelTests
         Assert.Contains("memoria", viewModel.SettingsError, StringComparison.Ordinal);
 
         store.SaveFailure = null;
-        await viewModel.SetToolbarVisibleAsync(false);
+        await viewModel.SetStartToolbarVisibleAsync(false);
 
         Assert.False(viewModel.HasError);
         Assert.False(viewModel.HasSettingsError);
         Assert.Equal("https://example.com/unsaved", store.Current.HomeUrl);
         Assert.False(store.Current.ShowToolbar);
+        Assert.False(viewModel.StartWithToolbarVisible);
     }
 
     [Fact]
@@ -278,7 +292,7 @@ public sealed class BrowserViewModelTests
 
         var homeSave = viewModel.SetHomeFromAddressAsync();
         await store.FirstSaveStarted.Task.WaitAsync(TimeSpan.FromSeconds(5));
-        var toolbarSave = viewModel.SetToolbarVisibleAsync(false);
+        var toolbarSave = viewModel.SetStartToolbarVisibleAsync(false);
         var favoriteSave = viewModel.AddFavoriteAsync("https://example.com/wiki", "Wiki");
 
         Assert.Equal(1, store.SaveAttempts);

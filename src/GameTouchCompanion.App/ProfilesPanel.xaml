@@ -67,7 +67,7 @@
                     <Button Content="{local:Tr Ui106}" Click="UseMonitor_Click" Padding="12,8" Margin="0,0,10,0"/>
                     <Button Content="{local:Tr Ui107}" Click="UseCurrentMonitor_Click" Padding="12,8"/>
                 </WrapPanel>
-                <TextBox Text="{Binding CompanionMonitor, UpdateSourceTrigger=PropertyChanged}" Padding="8" MaxLength="128"/>
+                <TextBlock x:Name="ProfileMonitorStatus" Margin="0,4" TextWrapping="Wrap" FontWeight="SemiBold"/>
                 <TextBlock Text="{local:Tr Ui108}" Margin="0,4" TextWrapping="Wrap" Foreground="{Binding ConfigurationSecondaryForeground, Source={x:Static local:Appearance.Current}}"/>
                 <CheckBox Content="{local:Tr Ui109}" IsChecked="{Binding AutoLaunch}" Margin="0,14"/>
                 <TextBlock Text="{local:Tr Ui110}" Foreground="{Binding ConfigurationSecondaryForeground, Source={x:Static local:Appearance.Current}}"/>

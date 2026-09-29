@@ -24,6 +24,7 @@ public partial class MainWindow : Window
     private CancellationTokenSource? topologyChangeCancellation;
     private bool initializationStarted;
     private bool runtimeAvailable;
+    private bool companionCloseIsSystemInitiated;
 
     public MainWindow() : this(new Win32MonitorService(), new JsonApplicationSettingsStore(),
         new JsonBrowserSettingsStore(), new JsonGameProfileStore(),
@@ -70,14 +71,13 @@ public partial class MainWindow : Window
         CheckRuntime();
         await InitializeMonitorsAsync();
         await browserViewModel.InitializeAsync();
+        CustomizationPanel.BindBrowserSettings(browserViewModel);
         await profilesViewModel.InitializeAsync();
+        await MigrateLegacyProfileMonitorReferencesAsync();
         if (isClosed) return;
         configurationReady = true;
         InitializeShell();
-        if (runtimeAvailable && viewModel.SettingsLoaded && viewModel.EnableDetectionOnStartup &&
-            viewModel.CanOpenCompanion && viewModel.ValidateCurrentSelection().IsValid &&
-            !viewModel.IsSelectionReviewRequired && browserViewModel.SettingsLoaded && profilesViewModel.CanEdit)
-            DetectionEnabledCheck.IsChecked = true;
+        StartDetection();
         UpdateSetupGuide();
         DrawMonitorPreview();
     }
@@ -90,7 +90,6 @@ public partial class MainWindow : Window
 
     private async Task ApplyProfileAsync(GameProfile profile)
     {
-        PauseDetection("La aplicación manual de un perfil pausó la detección. Puedes reactivarla desde Detección.");
         var validated = GameProfileValidation.Normalize(profile);
         if (!viewModel.CanOpenCompanion || viewModel.IsSelectionReviewRequired)
             throw new InvalidDataException("Revisa y confirma la selección en Pantallas antes de aplicar un perfil.");
@@ -233,6 +232,7 @@ public partial class MainWindow : Window
         if (isClosed || !viewModel.CanOpenCompanion || viewModel.SelectedCompanionMonitor is null) return;
         if (companion is null)
         {
+            browserViewModel.ResetRuntimeToolbarToPreference();
             companion = new CompanionWindow(viewModel.SelectedCompanionMonitor, browserViewModel, browserUserDataFolder)
             {
                 SwitchProfileRequested = ApplyProfileAsync
@@ -240,8 +240,10 @@ public partial class MainWindow : Window
             companion.SetAvailableProfiles(profilesViewModel.Profiles);
             companion.Closed += (_, _) =>
             {
+                var systemInitiated = companionCloseIsSystemInitiated;
+                companionCloseIsSystemInitiated = false;
                 companion = null;
-                if (!isClosed) PauseDetection("Companion cerrado; detección pausada para evitar reapertura. Reactiva y Rearma cuando quieras otro intento.");
+                if (!isClosed && !systemInitiated) MarkCompanionDismissedByUser();
             };
         }
         else
@@ -266,10 +268,30 @@ public partial class MainWindow : Window
         OpenCompanion_Click(this, new RoutedEventArgs());
     }
 
-    private void ConfirmSelectionReview_Click(object sender, RoutedEventArgs e)
+    private async void ConfirmSelectionReview_Click(object sender, RoutedEventArgs e)
     {
-        if (viewModel.ConfirmSelectionReview())
-            Log.Information("User confirmed fallback monitor selection after topology change");
+        await settingsOperationGate.WaitAsync();
+        try
+        {
+            if (isClosed) return;
+            // The review button is an explicit choice. Persist the monitors currently shown
+            // before clearing the review so a disconnected stable id is never replaced silently,
+            // while still allowing the user to deliberately adopt the displayed fallback.
+            await viewModel.ApplySelectionAsync();
+            if (viewModel.IsSelectionReviewRequired)
+                viewModel.ConfirmSelectionReview();
+            if (!viewModel.IsSelectionReviewRequired)
+                Log.Information("User explicitly confirmed the current monitor selection after topology change");
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Could not confirm monitor selection after topology change");
+            viewModel.ReportError(LocalizedMessage.Format($"Could not save monitor selection: {ex.Message}"));
+        }
+        finally
+        {
+            settingsOperationGate.Release();
+        }
     }
 
     private nint WindowProc(nint hwnd, int message, nint wParam, nint lParam, ref bool handled)
@@ -296,22 +318,27 @@ public partial class MainWindow : Window
     {
         try
         {
-            var previousCompanionDeviceName = viewModel.SelectedCompanionMonitor?.DeviceName;
+            var previousCompanion = viewModel.SelectedCompanionMonitor;
+            var previousCompanionIdentity = previousCompanion?.IdentityKey;
             await viewModel.RefreshAsync();
             LogCurrentMonitors(reason);
+            GameProfilesPanel.SetMonitors(viewModel.Monitors);
+            await MigrateLegacyProfileMonitorReferencesAsync();
             if (companion is null || viewModel.SelectedCompanionMonitor is null) return;
 
-            var previousMonitorStillExists = previousCompanionDeviceName is not null &&
+            var previousMonitorStillExists = previousCompanionIdentity is not null &&
                 viewModel.Monitors.Any(monitor => string.Equals(
-                    monitor.DeviceName,
-                    previousCompanionDeviceName,
+                    monitor.IdentityKey,
+                    previousCompanionIdentity,
                     StringComparison.OrdinalIgnoreCase));
 
             if (!previousMonitorStillExists)
             {
-                Log.Warning("Selected Companion monitor {Monitor} disappeared; closing fullscreen Companion", previousCompanionDeviceName);
+                var previousLabel = Localization.MonitorLabel(previousCompanion);
+                Log.Warning("Selected Companion monitor {Monitor} disappeared; closing fullscreen Companion", previousCompanionIdentity);
+                companionCloseIsSystemInitiated = true;
                 companion.Close();
-                viewModel.RequireSelectionReview(LocalizedMessage.Format($"The previous Companion monitor {previousCompanionDeviceName} is unavailable. Companion was closed; review the fallback selection before reopening it."));
+                viewModel.RequireSelectionReview(LocalizedMessage.Format($"The previous Companion monitor {previousLabel} is unavailable. Companion was closed; reconnect it or explicitly choose another display before reopening it."));
                 return;
             }
 
@@ -345,12 +372,24 @@ public partial class MainWindow : Window
         }
     }
 
+
+    private async Task MigrateLegacyProfileMonitorReferencesAsync()
+    {
+        if (!profilesViewModel.CanEdit) return;
+        await profilesViewModel.MigrateLegacyMonitorReferencesAsync(reference =>
+        {
+            var monitor = viewModel.Monitors.FirstOrDefault(m =>
+                string.Equals(m.DeviceName, reference, StringComparison.OrdinalIgnoreCase));
+            return monitor?.StableId;
+        });
+    }
+
     private void LogCurrentMonitors(string reason)
     {
         foreach (var monitor in viewModel.Monitors)
         {
-            Log.Information("Monitor detected. Reason={Reason}; Device={Device}; Bounds={Bounds}; WorkArea={WorkArea}; Primary={Primary}",
-                reason, monitor.DeviceName, monitor.Bounds, monitor.WorkingArea, monitor.IsPrimary);
+            Log.Information("Monitor detected. Reason={Reason}; Device={Device}; StableId={StableId}; FriendlyName={FriendlyName}; Bounds={Bounds}; WorkArea={WorkArea}; Primary={Primary}",
+                reason, monitor.DeviceName, monitor.StableId, monitor.FriendlyName, monitor.Bounds, monitor.WorkingArea, monitor.IsPrimary);
         }
     }
 }

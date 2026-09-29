@@ -1,5 +1,31 @@
 # Changelog
 
+## Unreleased — Persistent displays and Settings UX
+
+### Added
+- Persistent monitor identity: global selections and profile display preferences now store the Windows monitor device/interface identity instead of treating `\\.\DISPLAY1/2/3` as permanent identifiers.
+- Friendly display labels include Windows monitor name, resolution and a short identity tag while retaining the current GDI alias only for runtime/diagnostics.
+- Legacy profile `DISPLAYn` references migrate to the persistent identity when the old alias is currently resolvable.
+- **Reset auto-launch** is available directly from Diagnostics in addition to the tray menu.
+
+### Changed
+- A missing configured physical display is retained as unavailable and never silently replaced by whichever display inherits the old GDI number; explicit reselection is required to change the saved target.
+- The dedicated Detection tab was removed because detection is always active. Detection state and technical details now live in Diagnostics.
+- General Settings was simplified: language, Windows startup and tray preferences share one **Save changes** action at the bottom. Passive Companion-protection copy and redundant cross-tab navigation buttons were removed.
+- The startup touch-toolbar preference moved to Personalization as **Start Companion with the touch toolbar visible**. Manual toolbar show/hide remains session-only.
+
+## Unreleased — Always-on detection
+
+### Changed
+- Automatic game detection now starts with Game Touch Companion and remains active for the lifetime of the app; the session toggle and separate startup-detection preference were removed.
+- Closing Companion no longer pauses detection. The current game process instance is marked dismissed/attended so it will not reopen automatically, while restarted games and other configured games can still auto-open normally.
+- Handled-instance identity now uses executable name + PID + process start time and is independent of the selected profile. Ended instances are pruned from in-memory detection state.
+- Temporary auto-open blockers keep detection running and are retried automatically instead of disabling detection.
+- The system-tray menu no longer exposes a pause/resume command for detection; Rearm remains available as an explicit retry for the current instance.
+
+### Removed
+- `EnableDetectionOnStartup` from persisted application settings. Legacy JSON containing that property remains readable and the obsolete field is dropped on the next settings save.
+
 ## Unreleased — Touch browser UX
 
 ### Added

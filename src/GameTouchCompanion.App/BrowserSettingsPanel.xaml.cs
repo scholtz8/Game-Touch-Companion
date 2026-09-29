@@ -36,11 +36,6 @@ public partial class BrowserSettingsPanel : UserControl
         if (ViewModel is { } model) await model.AddFavoriteAsync(model.Address);
     }
 
-    private async void Toolbar_Click(object sender, RoutedEventArgs e)
-    {
-        if (ViewModel is { } model) await model.SetToolbarVisibleAsync(ToolbarCheck.IsChecked == true);
-    }
-
     private void OpenFavorite_Click(object sender, RoutedEventArgs e)
     {
         if (ViewModel is { SelectedFavorite: { } favorite } model) model.Navigate(favorite.Url);

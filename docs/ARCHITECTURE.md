@@ -105,9 +105,9 @@ ADR-0007 conserva los datos en LocalAppData; portable no significa datos junto a
 
 ## Post-MVP: preferencia de detección al abrir
 
-ADR-0008 sustituye la regla de sesión siempre apagada: EnableDetectionOnStartup en settings.json tiene default false; es independiente del toggle de sesión. MainWindowViewModel conserva el valor al normalizar monitores y aplicar perfiles, y solo confirma el cambio después de guardar. UI usa settingsOperationGate y muestra fallo integrado sin cambiar sesión. Settings no cargados bloquean edición.
+ADR-0013 reemplaza la preferencia de detección al iniciar y el interruptor por sesión: la detección automática permanece activa mientras Game Touch Companion esté ejecutándose. Las instancias atendidas/descartadas se identifican por ejecutable + PID + hora de inicio y viven solo en memoria. Cerrar Companion por decisión del usuario descarta una sola instancia asociada sin detener el detector; reiniciar el juego o abrir otro juego configurado permite una nueva apertura automática. `Rearmar` limpia explícitamente el estado de instancias atendidas/descartadas.
 
-La inicialización de MainWindow se ejecuta una sola vez; tras cargar settings, perfiles/browser y comprobar runtime/selección válida, activa el toggle si la preferencia lo pide. Si los requisitos fallan no hay reactivación tardía implícita. Pausa/cierre Companion no borra preferencia. La futura selección inicial de idioma debe preceder esta activación; plan en POST_MVP_PLAN.md.
+La inicialización de `MainWindow` inicia el detector una vez después de cargar la configuración base. Problemas temporales de runtime, selección, monitor o escritorio bloquean solo la apertura concreta y se vuelven a evaluar sin apagar la detección. Cerrar completamente Game Touch Companion cancela el bucle y descarta todo el estado temporal de instancias.
 
 ## Post-MVP: Windows y bandeja
 

@@ -21,7 +21,9 @@ public sealed class MonitorProfileMapperTests
             @"\\.\DISPLAY2",
             new NativeRect(-1920, 0, 0, 1080),
             new NativeRect(-1920, 0, 0, 1040),
-            NativeConstants.MonitorInfoPrimary);
+            NativeConstants.MonitorInfoPrimary,
+            @"\\?\DISPLAY#ACME123#INSTANCE",
+            "ACME Touch Display");
 
         var result = MonitorProfileMapper.ToMonitorProfile(snapshot);
 
@@ -29,6 +31,10 @@ public sealed class MonitorProfileMapperTests
         Assert.Equal(new DisplayRect(-1920, 0, 1920, 1080), result.Bounds);
         Assert.Equal(new DisplayRect(-1920, 0, 1920, 1040), result.WorkingArea);
         Assert.True(result.IsPrimary);
+        Assert.Equal(@"\\?\DISPLAY#ACME123#INSTANCE", result.StableId);
+        Assert.Equal("ACME Touch Display", result.FriendlyName);
+        Assert.Equal(result.StableId, result.IdentityKey);
+        Assert.Contains("ACME Touch Display", result.DisplayLabel, StringComparison.Ordinal);
     }
 
     [Fact]

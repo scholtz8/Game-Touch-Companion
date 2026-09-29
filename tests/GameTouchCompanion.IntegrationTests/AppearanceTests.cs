@@ -80,7 +80,7 @@ public sealed class AppearanceTests
                     Assert.Same(companion, main.CurrentCompanion);
                     Assert.Equal(hwnd, new WindowInteropHelper(companion).Handle);
                     Assert.Equal(url, browser.CurrentUrl);
-                    Assert.True(((CheckBox)main.FindName("DetectionEnabledCheck")).IsChecked);
+                    Assert.True(main.IsDetectionRunning);
                     var actions = (WrapPanel)companion.FindName("NavigationActions");
                     var savedActions = (WrapPanel)companion.FindName("SavedActions");
                     Assert.Equal(["BackAction", "ForwardAction", "ReloadAction"], actions.Children.Cast<Button>().Where(b => b.Visibility == Visibility.Visible).Select(b => b.Name));

@@ -142,6 +142,65 @@ public sealed class MonitorSelectionServiceTests
         Assert.Empty(result.Issues);
     }
 
+
+    [Fact]
+    public void PersistentIdentitySurvivesGdiDisplayRenumbering()
+    {
+        var primary = CreateMonitor(@"\\.\DISPLAY1", 0, 0, isPrimary: true, stableId: "MONITOR-A", friendlyName: "Main panel");
+        var touch = CreateMonitor(@"\\.\DISPLAY7", 1920, 0, stableId: "MONITOR-B", friendlyName: "Touch panel");
+        var settings = new ApplicationSettings
+        {
+            GameMonitorId = "MONITOR-A",
+            CompanionMonitorId = "MONITOR-B",
+            GameMonitorDeviceName = @"\\.\DISPLAY4",
+            CompanionMonitorDeviceName = @"\\.\DISPLAY2",
+        };
+
+        var result = service.Resolve([touch, primary], settings);
+
+        Assert.Equal("MONITOR-A", result.GameMonitor.IdentityKey);
+        Assert.Equal(@"\\.\DISPLAY1", result.GameMonitor.DeviceName);
+        Assert.Equal("MONITOR-B", result.CompanionMonitor.IdentityKey);
+        Assert.Equal(@"\\.\DISPLAY7", result.CompanionMonitor.DeviceName);
+        Assert.Empty(result.Issues);
+    }
+
+    [Fact]
+    public void MissingPersistentIdentityNeverFallsBackToReusedDisplayAlias()
+    {
+        var primary = CreateMonitor(@"\\.\DISPLAY1", 0, 0, isPrimary: true, stableId: "MONITOR-A");
+        var replacement = CreateMonitor(@"\\.\DISPLAY2", 1920, 0, stableId: "MONITOR-C");
+        var settings = new ApplicationSettings
+        {
+            GameMonitorId = "MONITOR-A",
+            CompanionMonitorId = "MONITOR-B",
+            CompanionMonitorDeviceName = @"\\.\DISPLAY2",
+        };
+
+        var result = service.Resolve([primary, replacement], settings);
+
+        Assert.Equal("MONITOR-C", result.CompanionMonitor.IdentityKey);
+        Assert.Contains(result.Issues, issue => issue.Code == MonitorSelectionIssueCode.CompanionMonitorUnavailable);
+        Assert.NotEqual("MONITOR-B", result.CompanionMonitor.IdentityKey);
+    }
+
+    [Fact]
+    public void LegacyDisplayAliasStillResolvesWhenNoPersistentIdentityHasBeenSaved()
+    {
+        var primary = CreateMonitor(@"\\.\DISPLAY1", 0, 0, isPrimary: true, stableId: "MONITOR-A");
+        var touch = CreateMonitor(@"\\.\DISPLAY2", 1920, 0, stableId: "MONITOR-B");
+        var settings = new ApplicationSettings
+        {
+            GameMonitorDeviceName = @"\\.\DISPLAY1",
+            CompanionMonitorDeviceName = @"\\.\DISPLAY2",
+        };
+
+        var result = service.Resolve([primary, touch], settings);
+
+        Assert.Equal("MONITOR-B", result.CompanionMonitor.IdentityKey);
+        Assert.Empty(result.Issues);
+    }
+
     [Fact]
     public void ResolveRejectsAnEmptyMonitorList()
     {
@@ -155,10 +214,14 @@ public sealed class MonitorSelectionServiceTests
         string deviceName,
         int x,
         int y,
-        bool isPrimary = false) =>
+        bool isPrimary = false,
+        string? stableId = null,
+        string? friendlyName = null) =>
         new(
             deviceName,
             new DisplayRect(x, y, 1920, 1080),
             new DisplayRect(x, y, 1920, 1040),
-            isPrimary);
+            isPrimary,
+            stableId,
+            friendlyName);
 }

@@ -85,22 +85,22 @@
     <value>Checks every 2 seconds. Auto-launch requires exactly one matching profile, a stable game window in the foreground, and a separate display. Game Touch Companion never launches games or forces focus back to them.</value>
   </data>
   <data name="Ui026" xml:space="preserve">
-    <value>Enable detection and auto-launch for this session</value>
+    <value>Automatic detection: always active while Game Touch Companion is running.</value>
   </data>
   <data name="Ui027" xml:space="preserve">
     <value>Reset auto-launch state and sample counter</value>
   </data>
   <data name="Ui028" xml:space="preserve">
-    <value>Want to reopen the Companion for the same game? 1. Reset auto-launch. 2. Enable Detection. 3. Return to the game. Resetting allows another attempt; it does not restart the game or enable Detection. Closing the Companion pauses Detection to prevent it from reopening automatically.</value>
+    <value>If you close the Companion while playing, that game instance is dismissed and will not reopen the Companion automatically. Closing and starting the game again creates a new instance that can auto-launch normally. Reset allows another explicit attempt with the current instance.</value>
   </data>
   <data name="Ui029" xml:space="preserve">
-    <value>Detection paused.</value>
+    <value>Detection active.</value>
   </data>
   <data name="Ui030" xml:space="preserve">
     <value>No samples yet.</value>
   </data>
   <data name="Ui031" xml:space="preserve">
-    <value>Save a profile with the exact executable name and enable Auto-launch. Then enable Detection and return to the game. Closing the Companion or applying a profile manually pauses Detection.</value>
+    <value>Save a profile with the exact executable name and enable Auto-launch on that profile. Detection remains active while Game Touch Companion is running.</value>
   </data>
   <data name="Ui032" xml:space="preserve">
     <value>Use FocusProbe to verify that the game never loses focus. The 2-second sampling here can miss brief transitions. A matching executable name alone does not verify a game's identity or safety.</value>
@@ -109,22 +109,22 @@
     <value>Settings</value>
   </data>
   <data name="Ui034" xml:space="preserve">
-    <value>Settings &amp; safety</value>
+    <value>General settings</value>
   </data>
   <data name="Ui035" xml:space="preserve">
     <value>Companion protections</value>
   </data>
   <data name="Ui036" xml:space="preserve">
-    <value>NoActivate is always required. Forced focus restoration is disabled. Game Touch Companion never launches games. Windows startup and Detection are configured separately.</value>
+    <value>NoActivate is always required. Forced focus restoration is disabled, and Game Touch Companion never launches games. Detection runs automatically while the app is running.</value>
   </data>
   <data name="Ui037" xml:space="preserve">
     <value>Allowing the same display in Displays is for manual testing only. Auto-launch still requires a separate display.</value>
   </data>
   <data name="Ui038" xml:space="preserve">
-    <value>Enable Detection automatically when the app starts</value>
+    <value>Automatic detection remains active while Game Touch Companion is running.</value>
   </data>
   <data name="Ui039" xml:space="preserve">
-    <value>Takes effect the next time the app starts, after settings load. This does not start Windows or launch games. Closing the Companion only pauses Detection for the current session.</value>
+    <value>There is no startup preference or session toggle. Closing the Companion dismisses only the current game instance; detection keeps waiting for new instances and other configured games.</value>
   </data>
   <data name="Ui040" xml:space="preserve">
     <value>Windows startup and system tray</value>
@@ -154,7 +154,7 @@
     <value>Exit completely</value>
   </data>
   <data name="Ui049" xml:space="preserve">
-    <value>Hiding the Settings window leaves the Companion and Detection unchanged. Closing the Companion still pauses Detection. Opening Settings or using the tray menu changes the active window, so do this outside a focus test.</value>
+    <value>Hiding Settings does not change the Companion or automatic detection. Closing the Companion dismisses the current instance without stopping detection. Opening Settings or using the tray menu changes the active window, so do this outside a focus test.</value>
   </data>
   <data name="Ui050" xml:space="preserve">
     <value>Show touch toolbar in the Companion</value>
@@ -166,7 +166,7 @@
     <value>Home page and favorites</value>
   </data>
   <data name="Ui053" xml:space="preserve">
-    <value>Detection for this session</value>
+    <value>Automatic detection</value>
   </data>
   <data name="Ui054" xml:space="preserve">
     <value>Privacy: settings and diagnostics stay local. The web pages you open can access the network. Do not share profiles.json, browser.json, or the WebView2 profile; they may contain private data.</value>
@@ -184,7 +184,7 @@
     <value>Refresh foreground sample</value>
   </data>
   <data name="Ui059" xml:space="preserve">
-    <value>Latest Detection sample (updates only while Detection is enabled)</value>
+    <value>Latest detection sample (updates automatically every 2 seconds)</value>
   </data>
   <data name="Ui060" xml:space="preserve">
     <value>Touch events are not tracked in production; use TouchTestPage. Exact focus-loss counts are not available here; use FocusProbe. Opening the Settings window intentionally changes the active window, so do it outside the test interval.</value>
@@ -331,10 +331,10 @@
     <value>Use current display selection</value>
   </data>
   <data name="Ui108" xml:space="preserve">
-    <value>Example: \\.\DISPLAY2. The selected display must be connected when you apply the profile; the app will not silently switch to another display.</value>
+    <value>The display is stored using a persistent Windows monitor identifier, not its DISPLAY number. If it is disconnected, the profile keeps its selection and does not silently switch to another display.</value>
   </data>
   <data name="Ui109" xml:space="preserve">
-    <value>Open the Companion when this game is detected (requires Detection to be enabled for this session)</value>
+    <value>Open the Companion automatically when this game is detected</value>
   </data>
   <data name="Ui110" xml:space="preserve">
     <value>NoActivate is always enabled. Focus is never restored using a fallback.</value>
@@ -364,7 +364,7 @@
     <value>Save language</value>
   </data>
   <data name="LanguageHelp" xml:space="preserve">
-    <value>The language changes as soon as you save, without restarting the app or interrupting the Companion or Detection.</value>
+    <value>The language is applied with the rest of the settings when you select Save changes. No restart is required.</value>
   </data>
   <data name="LanguageSaved" xml:space="preserve">
     <value>Language updated.</value>
@@ -382,19 +382,19 @@
     <value>Open Settings</value>
   </data>
   <data name="TrayEnable" xml:space="preserve">
-    <value>Enable detection</value>
+    <value>Automatic detection active</value>
   </data>
   <data name="TrayPause" xml:space="preserve">
-    <value>Pause detection</value>
+    <value>Automatic detection active</value>
   </data>
   <data name="TrayRearm" xml:space="preserve">
     <value>Reset auto-launch</value>
   </data>
   <data name="TrayActiveTip" xml:space="preserve">
-    <value>Game Touch Companion · Detection on</value>
+    <value>Game Touch Companion · Automatic detection active</value>
   </data>
   <data name="TrayPausedTip" xml:space="preserve">
-    <value>Game Touch Companion · Detection paused</value>
+    <value>Game Touch Companion · Automatic detection active</value>
   </data>
   <data name="Dynamic000" xml:space="preserve">
     <value>Detecting displays…</value>
@@ -484,7 +484,7 @@
     <value>Loading profiles…</value>
   </data>
   <data name="Dynamic029" xml:space="preserve">
-    <value>Profiles ready. Auto-launch requires Detection to be enabled; profiles can also be applied manually.</value>
+    <value>Profiles ready. Automatic detection remains active; profiles can also be applied manually.</value>
   </data>
   <data name="Dynamic030" xml:space="preserve">
     <value>Could not read profiles.json. The file was left unchanged. Fix it and restart the app before editing profiles.</value>
@@ -508,7 +508,7 @@
     <value>Could not delete the profile. The saved profile is still available.</value>
   </data>
   <data name="Dynamic037" xml:space="preserve">
-    <value>Saved profile applied manually. If the Companion is closed, open it from Displays or Browser. Manual profile application pauses Detection.</value>
+    <value>Saved profile applied manually. If the Companion is closed, open it from Displays or Browser. Automatic detection remains active.</value>
   </data>
   <data name="Dynamic038" xml:space="preserve">
     <value>Could not apply the profile. Review Displays and check access to settings.json.</value>
@@ -526,7 +526,7 @@
     <value>First review Displays: two different displays, a valid selection and no pending review.</value>
   </data>
   <data name="Dynamic043" xml:space="preserve">
-    <value>Setup guide complete. Open the Companion manually from Displays, or enable Detection when you're ready. The guide did not open any windows.</value>
+    <value>Setup guide complete. Open the Companion manually from Displays, or return to the game to use automatic detection. The guide did not open any windows.</value>
   </data>
   <data name="Dynamic044" xml:space="preserve">
     <value>Game + Companion</value>
@@ -535,7 +535,7 @@
     <value>No displays to show.</value>
   </data>
   <data name="Dynamic046" xml:space="preserve">
-    <value>System tray is available. Double-click the icon to open Settings, or use the tray menu to exit. Windows controls whether the icon is shown or hidden.</value>
+    <value>System tray available. Double-click opens Settings; the menu lets you Reset auto-launch or Exit. Windows decides whether the icon stays visible or hidden.</value>
   </data>
   <data name="Dynamic047" xml:space="preserve">
     <value>System tray unavailable. The Settings window will stay open; closing it exits the app.</value>
@@ -571,22 +571,22 @@
     <value>Could not update Windows startup. Check your permissions and make sure the EXE is in a stable location.</value>
   </data>
   <data name="Dynamic058" xml:space="preserve">
-    <value>Detection paused. The Companion will not open automatically.</value>
+    <value>Detection active. Waiting for a configured game.</value>
   </data>
   <data name="Dynamic059" xml:space="preserve">
     <value>Waiting for profiles to finish loading and for pending operations to complete.</value>
   </data>
   <data name="Dynamic060" xml:space="preserve">
-    <value>Profile applied and the Companion opened without taking focus. This game instance will not auto-launch the Companion again until reset.</value>
+    <value>Profile applied and Companion opened without activation. This game instance is now attended and will not reopen automatically.</value>
   </data>
   <data name="Dynamic061" xml:space="preserve">
-    <value>Could not open the Companion automatically. Check Settings and WebView2, then select Reset auto-launch.</value>
+    <value>The Companion could not be opened automatically. Detection remains active and will retry.</value>
   </data>
   <data name="Dynamic062" xml:space="preserve">
     <value>No detection sample is available, so no profile will be applied.</value>
   </data>
   <data name="Dynamic063" xml:space="preserve">
-    <value>Could not query the desktop. The app will retry without elevation.</value>
+    <value>The desktop could not be queried. Detection remains active and will retry without elevation.</value>
   </data>
   <data name="Dynamic064" xml:space="preserve">
     <value>No game detected. If the Companion is already open, it will stay open after the game exits.</value>
@@ -607,10 +607,10 @@
     <value>The game's window, size, instance, or foreground state changed while the Companion was opening.</value>
   </data>
   <data name="Dynamic071" xml:space="preserve">
-    <value>Auto-launch state reset. If Detection is paused, enable it, then return to the game for two stable samples.</value>
+    <value>Auto-launch state reset. Detection remains active; return to the game for two stable samples.</value>
   </data>
   <data name="Dynamic072" xml:space="preserve">
-    <value>Applying a profile manually paused Detection. You can re-enable it from the Detection tab.</value>
+    <value> Detection remains active and will retry automatically.</value>
   </data>
   <data name="Dynamic075" xml:space="preserve">
     <value>WebView2 Runtime is not installed.</value>
@@ -631,7 +631,7 @@
     <value>Same-display testing</value>
   </data>
   <data name="Dynamic085" xml:space="preserve">
-    <value>Companion closed. Detection was paused to prevent it from reopening. Enable Detection and reset auto-launch when you want to try again.</value>
+    <value>Companion closed. Detection remains active, but this game instance was dismissed and will not reopen automatically.</value>
   </data>
   <data name="Dynamic086" xml:space="preserve">
     <value>Review the selection and any warnings in the Displays tab before opening the Companion.</value>
@@ -697,10 +697,10 @@
     <value>In Displays, review the layout and select separate displays for the game and Companion. Confirm any disconnection warning. The guide can continue only when the selection is valid.</value>
   </data>
   <data name="Dynamic121" xml:space="preserve">
-    <value>In Browser, enter a URL. In Profiles, you can save the executable, URL, and display for a game. Enable Detection manually, or choose whether it starts automatically in Settings. You can also use the Companion without creating any profiles.</value>
+    <value>In Browser, enter a URL. In Profiles, save the executable, tabs, and display for each game. Automatic detection is always active while the app is running. You can also use the Companion without creating profiles.</value>
   </data>
   <data name="Dynamic122" xml:space="preserve">
-    <value>Setup is ready. Open the Companion manually, or enable Detection and return to your game. Use FocusProbe to verify focus behavior. Finishing the guide does not open any windows or enable Detection.</value>
+    <value>Setup is ready. Open the Companion manually or return to your game so automatic detection can act. Use FocusProbe to verify focus behavior. Finishing the guide does not open any windows.</value>
   </data>
   <data name="Dynamic123" xml:space="preserve">
     <value>No configured game has a usable window.</value>
@@ -712,7 +712,7 @@
     <value>Game detected, but Auto-launch is disabled for this profile.</value>
   </data>
   <data name="Dynamic126" xml:space="preserve">
-    <value>This game instance has already been handled. The Companion will not auto-launch again until you reset auto-launch or restart the game.</value>
+    <value>Game instance already attended or dismissed. It will not reopen automatically until you Reset or restart the game.</value>
   </data>
   <data name="Dynamic127" xml:space="preserve">
     <value>Game detected in the background. Waiting for it to become the foreground window.</value>
@@ -912,7 +912,7 @@
     <value>Personalization</value>
   </data>
   <data name="AppearanceHelp" xml:space="preserve">
-    <value>Customize the Companion toolbar. Preview changes do not affect the current session until you select Save. Saved changes apply immediately, without restarting. The Close button and toolbar recovery controls always remain available.</value>
+    <value>Customize the Companion toolbar and how it appears when opened. Preview changes do not affect the current session until you select Save. Saved changes apply without restarting.</value>
   </data>
   <data name="AppearancePalette" xml:space="preserve">
     <value>Color palette</value>
@@ -987,7 +987,7 @@
     <value>In Displays, choose separate displays for the game and Companion. Check the layout and review any disconnection warning.</value>
   </data>
   <data name="GuidePlay" xml:space="preserve">
-    <value>Open the Companion from Displays, or enable Detection and return to your game. Make sure the game stays focused while you use the Companion toolbar.</value>
+    <value>Open the Companion from Displays or return to your game to use automatic detection. Make sure the game stays focused while you use the Companion toolbar.</value>
   </data>
   <data name="Ui151" xml:space="preserve">
     <value>Profile tabs</value>
@@ -1099,5 +1099,77 @@
   </data>
   <data name="Ui172" xml:space="preserve">
     <value>Change keyboard size</value>
+  </data>
+  <data name="Dynamic166" xml:space="preserve">
+    <value>WebView2 Runtime is unavailable; install the runtime to allow automatic Companion opening.</value>
+  </data>
+  <data name="Dynamic167" xml:space="preserve">
+    <value>Companion closed. Detection remains active and will keep waiting for configured games.</value>
+  </data>
+  <data name="Dynamic168" xml:space="preserve">
+    <value>always active</value>
+  </data>
+  <data name="GeneralSettingsHelp" xml:space="preserve">
+    <value>Change general preferences and save them together with the button at the bottom of this page.</value>
+  </data>
+  <data name="TrayBehaviorHeading" xml:space="preserve">
+    <value>System tray behavior</value>
+  </data>
+  <data name="SaveAllSettings" xml:space="preserve">
+    <value>Save changes</value>
+  </data>
+  <data name="AllSettingsSaved" xml:space="preserve">
+    <value>Settings saved.</value>
+  </data>
+  <data name="AllSettingsFailed" xml:space="preserve">
+    <value>Not all settings could be saved. Values that could not be changed were preserved; check the log and try again.</value>
+  </data>
+  <data name="CompanionStartupHeading" xml:space="preserve">
+    <value>Companion startup</value>
+  </data>
+  <data name="CompanionStartToolbarVisible" xml:space="preserve">
+    <value>Start the Companion with the touch toolbar visible</value>
+  </data>
+  <data name="CompanionStartToolbarHelp" xml:space="preserve">
+    <value>When disabled, each new Companion window opens with the navigation toolbar and tabs hidden. Showing or hiding the toolbar during a session does not change this preference.</value>
+  </data>
+  <data name="RearmAutoLaunch" xml:space="preserve">
+    <value>Rearm auto-launch</value>
+  </data>
+  <data name="RearmAutoLaunchHelp" xml:space="preserve">
+    <value>Allows a dismissed running game instance to attempt automatic Companion opening again. This is normally unnecessary: restarting the game creates a new eligible instance.</value>
+  </data>
+  <data name="ProfileMonitorCurrent" xml:space="preserve">
+    <value>No fixed display: this profile will use the current Companion display selection.</value>
+  </data>
+  <data name="ProfileMonitorUnavailable" xml:space="preserve">
+    <value>The saved display is not connected. Its persistent identifier is kept and will not be replaced automatically.</value>
+  </data>
+  <data name="ProfileMonitorConfigured" xml:space="preserve">
+    <value>Configured: {0}</value>
+  </data>
+  <data name="Dynamic169" xml:space="preserve">
+    <value>The configured Companion display is unavailable. Its persistent ID is preserved; reconnect it or explicitly choose another display.</value>
+  </data>
+  <data name="Dynamic170" xml:space="preserve">
+    <value>The configured game display is unavailable. Its persistent ID is preserved; reconnect it or explicitly choose another display.</value>
+  </data>
+  <data name="Dynamic171" xml:space="preserve">
+    <value>Legacy display references could not be migrated. Saved profiles were left unchanged.</value>
+  </data>
+  <data name="Dynamic172" xml:space="preserve">
+    <value>The Companion will start with the touch toolbar visible.</value>
+  </data>
+  <data name="Dynamic173" xml:space="preserve">
+    <value>The Companion will start with the touch toolbar hidden.</value>
+  </data>
+  <data name="Dynamic174" xml:space="preserve">
+    <value>The preferred display is not connected. Its persistent identifier is preserved and it will not be replaced by another display.</value>
+  </data>
+  <data name="MonitorMessage9" xml:space="preserve">
+    <value>The previous Companion display {0} is unavailable. Companion was closed; reconnect it or explicitly choose another display before reopening it.</value>
+  </data>
+  <data name="Dynamic175" xml:space="preserve">
+    <value>A legacy selection based on DISPLAY1/2/3 was found. Verify the physical display names shown and confirm the selection once to migrate it to the persistent identifier.</value>
   </data>
 </root>

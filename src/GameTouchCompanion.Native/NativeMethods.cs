@@ -28,6 +28,10 @@ internal static partial class NativeMethods
     [return: MarshalAs(UnmanagedType.Bool)]
     private static partial bool GetMonitorInfo(nint monitor, ref MonitorInfoEx monitorInfo);
 
+    [LibraryImport("user32.dll", EntryPoint = "EnumDisplayDevicesW", StringMarshalling = StringMarshalling.Utf16)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool EnumDisplayDevices(string? device, uint deviceNumber, ref DisplayDevice displayDevice, uint flags);
+
     [LibraryImport("user32.dll", SetLastError = true, EntryPoint = "GetWindowLongPtrW")]
     private static partial nint GetWindowLongPtr64(nint hWnd, int nIndex);
 
@@ -61,6 +65,42 @@ internal static partial class NativeMethods
 
         return monitorInfo;
     }
+
+    internal static DisplayIdentity ReadDisplayIdentity(string gdiDeviceName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(gdiDeviceName);
+
+        for (uint adapterIndex = 0; ; adapterIndex++)
+        {
+            var adapter = DisplayDevice.Create();
+            if (!EnumDisplayDevices(null, adapterIndex, ref adapter, 0)) break;
+            if (!string.Equals(adapter.ReadDeviceName(), gdiDeviceName, StringComparison.OrdinalIgnoreCase)) continue;
+
+            // The monitor interface path is independent from the transient \.\DISPLAYn GDI alias.
+            // It is the preferred persisted identity. If Windows cannot expose it, fall back to
+            // the monitor device id/key; callers can still fall back to the GDI alias as a last resort.
+            for (uint monitorIndex = 0; monitorIndex < 16; monitorIndex++)
+            {
+                var monitor = DisplayDevice.Create();
+                if (!EnumDisplayDevices(gdiDeviceName, monitorIndex, ref monitor, NativeConstants.EddGetDeviceInterfaceName)) break;
+
+                var stableId = FirstNonEmpty(monitor.ReadDeviceId(), monitor.ReadDeviceKey());
+                var friendlyName = FirstNonEmpty(monitor.ReadDeviceString(), adapter.ReadDeviceString());
+                if (!string.IsNullOrWhiteSpace(stableId) || !string.IsNullOrWhiteSpace(friendlyName))
+                    return new DisplayIdentity(NormalizeIdentity(stableId), friendlyName?.Trim());
+            }
+
+            return new DisplayIdentity(null, FirstNonEmpty(adapter.ReadDeviceString())?.Trim());
+        }
+
+        return default;
+    }
+
+    private static string? FirstNonEmpty(params string[] values) =>
+        values.FirstOrDefault(static value => !string.IsNullOrWhiteSpace(value));
+
+    private static string? NormalizeIdentity(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? null : value.Trim().ToUpperInvariant();
 
     internal static nint GetExtendedStyle(nint hwnd)
     {

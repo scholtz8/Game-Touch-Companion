@@ -18,11 +18,25 @@ public sealed class Win32MonitorService : IMonitorService
             try
             {
                 var info = NativeMethods.ReadMonitorInfo(monitor);
+                var deviceName = info.ReadDeviceName();
+                DisplayIdentity identity;
+                try
+                {
+                    identity = NativeMethods.ReadDisplayIdentity(deviceName);
+                }
+                catch
+                {
+                    // Persistent identity enrichment must never make basic monitor enumeration fail.
+                    identity = default;
+                }
+
                 var snapshot = new MonitorSnapshot(
-                    info.ReadDeviceName(),
+                    deviceName,
                     info.MonitorBounds,
                     info.WorkingArea,
-                    info.Flags);
+                    info.Flags,
+                    identity.StableId,
+                    identity.FriendlyName);
 
                 monitors.Add(MonitorProfileMapper.ToMonitorProfile(snapshot));
             }

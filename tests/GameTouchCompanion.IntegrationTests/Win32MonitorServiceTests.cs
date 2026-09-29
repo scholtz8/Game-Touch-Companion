@@ -17,6 +17,9 @@ public sealed class Win32MonitorServiceTests
         Assert.All(monitors, static monitor =>
         {
             Assert.False(string.IsNullOrWhiteSpace(monitor.DeviceName));
+            Assert.False(string.IsNullOrWhiteSpace(monitor.IdentityKey));
+            if (!string.IsNullOrWhiteSpace(monitor.StableId))
+                Assert.False(monitor.StableId.StartsWith(@"\\.\DISPLAY", StringComparison.OrdinalIgnoreCase));
             Assert.True(monitor.Bounds.Width > 0);
             Assert.True(monitor.Bounds.Height > 0);
         });

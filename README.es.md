@@ -8,11 +8,11 @@ Game Touch Companion se distribuye bajo la Licencia Pública General de GNU, ver
 
 Personalización (primer bloque): pestaña con paletas, tamaños, orden, iconos/etiquetas, título y preview de la barra. Guardar aplica a Companion abierto; Restablecer cambia primero el borrador. Ver [PERSONALIZATION](docs/PERSONALIZATION.md). Temas completos de Configuration y rediseño general siguen pendientes.
 
-Idiomas (post-MVP): la primera apertura del build actual pregunta Español/English antes de detección o bandeja. **Guardar idioma lo aplica inmediatamente**, sin reiniciar Companion ni la detección. Incluye guía, pantallas, diálogos, diagnóstico y estados propios. Páginas web, datos del usuario y mensajes técnicos externos no se traducen. Alcance y seguimiento en [LOCALIZATION](docs/LOCALIZATION.md). El ZIP histórico no incluye esta ampliación.
+Idiomas (post-MVP): la primera apertura del build actual pregunta Español/English antes de iniciar la interfaz. En **Ajustes generales**, idioma, inicio con Windows y comportamiento de bandeja se editan como preferencias y se aplican juntos con **Guardar cambios**. El cambio de idioma se aplica en vivo sin reiniciar Companion ni la detección. Incluye guía, pantallas, diálogos, diagnóstico y estados propios. Páginas web, datos del usuario y mensajes técnicos externos no se traducen. Alcance y seguimiento en [LOCALIZATION](docs/LOCALIZATION.md).
 
 ## Ampliación actual: Windows y bandeja
 
-En **Ajustes** puedes habilitar por separado inicio con Windows, iniciar oculto y cerrar Configuración a bandeja. El menú del icono permite abrir Configuración, activar/pausar detección, rearmar y salir completamente. La detección al abrir tiene su propia preferencia. Todas estas opciones son opt-in.
+En **Ajustes generales** puedes preparar idioma, inicio con Windows, iniciar oculto y cerrar Configuración a bandeja, y aplicar esas preferencias con un único **Guardar cambios**. El menú del icono permite abrir Configuración, **Rearmar apertura automática** y salir completamente. La detección automática ya no tiene interruptor ni preferencia de inicio: permanece activa mientras Game Touch Companion esté ejecutándose.
 
 Usa la compilación actual desde una ruta estable: el ZIP histórico no incluye estas ampliaciones. Si mueves el EXE, registra explícitamente la nueva copia. No ejecutes dos copias simultáneas. Recuperación: salir de la copia actual y ejecutar `GameTouchCompanion.App.exe --show`. Protocolo manual en [TEST_PLAN](docs/TEST_PLAN.md), etapa 2 post-MVP.
 
@@ -54,7 +54,7 @@ La misma pantalla se bloquea por defecto cuando existen alternativas. Para prueb
 4. En Companion usa Atrás, Adelante, Recargar, Inicio, Guardar y Favoritos. **Guardar** añade la página actual. **Ocultar barra** deja accesibles **Mostrar barra** y **Cerrar**.
 5. **Página de prueba local** carga el test táctil; su enlace a la segunda página permite probar historial y recarga sin Internet.
 
-Inicio, favoritos y barra se guardan automáticamente en `%LOCALAPPDATA%\GameTouchCompanion\browser.json`; las pantallas siguen en `settings.json`. La última página no se convierte automáticamente en inicio. Si `browser.json` está corrupto, se conserva sin sobrescribir y se bloquean los cambios persistentes hasta corregirlo y reiniciar. Los errores de página ofrecen **Reintentar** e **Ir a inicio** dentro de Companion.
+Inicio y favoritos se guardan en `%LOCALAPPDATA%\GameTouchCompanion\browser.json`. La preferencia de iniciar Companion con la barra táctil visible se guarda desde **Personalización**; las pantallas siguen en `settings.json`. La última página no se convierte automáticamente en inicio. Si `browser.json` está corrupto, se conserva sin sobrescribir y se bloquean los cambios persistentes hasta corregirlo y reiniciar. Los errores de página ofrecen **Reintentar** e **Ir a inicio** dentro de Companion.
 
 Prueba opcional con WebView2 real, ejecutada en una sesión de escritorio normal (abre y cierra Companion con perfil aislado; no mide foco/touch):
 
@@ -68,14 +68,14 @@ Consulta la [prueba física de Fase 3](docs/TEST_PLAN.md#phase-3-browser-manual-
 
 ## Fase 4: perfiles
 
-La pestaña **Perfiles** permite crear, editar, guardar, aplicar y eliminar perfiles. Se conservan en `%LOCALAPPDATA%\GameTouchCompanion\profiles.json` (schemaVersion 1), sin modificar favoritos/inicio al guardar.
+La pestaña **Perfiles** permite crear, editar, guardar, aplicar y eliminar perfiles con múltiples pestañas y una página principal. Se conservan en `%LOCALAPPDATA%\GameTouchCompanion\profiles.json` (schemaVersion 2), sin modificar favoritos/inicio al guardar. Los documentos schemaVersion 1 se migran automáticamente al formato multi-pestaña.
 
 1. Pulsa **Nuevo perfil** y escribe nombre, URL HTTP/HTTPS del mapa y, si corresponde, el nombre del ejecutable (`Game.exe`, sin ruta ni argumentos).
-2. Deja el monitor vacío para usar la selección actual o elige uno conectado y pulsa **Usar monitor elegido**. También puedes escribir el nombre exacto, por ejemplo `\\.\DISPLAY2`; una preferencia ausente no se reemplaza silenciosamente.
+2. Deja la pantalla Companion sin preferencia para usar la selección actual, o elige una pantalla conectada y pulsa **Usar monitor elegido**. La aplicación guarda una identidad persistente del destino de Windows en vez de depender de `\\.\DISPLAY1/2/3`; si esa pantalla se desconecta, el perfil conserva su identidad y no la sustituye silenciosamente por otra.
 3. Pulsa **Guardar**. **Aplicar perfil guardado** cambia la selección actual de monitor y prepara/navega la URL. Si Companion está cerrado, ábrelo desde Pantallas o Navegador; aplicar no lo abre por sí solo.
 4. **Eliminar…** solicita confirmación dentro de la pestaña antes de borrar del JSON. No cambia la página ya abierta. Seleccionar otro perfil o Nuevo con cambios pendientes ofrece **Conservar borrador** o **Descartar y continuar**. Aplicar siempre usa la versión guardada. Los borradores no se persisten al cerrar la aplicación.
 
-**Autoarranque requiere activar Detección en esta sesión**: el campo guardado por Fase 4 ahora participa en la apertura automática de Fase 5. No ejecuta juegos ni configura inicio de Windows. NoActivate permanece obligatorio y el fallback de foco deshabilitado. Aplicar un perfil manualmente pausa la detección.
+**La detección automática permanece activa mientras Game Touch Companion esté ejecutándose.** No hay interruptor de sesión ni preferencia separada de “detección al iniciar”. Cada perfil decide si debe abrir Companion mediante su opción de apertura automática. La aplicación no ejecuta juegos ni configura el inicio de Windows, `NoActivate` permanece obligatorio y aplicar un perfil manualmente no detiene la detección.
 
 Si falta el monitor o hay revisión pendiente tras una desconexión, no se aplica el perfil: revisa Pantallas o edita su preferencia. La aplicación respeta el permiso de mismo monitor para pruebas. Un JSON inválido o de versión desconocida se conserva y bloquea edición hasta corregirlo y reiniciar. Ante fallo de guardado, el borrador queda disponible y la colección guardada no cambia.
 
@@ -84,12 +84,12 @@ Fase 4 cerrada con confirmación manual global del usuario. El [protocolo manual
 ## Fase 5: detección y apertura automática
 
 1. Guarda un perfil con el ejecutable exacto (`FocusProbe.exe` sirve para la primera prueba), una URL y Autoarranque marcado. Usa un monitor Companion distinto del juego.
-2. En **Detección**, marca **Activar detección y autoarranque en esta sesión**. Por defecto arranca desmarcado. En **Ajustes**, puedes guardar **Activar detección automáticamente al abrir la aplicación** para próximos inicios; no cambia la sesión actual ni inicia Windows. Requiere configuración/perfiles/navegador cargados, runtime disponible y selección válida; si algo falla, actívala manualmente después de corregirlo.
+2. La **Detección** se inicia automáticamente con Game Touch Companion y permanece activa mientras la aplicación siga ejecutándose, incluso si Configuración está oculta en la bandeja. No hay que activarla manualmente.
 3. Abre el juego tú mismo y déjalo foreground. Tras dos muestras estables, separadas por unos 2 segundos, se aplica el perfil y se abre Companion sin activarlo. En segundo plano solo se muestra diagnóstico.
-4. Más de un perfil Autoarranque para el mismo ejecutable bloquea la selección. Un monitor ausente, revisión pendiente o pantalla que cubra el juego también bloquean: el aviso queda en Detección sin diálogos modales.
-5. Cada perfil/instancia de proceso recibe un intento. **Rearmar** permite otro intento después de corregir un problema. Cerrar Companion o aplicar manualmente un perfil pausa la detección; no reabre la ventana en bucle. Finalizar el juego no cierra la página que estés consultando.
+4. Más de un perfil con apertura automática para el mismo ejecutable bloquea la selección. Un monitor ausente, revisión pendiente, WebView2 no disponible o una pantalla que cubra el juego también bloquean la apertura, pero la detección continúa activa y vuelve a evaluar la situación.
+5. Una instancia se identifica por ejecutable + PID + hora de inicio. Tras una apertura automática queda **atendida**. Si cierras Companion mientras juegas, esa instancia queda **descartada** y no vuelve a abrir Companion automáticamente. Si cierras y vuelves a abrir el juego, o abres otro juego configurado, se trata como una nueva instancia y puede abrir Companion normalmente. **Rearmar** permite explícitamente otro intento con la instancia actual.
 
-La pestaña muestra perfil detectado, PID, HWND, bounds y foreground. El contador de transiciones se muestrea cada 2 segundos: puede omitir pérdidas breves y **no sustituye FocusProbe**. No se fuerza ni recupera el foco.
+El estado técnico de detección se consulta en **Diagnóstico**, junto con perfil detectado, PID, HWND, bounds y primer plano. **Rearmar apertura automática** está disponible allí y en la bandeja. El contador de transiciones se muestrea cada 2 segundos: puede omitir pérdidas breves y **no sustituye FocusProbe**. No se fuerza ni recupera el foco.
 
 La apertura automática exige monitores separados incluso si habilitaste el override de pruebas. La detección es por nombre de ejecutable, no por ruta/firma: no prueba identidad o seguridad. Ventanas auxiliares, minimizadas, invisibles o vacías se excluyen; launchers, juegos protegidos, escritorios virtuales y fullscreen exclusivo requieren pruebas específicas. No se elevan permisos para inspeccionar procesos inaccesibles.
 
@@ -97,13 +97,13 @@ Fase 5 cerrada el 2026-09-07 con validación manual reportada de detección, URL
 
 ## Fase 6: configuración guiada
 
-La pestaña **Inicio** ofrece una guía de tres pasos: pantallas, contenido y prueba. Vuelve a Inicio para avanzar después de configurar cada panel. Requiere dos monitores distintos y sin revisión pendiente; el override de una sola pantalla sigue disponible para pruebas manuales desde Pantallas, pero no completa la guía. Terminar/reiniciar la guía no abre Companion, activa detección ni deshace ajustes guardados.
+La pestaña **Inicio** ofrece una guía de tres pasos: pantallas, contenido y prueba. Vuelve a Inicio para avanzar después de configurar cada panel. Requiere dos monitores distintos y sin revisión pendiente; el override de una sola pantalla sigue disponible para pruebas manuales desde Pantallas, pero no completa la guía. Terminar/reiniciar la guía no abre Companion ni deshace ajustes guardados; la detección automática continúa funcionando en segundo plano.
 
 **Pantallas** incluye un esquema proporcional del escritorio con números, roles y coordenadas, también negativas. Los números son locales al esquema, no necesariamente los identificadores de Windows. No identifica automáticamente cuál monitor es táctil ni modifica la posición real.
 
 **Perfiles** muestra ejecutables, cambios sin guardar y confirmación al cambiar de borrador. El selector de monitores solo copia la elección al borrador al pulsar el botón; Guardar sigue siendo explícito.
 
-**Ajustes** reúne políticas de seguridad, barra táctil y accesos a inicio/favoritos, pantallas y detección. **Diagnóstico** muestra versión/runtime, selección/revisión, muestra manual de foreground y últimas muestras de detección. No hay nuevo sondeo ni exportación desde la UI. Touch y pérdidas exactas no se inventan: usa TouchTestPage/FocusProbe.
+**Ajustes generales** reúne idioma, inicio con Windows y comportamiento de bandeja bajo un único **Guardar cambios**. La preferencia de inicio de la barra táctil vive en **Personalización**. **Diagnóstico** muestra versión/runtime, selección/revisión, muestra manual de primer plano, últimas muestras de detección y la acción **Rearmar apertura automática**. Touch y pérdidas exactas no se inventan: usa TouchTestPage/FocusProbe.
 
 Versión 0.6.0-dev. Fase 6 cerrada el 2026-09-07 con reporte manual global «todo funcionando como corresponde», sin desglose ni nueva timeline. Evidencia y protocolo de regresión en [validación manual Fase 6](docs/TEST_PLAN.md#phase-6-ux-manual-checklist). No incluye packaging de Fase 7.
 
@@ -130,7 +130,7 @@ Fase 7 cerrada el 2026-09-07 con confirmación manual global del portable en el 
 - El focus/touch real, scroll, drag y pinch requieren prueba manual con hardware después de cambios de topología o DPI.
 - Una ventana no-activate limita navegación por teclado, lectores de pantalla e inputs de texto; la configuración permanece en una ventana normal.
 - Fullscreen exclusivo puede comportarse distinto de windowed/borderless.
-- Los nombres `\\.\DISPLAYn` pueden cambiar al reconectar docks, puertos o GPU; se revalidan siempre contra la topología actual.
+- `\\.\DISPLAY1/2/3` se consideran alias temporales de la sesión. La selección persistente usa la identidad de dispositivo/interfaz que Windows expone para cada pantalla y resuelve dinámicamente el alias GDI actual. Un cambio importante de ruta de hardware (por ejemplo otro adaptador, dock, GPU o ciertos cambios de puerto) puede hacer que Windows presente una identidad distinta y requerir reselección.
 
 ## Siguiente paso: validación Beta
 

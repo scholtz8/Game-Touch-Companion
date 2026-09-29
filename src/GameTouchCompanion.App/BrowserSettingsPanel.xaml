@@ -32,8 +32,6 @@
             <TextBlock Margin="0,6" TextWrapping="Wrap">
                 <Run Text="{local:Tr Ui088}"/><Run Text="{Binding CurrentUrl, Mode=OneWay}"/>
             </TextBlock>
-            <CheckBox x:Name="ToolbarCheck" Content="{local:Tr Ui089}" Margin="0,12"
-                      IsChecked="{Binding ShowToolbar, Mode=OneWay}" Click="Toolbar_Click"/>
             <TextBlock Text="{local:Tr Ui090}" FontWeight="SemiBold" FontSize="20" Margin="0,18,0,10"/>
             <ListBox x:Name="FavoritesList" ItemsSource="{Binding Favorites}" SelectedItem="{Binding SelectedFavorite, Mode=TwoWay}"
                      MinHeight="90" MaxHeight="190" ScrollViewer.HorizontalScrollBarVisibility="Disabled">

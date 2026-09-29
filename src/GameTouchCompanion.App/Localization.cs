@@ -47,7 +47,9 @@ public static partial class Localization
         return F(message);
     }
     public static string MonitorLabel(MonitorProfile? monitor) => monitor is null ? T("no seleccionado") :
-        $"{monitor.DeviceName} — {monitor.Bounds.Width} × {monitor.Bounds.Height} @ ({monitor.Bounds.X}, {monitor.Bounds.Y})" +
+        $"{(string.IsNullOrWhiteSpace(monitor.FriendlyName) ? monitor.DeviceName : monitor.FriendlyName)} — {monitor.Bounds.Width} × {monitor.Bounds.Height}" +
+        (monitor.StableTag is null ? string.Empty : $" · ID {monitor.StableTag}") +
+        $" @ ({monitor.Bounds.X}, {monitor.Bounds.Y})" +
         (monitor.IsPrimary ? Get("PrimaryDisplaySuffix") : string.Empty);
     public static Binding Binding(Func<string> render) => new(nameof(LanguageState.Current))
     {

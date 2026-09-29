@@ -13,10 +13,11 @@ public sealed class JsonApplicationSettingsStoreTests
         var store = new JsonApplicationSettingsStore(settingsPath);
         var expected = new ApplicationSettings
         {
+            GameMonitorId = "MONITOR-A",
+            CompanionMonitorId = "MONITOR-B",
             GameMonitorDeviceName = "\\\\.\\DISPLAY1",
             CompanionMonitorDeviceName = "\\\\.\\DISPLAY2",
             AllowSameMonitorForTesting = true,
-            EnableDetectionOnStartup = true,
             StartMinimizedToTray = true,
             CloseToTray = true,
         };
@@ -27,6 +28,8 @@ public sealed class JsonApplicationSettingsStoreTests
 
         Assert.Equal(expected, actual);
         Assert.Equal(Path.GetFullPath(settingsPath), store.FilePath);
+        Assert.Contains("\"gameMonitorId\"", json, StringComparison.Ordinal);
+        Assert.Contains("\"companionMonitorId\"", json, StringComparison.Ordinal);
         Assert.Contains("\"gameMonitorDeviceName\"", json, StringComparison.Ordinal);
         Assert.Contains("\"allowSameMonitorForTesting\": true", json, StringComparison.Ordinal);
     }
@@ -45,12 +48,19 @@ public sealed class JsonApplicationSettingsStoreTests
     }
 
     [Fact]
-    public async Task LegacySettingsDefaultStartupDetectionToFalse()
+    public async Task LegacyStartupDetectionPropertyIsIgnoredAndRemovedOnNextSave()
     {
         using var directory = new TemporaryDirectory();
         var path = Path.Combine(directory.Path, "settings.json");
-        await File.WriteAllTextAsync(path, "{\"allowSameMonitorForTesting\":false}");
-        Assert.False((await new JsonApplicationSettingsStore(path).LoadAsync()).EnableDetectionOnStartup);
+        await File.WriteAllTextAsync(path, "{\"enableDetectionOnStartup\":false,\"startMinimizedToTray\":true}");
+        var store = new JsonApplicationSettingsStore(path);
+
+        var settings = await store.LoadAsync();
+        Assert.True(settings.StartMinimizedToTray);
+
+        await store.SaveAsync(settings);
+        var json = await File.ReadAllTextAsync(path);
+        Assert.DoesNotContain("enableDetectionOnStartup", json, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]

@@ -43,3 +43,48 @@ internal unsafe struct MonitorInfoEx
         }
     }
 }
+
+[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+internal unsafe struct DisplayDevice
+{
+    internal uint Size;
+    internal fixed char DeviceName[32];
+    internal fixed char DeviceString[128];
+    internal uint StateFlags;
+    internal fixed char DeviceId[128];
+    internal fixed char DeviceKey[128];
+
+    internal static DisplayDevice Create() => new()
+    {
+        Size = (uint)sizeof(DisplayDevice),
+    };
+
+    internal string ReadDeviceName()
+    {
+        fixed (char* start = DeviceName) return Read(start, 32);
+    }
+
+    internal string ReadDeviceString()
+    {
+        fixed (char* start = DeviceString) return Read(start, 128);
+    }
+
+    internal string ReadDeviceId()
+    {
+        fixed (char* start = DeviceId) return Read(start, 128);
+    }
+
+    internal string ReadDeviceKey()
+    {
+        fixed (char* start = DeviceKey) return Read(start, 128);
+    }
+
+    private static string Read(char* start, int length)
+    {
+        var characters = new ReadOnlySpan<char>(start, length);
+        var terminator = characters.IndexOf('\0');
+        return new string(terminator >= 0 ? characters[..terminator] : characters);
+    }
+}
+
+internal readonly record struct DisplayIdentity(string? StableId, string? FriendlyName);

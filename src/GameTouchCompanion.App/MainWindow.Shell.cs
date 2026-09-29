@@ -1,6 +1,5 @@
 using System.ComponentModel;
 using System.Windows;
-using System.Windows.Controls.Primitives;
 using System.Windows.Interop;
 using GameTouchCompanion.Core;
 using Serilog;
@@ -13,6 +12,7 @@ public partial class MainWindow
     private readonly ITrayService? tray;
     private bool exitRequested;
     private bool shellInitialized;
+    private StartupRegistration? startupState;
 
     private void InitializeShell()
     {
@@ -23,12 +23,10 @@ public partial class MainWindow
         {
             tray?.Initialize(
                 () => Dispatcher.Invoke(ShowConfigurationFromTray),
-                () => Dispatcher.Invoke(ToggleDetectionFromTray),
                 () => Dispatcher.Invoke(() => { if (!isClosed) RearmDetection_Click(this, new RoutedEventArgs()); }),
                 () => Dispatcher.Invoke(ExitCompletely));
-            tray?.UpdateDetection(DetectionEnabledCheck.IsChecked == true);
             Localization.Text(TrayStatus, () => Localization.T(tray?.IsAvailable == true
-                ? Localization.T("Bandeja disponible. Doble clic abre Configuración; el menú permite Salir. Windows decide si el icono queda visible u oculto.")
+                ? Localization.T("Bandeja disponible. Doble clic abre Configuración; el menú permite Rearmar la apertura automática o Salir. Windows decide si el icono queda visible u oculto.")
                 : Localization.T("Bandeja no disponible. Configuración no se ocultará; cerrar termina la aplicación.")));
             Log.Debug("Tray availability initialized. Available={Available}", tray?.IsAvailable == true);
         }
@@ -72,12 +70,6 @@ public partial class MainWindow
         RefreshStartupRegistration();
     }
 
-    internal void ToggleDetectionFromTray()
-    {
-        if (isClosed || !configurationReady) return;
-        DetectionEnabledCheck.IsChecked = DetectionEnabledCheck.IsChecked != true;
-    }
-
     internal void ExitCompletely()
     {
         if (isClosed) return;
@@ -96,37 +88,6 @@ public partial class MainWindow
         }
     }
 
-    private async void TrayPreferences_Click(object sender, RoutedEventArgs e)
-    {
-        var startHidden = StartInTrayCheck.IsChecked == true;
-        var closeHidden = CloseToTrayCheck.IsChecked == true;
-        StartInTrayCheck.SetCurrentValue(IsEnabledProperty, false);
-        CloseToTrayCheck.SetCurrentValue(IsEnabledProperty, false);
-        await settingsOperationGate.WaitAsync();
-        try
-        {
-            if (isClosed) return;
-            await viewModel.SetTrayPreferencesAsync(startHidden, closeHidden);
-            Localization.Text(TrayStatus, () => Localization.T("Preferencias guardadas. Iniciar oculto se aplica al próximo arranque; cerrar a bandeja ya está configurado. Salir completamente siempre termina la app."));
-            ClearSettingsError();
-            Log.Information("Tray preferences saved. StartHidden={StartHidden}; CloseHidden={CloseHidden}", startHidden, closeHidden);
-        }
-        catch (Exception ex)
-        {
-            Log.Warning("Tray preference failed. Type={Type}; Code={Code}", ex.GetType().Name, ex.HResult);
-            Localization.Text(TrayStatus, () => Localization.T("No se pudo guardar; se conservan las preferencias anteriores."));
-            ShowSettingsError(() => Localization.T("No se pudo guardar; se conservan las preferencias anteriores."), "tray-preferences");
-        }
-        finally
-        {
-            settingsOperationGate.Release();
-            StartInTrayCheck.SetCurrentValue(ToggleButton.IsCheckedProperty, viewModel.StartMinimizedToTray);
-            CloseToTrayCheck.SetCurrentValue(ToggleButton.IsCheckedProperty, viewModel.CloseToTray);
-            StartInTrayCheck.SetCurrentValue(IsEnabledProperty, viewModel.SettingsLoaded);
-            CloseToTrayCheck.SetCurrentValue(IsEnabledProperty, viewModel.SettingsLoaded);
-        }
-    }
-
     private void RefreshStartupRegistration()
     {
         WindowsStartupCheck.IsEnabled = startupRegistration is not null;
@@ -134,6 +95,7 @@ public partial class MainWindow
         try
         {
             var state = startupRegistration?.Read();
+            startupState = state;
             WindowsStartupCheck.IsChecked = state?.Exists == true;
             Localization.Text(WindowsStartupStatus, () => Localization.T(state is null ? Localization.T("Registro no disponible en esta sesión de pruebas.") :
                 !state.Exists ? Localization.T("Sin registro de inicio de sesión. No se modifica Windows hasta que habilites esta opción.") :
@@ -143,6 +105,7 @@ public partial class MainWindow
         }
         catch (Exception ex)
         {
+            startupState = null;
             WindowsStartupCheck.IsEnabled = false;
             RegisterCurrentCopyButton.IsEnabled = false;
             Localization.Text(WindowsStartupStatus, () => Localization.T("No se pudo consultar el inicio de Windows. No se modificó el registro."));
@@ -150,8 +113,6 @@ public partial class MainWindow
             ShowSettingsError(() => Localization.T("No se pudo consultar el inicio de Windows. No se modificó el registro."), "startup-registration-read");
         }
     }
-    private void WindowsStartup_Click(object sender, RoutedEventArgs e) =>
-        ChangeStartupRegistration(WindowsStartupCheck.IsChecked == true, false);
     private void RegisterCurrentCopy_Click(object sender, RoutedEventArgs e) => ChangeStartupRegistration(true, true);
     private void RefreshStartup_Click(object sender, RoutedEventArgs e) => RefreshStartupRegistration();
     private void ChangeStartupRegistration(bool enabled, bool replace)

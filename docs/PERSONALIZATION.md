@@ -15,3 +15,14 @@ Verificación: build Release sin advertencias/errores; 187 normales PASS (Core14
 Pendiente: validación manual de esta entrega y siguientes bloques de etapa 4 (temas claro/oscuro/sistema de Configuration, diseño global y opciones visuales adicionales). Etapa 4 no cerrada. No nuevo ZIP/version; paquete histórico no incluye estas funciones.
 
 En una repetición paralela falló PackagePart.CleanUpRequestedStreamsList al cargar BrowserSettingsPanel (NullReferenceException interna de WPF). Los tests que crean ventanas ahora comparten colección no paralela; la aplicación no cambió por ese fallo. Regresión serial 10PASS; evidencia fallida conservada en latest.txt. No ocultar el incidente atribuyéndolo a una prueba física ni a un problema de foco.
+
+## Estado inicial de la barra táctil
+
+Personalización también controla **Iniciar Companion con la barra táctil visible**. Esta opción se guarda junto con las preferencias del navegador, pero se edita desde Personalización porque define la apariencia inicial de una nueva ventana Companion.
+
+- Activada: un Companion nuevo inicia mostrando barra de navegación y pestañas.
+- Desactivada: un Companion nuevo inicia con ambas ocultas.
+- **Mostrar/Ocultar barra** dentro de Companion solo modifica la sesión actual y no cambia esta preferencia guardada.
+- Restablecer Personalización vuelve a marcar la opción en el borrador; hay que pulsar **Guardar** para persistirla.
+
+El cambio no recrea un Companion ya abierto y no modifica `NoActivate`, WebView2, URL, detección ni perfiles.

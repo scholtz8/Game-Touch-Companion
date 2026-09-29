@@ -19,9 +19,9 @@ The project does **not** inject code into games, modify game memory, install dri
 - Secondary fullscreen Companion window for maps, guides, and web content
 - Touch-friendly WebView2 browser
 - No-activation window behavior using Win32 APIs
-- Multi-monitor selection and layout awareness
+- Persistent physical-display selection that survives normal `DISPLAY1/2/3` renumbering
 - Per-game profiles with saved URLs and display preferences
-- Automatic game detection and optional Companion auto-open
+- Always-on game detection with per-profile optional Companion auto-open
 - Favorites and configurable home page
 - Customizable Companion toolbar
 - Light and dark themes
@@ -79,9 +79,11 @@ Profiles can store settings for individual games, including:
 
 - Profile name
 - Game executable name
-- Map or website URL
-- Preferred Companion display
+- Multiple map/website tabs and a primary tab
+- Preferred Companion display using a persistent Windows display identity
 - Automatic opening when the game is detected
+
+The UI shows a friendly display name, resolution, and a short identity tag. The transient `\\.\DISPLAY1/2/3` alias is resolved only for the current Windows session. If a configured physical display is missing, its saved identity is retained and the app does not silently substitute another display.
 
 Profile data is stored locally in:
 
@@ -93,9 +95,15 @@ Profile data is stored locally in:
 
 Game Touch Companion can monitor running processes and match them against saved profiles.
 
-When automatic detection is enabled and a compatible game window is found, the app can prepare and open the corresponding Companion without intentionally activating it.
+Automatic detection starts with Game Touch Companion and remains active while the app is running, including while Settings is hidden in the system tray. Each profile independently controls whether its game should auto-open the Companion.
 
-The application does not start the game itself and does not inject anything into the game process.
+A handled game process is identified by executable name, PID, and process start time. If you manually close the Companion while playing, that specific instance is dismissed and will not reopen automatically. Restarting the game creates a new instance that can auto-open normally; opening a different configured game is unaffected. The application does not start games or inject anything into game processes.
+
+## Settings and personalization
+
+**General settings** uses one **Save changes** action for language, Windows startup, start-hidden, and close-to-tray preferences. Detection is not a user-toggleable setting; it runs for the lifetime of the application. Detection details and **Reset auto-launch** are available under Diagnostics, while Reset auto-launch is also available from the tray menu.
+
+The **Personalization** tab owns the startup visibility preference for the Companion touch toolbar. Manual Show/Hide actions affect only the current Companion session; the saved preference controls the next Companion window.
 
 ## Browser and WebView2 security
 
@@ -208,7 +216,7 @@ Game-Touch-Companion/
 - Exclusive fullscreen games may behave differently from Borderless Windowed games.
 - Some games may stop accepting keyboard or mouse input when another window receives interaction even if the game remains foreground.
 - WebView2 behavior can vary between websites.
-- Display identifiers such as `\\.\DISPLAY2` may change after reconnecting monitors, docks, ports, or GPUs.
+- `\\.\DISPLAY1/2/3` aliases can change; the app persists the Windows monitor device/interface identity instead. Windows can still expose a new underlying identity after sufficiently different hardware routing (for example a different GPU, dock, adapter, or some port changes), which may require explicit reselection.
 - Keyboard-heavy interaction inside a no-activate Companion window is intentionally limited.
 
 ## Beta validation goals

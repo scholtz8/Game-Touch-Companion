@@ -18,7 +18,7 @@ public sealed class GameDetectionTests
         Assert.True(ready.ShouldLaunch);
         Assert.True(ready.IsForeground);
         Assert.Equal(123, ready.Game!.Process.ProcessId);
-        tracker.MarkAttempted(ready.Game);
+        tracker.MarkAttended(ready.Game);
         Assert.False(tracker.Observe(Snapshot(), [Profile]).ShouldLaunch);
         tracker.ClearObservation();
         Assert.False(tracker.Observe(Snapshot(), [Profile]).ShouldLaunch);
@@ -87,7 +87,7 @@ public sealed class GameDetectionTests
         var tracker = new GameDetectionTracker();
         tracker.Observe(Snapshot(), [Profile]);
         var game = tracker.Observe(Snapshot(), [Profile]).Game!;
-        tracker.MarkAttempted(game);
+        tracker.MarkAttended(game);
         var replacement = Snapshot() with { Windows = [Window with { Handle = 999 }], ForegroundWindow = 999 };
         tracker.Observe(replacement, [Profile]);
         Assert.False(tracker.Observe(replacement, [Profile]).ShouldLaunch);
@@ -95,6 +95,43 @@ public sealed class GameDetectionTests
         var restarted = Snapshot() with { Processes = [Process with { StartTimeUtcTicks = 987 }] };
         Assert.False(tracker.Observe(restarted, [Profile]).ShouldLaunch);
         Assert.True(tracker.Observe(restarted, [Profile]).ShouldLaunch);
+    }
+
+
+    [Fact]
+    public void AttendedStateBelongsToProcessInstanceNotProfile()
+    {
+        var tracker = new GameDetectionTracker();
+        tracker.Observe(Snapshot(), [Profile]);
+        var game = tracker.Observe(Snapshot(), [Profile]).Game!;
+        tracker.MarkDismissed(game);
+
+        var replacementProfile = Profile with { Id = "replacement", DisplayName = "Replacement" };
+        Assert.False(tracker.Observe(Snapshot(), [replacementProfile]).ShouldLaunch);
+        Assert.Contains("atendida", tracker.Observe(Snapshot(), [replacementProfile]).Status);
+
+        var restarted = Snapshot() with { Processes = [Process with { StartTimeUtcTicks = 999 }] };
+        Assert.False(tracker.Observe(restarted, [replacementProfile]).ShouldLaunch);
+        Assert.True(tracker.Observe(restarted, [replacementProfile]).ShouldLaunch);
+    }
+
+    [Fact]
+    public void DismissedInstanceDoesNotBlockAnotherConfiguredGame()
+    {
+        var tracker = new GameDetectionTracker();
+        tracker.Observe(Snapshot(), [Profile]);
+        var first = tracker.Observe(Snapshot(), [Profile]).Game!;
+        tracker.MarkDismissed(first);
+
+        var otherProfile = Profile with { Id = "other", DisplayName = "Other", ProcessName = "Other.exe" };
+        var otherProcess = new GameProcessInfo(124, "Other.exe", 555);
+        var otherWindow = Window with { ProcessId = 124, Handle = 999 };
+        var both = new GameDetectionSnapshot([Process, otherProcess], [Window, otherWindow], otherWindow.Handle);
+
+        Assert.False(tracker.Observe(both, [Profile, otherProfile]).ShouldLaunch);
+        var ready = tracker.Observe(both, [Profile, otherProfile]);
+        Assert.True(ready.ShouldLaunch);
+        Assert.Equal(otherProcess, ready.Game!.Process);
     }
 
     [Fact]

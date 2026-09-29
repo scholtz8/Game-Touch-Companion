@@ -85,22 +85,22 @@
     <value>Comprueba el sistema cada 2 segundos. La apertura automática requiere un único perfil coincidente, una ventana del juego estable en primer plano y una pantalla distinta para Companion. Game Touch Companion no inicia juegos ni fuerza la recuperación del foco.</value>
   </data>
   <data name="Ui026" xml:space="preserve">
-    <value>Activar detección y apertura automática durante esta sesión</value>
+    <value>Detección automática: siempre activa mientras Game Touch Companion esté ejecutándose.</value>
   </data>
   <data name="Ui027" xml:space="preserve">
     <value>Restablecer apertura automática y contador de muestras</value>
   </data>
   <data name="Ui028" xml:space="preserve">
-    <value>¿Cerraste Companion y quieres volver a abrirlo con el mismo juego? 1. Restablece la apertura automática. 2. Activa Detección. 3. Vuelve al juego. Restablecerla permite un nuevo intento; no reinicia el juego ni activa Detección. Cerrar Companion pausa Detección para evitar que se vuelva a abrir automáticamente.</value>
+    <value>Si cierras Companion mientras juegas, esa instancia queda descartada y no volverá a abrir Companion automáticamente. Al cerrar y volver a abrir el juego se crea una nueva instancia y la apertura automática vuelve a estar disponible. Restablecer permite repetir manualmente el intento con la instancia actual.</value>
   </data>
   <data name="Ui029" xml:space="preserve">
-    <value>Detección pausada.</value>
+    <value>Detección activa.</value>
   </data>
   <data name="Ui030" xml:space="preserve">
     <value>Aún no hay muestras.</value>
   </data>
   <data name="Ui031" xml:space="preserve">
-    <value>Guarda un perfil con el nombre exacto del ejecutable y activa la apertura automática. Luego activa Detección y vuelve al juego. Cerrar Companion o aplicar un perfil manualmente pausa Detección.</value>
+    <value>Guarda un perfil con el nombre exacto del ejecutable y activa la apertura automática en ese perfil. La detección permanece activa mientras Game Touch Companion esté ejecutándose.</value>
   </data>
   <data name="Ui032" xml:space="preserve">
     <value>Para comprobar que el juego no pierde el foco, usa FocusProbe. El muestreo cada 2 segundos puede omitir cambios muy breves. Que coincida el nombre del ejecutable no confirma por sí solo la identidad ni la seguridad del juego.</value>
@@ -109,22 +109,22 @@
     <value>Ajustes</value>
   </data>
   <data name="Ui034" xml:space="preserve">
-    <value>Ajustes y seguridad</value>
+    <value>Ajustes generales</value>
   </data>
   <data name="Ui035" xml:space="preserve">
     <value>Protecciones del Companion</value>
   </data>
   <data name="Ui036" xml:space="preserve">
-    <value>NoActivate siempre está activo. La restauración forzada del foco está deshabilitada y Game Touch Companion nunca inicia juegos. El inicio con Windows y la Detección se configuran por separado.</value>
+    <value>NoActivate siempre está activo. La restauración forzada del foco está deshabilitada y Game Touch Companion nunca inicia juegos. La detección funciona automáticamente mientras la aplicación esté ejecutándose.</value>
   </data>
   <data name="Ui037" xml:space="preserve">
     <value>Permitir la misma pantalla en Pantallas sirve solo para pruebas manuales. La apertura automática sigue requiriendo una pantalla distinta.</value>
   </data>
   <data name="Ui038" xml:space="preserve">
-    <value>Activar detección automáticamente al abrir la aplicación</value>
+    <value>La detección automática permanece activa mientras Game Touch Companion esté ejecutándose.</value>
   </data>
   <data name="Ui039" xml:space="preserve">
-    <value>Se aplicará la próxima vez que abras la app, después de cargar la configuración. Esta opción no inicia Windows ni ejecuta juegos. Cerrar Companion solo pausa Detección durante la sesión actual.</value>
+    <value>No requiere una preferencia de inicio ni un interruptor de sesión. Cerrar Companion descarta solo la instancia actual del juego; la detección continúa esperando nuevas instancias y otros juegos configurados.</value>
   </data>
   <data name="Ui040" xml:space="preserve">
     <value>Inicio de Windows y bandeja</value>
@@ -154,7 +154,7 @@
     <value>Salir completamente</value>
   </data>
   <data name="Ui049" xml:space="preserve">
-    <value>Ocultar Configuración no cambia el estado de Companion ni de Detección. Cerrar Companion sigue pausando Detección. Abrir Configuración o usar el menú de la bandeja cambia la ventana activa, así que hazlo fuera de una prueba de foco.</value>
+    <value>Ocultar Configuración no cambia Companion ni la detección automática. Cerrar Companion descarta la instancia actual sin detener la detección. Abrir Configuración o usar el menú de la bandeja cambia la ventana activa, así que hazlo fuera de una prueba de foco.</value>
   </data>
   <data name="Ui050" xml:space="preserve">
     <value>Mostrar barra táctil en Companion</value>
@@ -166,7 +166,7 @@
     <value>Inicio y favoritos</value>
   </data>
   <data name="Ui053" xml:space="preserve">
-    <value>Detección de esta sesión</value>
+    <value>Detección automática</value>
   </data>
   <data name="Ui054" xml:space="preserve">
     <value>Privacidad: la configuración y los diagnósticos se guardan localmente. Las páginas web que abras sí pueden usar Internet. No compartas profiles.json, browser.json ni el perfil de WebView2: pueden contener información privada.</value>
@@ -184,7 +184,7 @@
     <value>Actualizar muestra de ventana en primer plano</value>
   </data>
   <data name="Ui059" xml:space="preserve">
-    <value>Última muestra de Detección (solo se actualiza mientras está activa)</value>
+    <value>Última muestra de detección (se actualiza automáticamente cada 2 segundos)</value>
   </data>
   <data name="Ui060" xml:space="preserve">
     <value>Los eventos táctiles no se registran en producción; usa TouchTestPage. Aquí tampoco se contabilizan con precisión las pérdidas de foco; para eso usa FocusProbe. Abrir Configuración cambia intencionalmente la ventana en primer plano, así que hazlo fuera del intervalo de prueba.</value>
@@ -331,10 +331,10 @@
     <value>Usar selección actual</value>
   </data>
   <data name="Ui108" xml:space="preserve">
-    <value>Ejemplo: \\.\DISPLAY2. La pantalla elegida debe estar conectada al aplicar el perfil; la app no cambiará a otra sin avisar.</value>
+    <value>La pantalla se guarda mediante un identificador persistente de Windows, no por el número DISPLAY. Si está desconectada, el perfil conserva su selección y no cambia silenciosamente a otra pantalla.</value>
   </data>
   <data name="Ui109" xml:space="preserve">
-    <value>Abrir Companion al detectar este juego (requiere Detección activa durante esta sesión)</value>
+    <value>Abrir Companion automáticamente al detectar este juego</value>
   </data>
   <data name="Ui110" xml:space="preserve">
     <value>NoActivate siempre está activo. No se usa ningún método alternativo para restaurar el foco.</value>
@@ -364,7 +364,7 @@
     <value>Guardar idioma</value>
   </data>
   <data name="LanguageHelp" xml:space="preserve">
-    <value>El idioma cambia al guardar, sin reiniciar la app ni interrumpir Companion o Detección.</value>
+    <value>El idioma se aplica junto con el resto de los ajustes al pulsar «Guardar cambios». No requiere reiniciar la aplicación.</value>
   </data>
   <data name="LanguageSaved" xml:space="preserve">
     <value>Idioma actualizado.</value>
@@ -382,19 +382,19 @@
     <value>Abrir Configuración</value>
   </data>
   <data name="TrayEnable" xml:space="preserve">
-    <value>Activar detección</value>
+    <value>Detección automática activa</value>
   </data>
   <data name="TrayPause" xml:space="preserve">
-    <value>Pausar detección</value>
+    <value>Detección automática activa</value>
   </data>
   <data name="TrayRearm" xml:space="preserve">
     <value>Restablecer apertura automática</value>
   </data>
   <data name="TrayActiveTip" xml:space="preserve">
-    <value>Game Touch Companion · Detección activa</value>
+    <value>Game Touch Companion · Detección automática activa</value>
   </data>
   <data name="TrayPausedTip" xml:space="preserve">
-    <value>Game Touch Companion · Detección pausada</value>
+    <value>Game Touch Companion · Detección automática activa</value>
   </data>
   <data name="Dynamic000" xml:space="preserve">
     <value>Detectando pantallas…</value>
@@ -484,7 +484,7 @@
     <value>Cargando perfiles…</value>
   </data>
   <data name="Dynamic029" xml:space="preserve">
-    <value>Perfiles listos. La apertura automática requiere que Detección esté activa; también puedes aplicar los perfiles manualmente.</value>
+    <value>Perfiles listos. La detección automática permanece activa; los perfiles también se pueden aplicar manualmente.</value>
   </data>
   <data name="Dynamic030" xml:space="preserve">
     <value>No se pudo leer profiles.json. El archivo se dejó sin cambios. Corrígelo y reinicia la app antes de editar perfiles.</value>
@@ -508,7 +508,7 @@
     <value>No se pudo eliminar el perfil. La versión guardada sigue disponible.</value>
   </data>
   <data name="Dynamic037" xml:space="preserve">
-    <value>Perfil guardado aplicado manualmente. Si Companion está cerrado, ábrelo desde Pantallas o Navegador. Aplicar un perfil manualmente pausa Detección.</value>
+    <value>Perfil guardado aplicado manualmente. Si Companion está cerrado, ábrelo desde Pantallas o Navegador. La detección automática continúa activa.</value>
   </data>
   <data name="Dynamic038" xml:space="preserve">
     <value>No se pudo aplicar el perfil. Revisa Pantallas y el acceso a settings.json.</value>
@@ -526,7 +526,7 @@
     <value>Primero revisa Pantallas: deben seleccionarse dos pantallas distintas, la selección debe ser válida y no puede quedar ninguna revisión pendiente.</value>
   </data>
   <data name="Dynamic043" xml:space="preserve">
-    <value>Guía completada. Abre Companion manualmente desde Pantallas o activa Detección cuando estés listo. La guía no abrió ninguna ventana.</value>
+    <value>Guía completada. Abre Companion manualmente desde Pantallas o vuelve al juego para usar la detección automática. La guía no abrió ninguna ventana.</value>
   </data>
   <data name="Dynamic044" xml:space="preserve">
     <value>Juego + Companion</value>
@@ -535,7 +535,7 @@
     <value>No hay pantallas para mostrar.</value>
   </data>
   <data name="Dynamic046" xml:space="preserve">
-    <value>La bandeja del sistema está disponible. Haz doble clic en el icono para abrir Configuración o usa el menú para salir. Windows decide si el icono se muestra u oculta.</value>
+    <value>Bandeja disponible. Doble clic abre Configuración; el menú permite Rearmar la apertura automática o Salir. Windows decide si el icono queda visible u oculto.</value>
   </data>
   <data name="Dynamic047" xml:space="preserve">
     <value>La bandeja del sistema no está disponible. Configuración permanecerá abierta y, al cerrarla, la aplicación finalizará.</value>
@@ -571,22 +571,22 @@
     <value>No se pudo cambiar la configuración de inicio con Windows. Comprueba los permisos y asegúrate de que el EXE esté en una ubicación estable.</value>
   </data>
   <data name="Dynamic058" xml:space="preserve">
-    <value>Detección pausada. Companion no se abrirá automáticamente.</value>
+    <value>Detección activa. Esperando un juego configurado.</value>
   </data>
   <data name="Dynamic059" xml:space="preserve">
     <value>Esperando a que terminen de cargarse los perfiles y se completen las operaciones pendientes.</value>
   </data>
   <data name="Dynamic060" xml:space="preserve">
-    <value>Perfil aplicado y Companion abierto sin tomar el foco. Esta instancia del juego no volverá a abrirlo automáticamente hasta que restablezcas la apertura automática.</value>
+    <value>Perfil aplicado y Companion abierto sin activación. Esta instancia quedó atendida y no se reabrirá automáticamente.</value>
   </data>
   <data name="Dynamic061" xml:space="preserve">
-    <value>No se pudo abrir Companion automáticamente. Revisa la configuración y WebView2, y luego restablece la apertura automática.</value>
+    <value>No se pudo abrir Companion automáticamente. La detección sigue activa y volverá a intentarlo.</value>
   </data>
   <data name="Dynamic062" xml:space="preserve">
     <value>No hay una muestra de Detección disponible, así que no se aplicará ningún perfil.</value>
   </data>
   <data name="Dynamic063" xml:space="preserve">
-    <value>No se pudo consultar el escritorio. La app volverá a intentarlo sin permisos elevados.</value>
+    <value>No se pudo consultar el escritorio. La detección sigue activa y volverá a intentarlo sin elevar permisos.</value>
   </data>
   <data name="Dynamic064" xml:space="preserve">
     <value>No se detectó ningún juego. Si Companion ya está abierto, permanecerá abierto cuando cierres el juego.</value>
@@ -607,10 +607,10 @@
     <value>La ventana, el tamaño, la instancia o el estado de primer plano del juego cambiaron mientras se abría Companion.</value>
   </data>
   <data name="Dynamic071" xml:space="preserve">
-    <value>Apertura automática restablecida. Si Detección está pausada, actívala y vuelve al juego para obtener dos muestras estables.</value>
+    <value>Apertura automática restablecida. La detección sigue activa; vuelve al juego para obtener dos muestras estables.</value>
   </data>
   <data name="Dynamic072" xml:space="preserve">
-    <value>Aplicar un perfil manualmente pausó Detección. Puedes volver a activarla desde la pestaña Detección.</value>
+    <value> La detección sigue activa y volverá a intentarlo automáticamente.</value>
   </data>
   <data name="Dynamic075" xml:space="preserve">
     <value>WebView2 Runtime no está instalado.</value>
@@ -631,7 +631,7 @@
     <value>Prueba con la misma pantalla</value>
   </data>
   <data name="Dynamic085" xml:space="preserve">
-    <value>Companion cerrado. Detección se pausó para evitar que se vuelva a abrir. Cuando quieras intentarlo de nuevo, activa Detección y restablece la apertura automática.</value>
+    <value>Companion cerrado. La detección sigue activa, pero esta instancia del juego quedó descartada y no se reabrirá automáticamente.</value>
   </data>
   <data name="Dynamic086" xml:space="preserve">
     <value>Revisa la selección y los avisos de la pestaña Pantallas antes de abrir Companion.</value>
@@ -697,10 +697,10 @@
     <value>En Pantallas, revisa el esquema y selecciona pantallas distintas para el juego y Companion. Confirma cualquier aviso de desconexión. La guía solo puede continuar cuando la selección sea válida.</value>
   </data>
   <data name="Dynamic121" xml:space="preserve">
-    <value>En Navegador, introduce una URL. En Perfiles puedes guardar el ejecutable, la URL y la pantalla de cada juego. Activa Detección manualmente o configura en Ajustes si debe iniciarse de forma automática. También puedes usar Companion sin crear perfiles.</value>
+    <value>En Navegador introduce una URL. En Perfiles puedes guardar el ejecutable, las pestañas y la pantalla de cada juego. La detección automática está siempre activa mientras la aplicación se ejecuta. También puedes usar Companion sin crear perfiles.</value>
   </data>
   <data name="Dynamic122" xml:space="preserve">
-    <value>La configuración está lista. Abre Companion manualmente o activa Detección y vuelve al juego. Usa FocusProbe para comprobar el comportamiento del foco. Terminar la guía no abre ventanas ni activa Detección.</value>
+    <value>La configuración está lista. Abre Companion manualmente o vuelve al juego para que actúe la detección automática. Usa FocusProbe para comprobar el comportamiento del foco. Terminar la guía no abre ventanas.</value>
   </data>
   <data name="Dynamic123" xml:space="preserve">
     <value>Ningún juego configurado tiene una ventana válida.</value>
@@ -712,7 +712,7 @@
     <value>Juego detectado, pero la apertura automática está desactivada en este perfil.</value>
   </data>
   <data name="Dynamic126" xml:space="preserve">
-    <value>Esta instancia del juego ya fue procesada. Companion no volverá a abrirse automáticamente hasta que restablezcas la apertura automática o reinicies el juego.</value>
+    <value>Instancia ya atendida o descartada. No se reabrirá automáticamente hasta Rearmar o reiniciar el juego.</value>
   </data>
   <data name="Dynamic127" xml:space="preserve">
     <value>Juego detectado en segundo plano. Esperando a que pase a primer plano.</value>
@@ -912,7 +912,7 @@
     <value>Personalización</value>
   </data>
   <data name="AppearanceHelp" xml:space="preserve">
-    <value>Personaliza la barra de Companion. Los cambios de la vista previa no afectan la sesión actual hasta que pulses «Guardar». Al guardar, se aplican de inmediato y sin reiniciar. El botón Cerrar y los controles para recuperar la barra siempre permanecen disponibles.</value>
+    <value>Personaliza la barra de Companion y cómo aparece al abrirse. Los cambios de la vista previa no afectan la sesión actual hasta que pulses «Guardar». Al guardar, se aplican sin reiniciar.</value>
   </data>
   <data name="AppearancePalette" xml:space="preserve">
     <value>Paleta de colores</value>
@@ -987,7 +987,7 @@
     <value>En Pantallas, selecciona una pantalla para el juego y otra para Companion. Revisa el esquema y cualquier aviso de desconexión.</value>
   </data>
   <data name="GuidePlay" xml:space="preserve">
-    <value>Abre Companion desde Pantallas o activa Detección y vuelve al juego. Comprueba que el juego mantiene el foco mientras usas la barra de Companion.</value>
+    <value>Abre Companion desde Pantallas o vuelve al juego para usar la detección automática. Comprueba que el juego mantiene el foco mientras usas la barra de Companion.</value>
   </data>
   <data name="Ui151" xml:space="preserve">
     <value>Pestañas del perfil</value>
@@ -1099,5 +1099,77 @@
   </data>
   <data name="Ui172" xml:space="preserve">
     <value>Cambiar tamaño del teclado</value>
+  </data>
+  <data name="Dynamic166" xml:space="preserve">
+    <value>WebView2 Runtime no está disponible; instala el runtime para permitir la apertura automática de Companion.</value>
+  </data>
+  <data name="Dynamic167" xml:space="preserve">
+    <value>Companion cerrado. La detección sigue activa y continuará esperando juegos configurados.</value>
+  </data>
+  <data name="Dynamic168" xml:space="preserve">
+    <value>siempre activa</value>
+  </data>
+  <data name="GeneralSettingsHelp" xml:space="preserve">
+    <value>Cambia las preferencias generales y guárdalas juntas con el botón al final de esta página.</value>
+  </data>
+  <data name="TrayBehaviorHeading" xml:space="preserve">
+    <value>Comportamiento de la bandeja</value>
+  </data>
+  <data name="SaveAllSettings" xml:space="preserve">
+    <value>Guardar cambios</value>
+  </data>
+  <data name="AllSettingsSaved" xml:space="preserve">
+    <value>Ajustes guardados.</value>
+  </data>
+  <data name="AllSettingsFailed" xml:space="preserve">
+    <value>No se pudieron guardar todos los ajustes. Se conservaron los valores que no pudieron modificarse; revisa el registro y vuelve a intentarlo.</value>
+  </data>
+  <data name="CompanionStartupHeading" xml:space="preserve">
+    <value>Inicio de Companion</value>
+  </data>
+  <data name="CompanionStartToolbarVisible" xml:space="preserve">
+    <value>Iniciar Companion con la barra táctil visible</value>
+  </data>
+  <data name="CompanionStartToolbarHelp" xml:space="preserve">
+    <value>Si está desactivado, cada nueva ventana Companion se abre con la barra de navegación y las pestañas ocultas. Mostrar u ocultar la barra durante una sesión no cambia esta preferencia.</value>
+  </data>
+  <data name="RearmAutoLaunch" xml:space="preserve">
+    <value>Rearmar apertura automática</value>
+  </data>
+  <data name="RearmAutoLaunchHelp" xml:space="preserve">
+    <value>Permite que una instancia de juego descartada vuelva a intentar abrir Companion automáticamente. Normalmente no es necesario: al reiniciar el juego se crea una nueva instancia elegible.</value>
+  </data>
+  <data name="ProfileMonitorCurrent" xml:space="preserve">
+    <value>Sin pantalla fija: el perfil usará la selección Companion actual.</value>
+  </data>
+  <data name="ProfileMonitorUnavailable" xml:space="preserve">
+    <value>La pantalla guardada no está conectada. Su identificador persistente se conserva y no será reemplazado automáticamente.</value>
+  </data>
+  <data name="ProfileMonitorConfigured" xml:space="preserve">
+    <value>Configurada: {0}</value>
+  </data>
+  <data name="Dynamic169" xml:space="preserve">
+    <value>La pantalla Companion configurada no está disponible. Se conserva su ID persistente; reconéctala o elige otra pantalla explícitamente.</value>
+  </data>
+  <data name="Dynamic170" xml:space="preserve">
+    <value>La pantalla de juego configurada no está disponible. Se conserva su ID persistente; reconéctala o elige otra pantalla explícitamente.</value>
+  </data>
+  <data name="Dynamic171" xml:space="preserve">
+    <value>No se pudieron migrar las referencias antiguas de pantalla. Los perfiles guardados no se modificaron.</value>
+  </data>
+  <data name="Dynamic172" xml:space="preserve">
+    <value>Companion iniciará con la barra táctil visible.</value>
+  </data>
+  <data name="Dynamic173" xml:space="preserve">
+    <value>Companion iniciará con la barra táctil oculta.</value>
+  </data>
+  <data name="Dynamic174" xml:space="preserve">
+    <value>El monitor preferido no está conectado. Se conserva su identificador persistente y no se sustituirá por otra pantalla.</value>
+  </data>
+  <data name="MonitorMessage9" xml:space="preserve">
+    <value>La pantalla Companion anterior {0} no está disponible. Companion se cerró; reconéctala o elige explícitamente otra pantalla antes de volver a abrirlo.</value>
+  </data>
+  <data name="Dynamic175" xml:space="preserve">
+    <value>Se encontró una selección antigua basada en DISPLAY1/2/3. Verifica los nombres físicos mostrados y confirma la selección una vez para migrarla al identificador persistente.</value>
   </data>
 </root>

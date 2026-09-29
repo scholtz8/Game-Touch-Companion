@@ -34,17 +34,16 @@ public sealed record ResolvedMonitorSelection(
     MonitorProfile CompanionMonitor,
     IReadOnlyList<MonitorSelectionIssue> Issues)
 {
-    public bool UsesSameMonitor => MonitorSelectionService.DeviceNamesEqual(
-        GameMonitor.DeviceName,
-        CompanionMonitor.DeviceName);
+    public bool UsesSameMonitor => MonitorSelectionService.IdentityEquals(GameMonitor, CompanionMonitor);
 }
 
 /// <summary>
 /// Applies monitor-selection policy independently from monitor enumeration and UI concerns.
+/// Persistent monitor ids are preferred. GDI device names are used only for legacy migration.
 /// </summary>
 public sealed class MonitorSelectionService
 {
-    private static readonly StringComparer DeviceNameComparer = StringComparer.OrdinalIgnoreCase;
+    private static readonly StringComparer IdentityComparer = StringComparer.OrdinalIgnoreCase;
 
     public ResolvedMonitorSelection Resolve(
         IReadOnlyList<MonitorProfile> availableMonitors,
@@ -55,36 +54,34 @@ public sealed class MonitorSelectionService
 
         var monitors = ValidateAndCopyMonitors(availableMonitors);
         if (monitors.Count == 0)
-        {
             throw new InvalidOperationException("No monitors are available.");
-        }
 
         var issues = new List<MonitorSelectionIssue>();
-        var gameMonitor = FindByDeviceName(monitors, settings.GameMonitorDeviceName);
+        var gameMonitor = FindConfiguredMonitor(monitors, settings.GameMonitorId, settings.GameMonitorDeviceName);
         if (gameMonitor is null)
         {
             gameMonitor = monitors.FirstOrDefault(static monitor => monitor.IsPrimary) ?? monitors[0];
             AddUnavailableIssueIfConfigured(
                 issues,
-                settings.GameMonitorDeviceName,
+                settings.GameMonitorId ?? settings.GameMonitorDeviceName,
                 MonitorSelectionIssueCode.GameMonitorUnavailable,
                 "game",
-                gameMonitor.DeviceName);
+                gameMonitor.DisplayLabel);
         }
 
-        var companionMonitor = FindByDeviceName(monitors, settings.CompanionMonitorDeviceName);
+        var companionMonitor = FindConfiguredMonitor(monitors, settings.CompanionMonitorId, settings.CompanionMonitorDeviceName);
         if (companionMonitor is null)
         {
             companionMonitor = FindFirstDifferentMonitor(monitors, gameMonitor) ?? gameMonitor;
             AddUnavailableIssueIfConfigured(
                 issues,
-                settings.CompanionMonitorDeviceName,
+                settings.CompanionMonitorId ?? settings.CompanionMonitorDeviceName,
                 MonitorSelectionIssueCode.CompanionMonitorUnavailable,
                 "Companion",
-                companionMonitor.DeviceName);
+                companionMonitor.DisplayLabel);
         }
 
-        if (DeviceNamesEqual(gameMonitor.DeviceName, companionMonitor.DeviceName))
+        if (IdentityEquals(gameMonitor, companionMonitor))
         {
             var alternateCompanion = FindFirstDifferentMonitor(monitors, gameMonitor);
             if (alternateCompanion is null)
@@ -107,7 +104,7 @@ public sealed class MonitorSelectionService
                 issues.Add(MonitorSelectionIssue.FromFormat(
                     MonitorSelectionIssueCode.SameMonitorSelectionBlocked,
                     MonitorSelectionIssueSeverity.Warning,
-                    $"The duplicate monitor selection was blocked; Companion will use {companionMonitor.DeviceName}."));
+                    $"The duplicate monitor selection was blocked; Companion will use {companionMonitor.DisplayLabel}."));
             }
         }
 
@@ -127,27 +124,27 @@ public sealed class MonitorSelectionService
         var monitors = ValidateAndCopyMonitors(availableMonitors);
         var issues = new List<MonitorSelectionIssue>();
 
-        if (FindByDeviceName(monitors, gameMonitor.DeviceName) is null)
+        if (FindByReference(monitors, gameMonitor.IdentityKey) is null)
         {
             issues.Add(MonitorSelectionIssue.FromFormat(
                 MonitorSelectionIssueCode.GameMonitorUnavailable,
                 MonitorSelectionIssueSeverity.Error,
-                $"The selected game monitor {gameMonitor.DeviceName} is not available."));
+                $"The selected game monitor {gameMonitor.DisplayLabel} is not available."));
         }
 
-        if (FindByDeviceName(monitors, companionMonitor.DeviceName) is null)
+        if (FindByReference(monitors, companionMonitor.IdentityKey) is null)
         {
             issues.Add(MonitorSelectionIssue.FromFormat(
                 MonitorSelectionIssueCode.CompanionMonitorUnavailable,
                 MonitorSelectionIssueSeverity.Error,
-                $"The selected Companion monitor {companionMonitor.DeviceName} is not available."));
+                $"The selected Companion monitor {companionMonitor.DisplayLabel} is not available."));
         }
 
-        if (DeviceNamesEqual(gameMonitor.DeviceName, companionMonitor.DeviceName))
+        if (IdentityEquals(gameMonitor, companionMonitor))
         {
             var distinctMonitorCount = monitors
-                .Select(static monitor => monitor.DeviceName)
-                .Distinct(DeviceNameComparer)
+                .Select(static monitor => monitor.IdentityKey)
+                .Distinct(IdentityComparer)
                 .Count();
 
             if (distinctMonitorCount <= 1)
@@ -178,71 +175,69 @@ public sealed class MonitorSelectionService
             issues.AsReadOnly());
     }
 
-    internal static bool DeviceNamesEqual(string left, string right) =>
-        DeviceNameComparer.Equals(left, right);
+    public static MonitorProfile? FindByReference(IReadOnlyList<MonitorProfile> monitors, string? reference)
+    {
+        ArgumentNullException.ThrowIfNull(monitors);
+        if (string.IsNullOrWhiteSpace(reference)) return null;
+        return monitors.FirstOrDefault(monitor =>
+            IdentityComparer.Equals(monitor.IdentityKey, reference) ||
+            IdentityComparer.Equals(monitor.DeviceName, reference));
+    }
 
-    private static List<MonitorProfile> ValidateAndCopyMonitors(
-        IReadOnlyList<MonitorProfile> availableMonitors)
+    public static bool IdentityEquals(MonitorProfile left, MonitorProfile right) =>
+        IdentityComparer.Equals(left.IdentityKey, right.IdentityKey);
+
+    internal static bool DeviceNamesEqual(string left, string right) => IdentityComparer.Equals(left, right);
+
+    private static MonitorProfile? FindConfiguredMonitor(
+        IReadOnlyList<MonitorProfile> monitors,
+        string? stableId,
+        string? legacyDeviceName)
+    {
+        // Once a stable id exists, never fall back to a possibly reassigned DISPLAYn alias.
+        if (!string.IsNullOrWhiteSpace(stableId))
+            return monitors.FirstOrDefault(monitor => IdentityComparer.Equals(monitor.IdentityKey, stableId));
+        return FindByReference(monitors, legacyDeviceName);
+    }
+
+    private static List<MonitorProfile> ValidateAndCopyMonitors(IReadOnlyList<MonitorProfile> availableMonitors)
     {
         var monitors = new List<MonitorProfile>(availableMonitors.Count);
-        var deviceNames = new HashSet<string>(DeviceNameComparer);
+        var deviceNames = new HashSet<string>(IdentityComparer);
+        var stableIds = new HashSet<string>(IdentityComparer);
 
         foreach (var monitor in availableMonitors)
         {
             if (monitor is null)
-            {
                 throw new ArgumentException("The monitor list cannot contain null entries.", nameof(availableMonitors));
-            }
-
             if (string.IsNullOrWhiteSpace(monitor.DeviceName))
-            {
                 throw new ArgumentException("Every monitor must have a device name.", nameof(availableMonitors));
-            }
-
             if (!deviceNames.Add(monitor.DeviceName))
-            {
-                throw new ArgumentException(
-                    $"The monitor list contains the duplicate device name {monitor.DeviceName}.",
-                    nameof(availableMonitors));
-            }
-
+                throw new ArgumentException($"The monitor list contains the duplicate device name {monitor.DeviceName}.", nameof(availableMonitors));
+            if (!string.IsNullOrWhiteSpace(monitor.StableId) && !stableIds.Add(monitor.StableId))
+                throw new ArgumentException($"The monitor list contains the duplicate persistent id {monitor.StableId}.", nameof(availableMonitors));
             monitors.Add(monitor);
         }
 
         return monitors;
     }
 
-    private static MonitorProfile? FindByDeviceName(
-        IReadOnlyList<MonitorProfile> monitors,
-        string? deviceName)
-    {
-        if (string.IsNullOrWhiteSpace(deviceName))
-        {
-            return null;
-        }
-
-        return monitors.FirstOrDefault(monitor => DeviceNameComparer.Equals(monitor.DeviceName, deviceName));
-    }
-
-    private static MonitorProfile? FindFirstDifferentMonitor(
-        IReadOnlyList<MonitorProfile> monitors,
-        MonitorProfile selectedMonitor) =>
-        monitors.FirstOrDefault(monitor =>
-            !DeviceNameComparer.Equals(monitor.DeviceName, selectedMonitor.DeviceName));
+    private static MonitorProfile? FindFirstDifferentMonitor(IReadOnlyList<MonitorProfile> monitors, MonitorProfile selectedMonitor) =>
+        monitors.FirstOrDefault(monitor => !IdentityEquals(monitor, selectedMonitor));
 
     private static void AddUnavailableIssueIfConfigured(
         ICollection<MonitorSelectionIssue> issues,
-        string? configuredDeviceName,
+        string? configuredReference,
         MonitorSelectionIssueCode code,
         string role,
-        string fallbackDeviceName)
+        string fallbackLabel)
     {
-        if (!string.IsNullOrWhiteSpace(configuredDeviceName))
+        if (!string.IsNullOrWhiteSpace(configuredReference))
         {
             issues.Add(MonitorSelectionIssue.FromFormat(
                 code,
                 MonitorSelectionIssueSeverity.Warning,
-                $"The configured {role} monitor {configuredDeviceName} is unavailable; using {fallbackDeviceName}."));
+                $"The configured {role} monitor {configuredReference} is unavailable; using {fallbackLabel}."));
         }
     }
 }

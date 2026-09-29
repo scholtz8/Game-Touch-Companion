@@ -19,6 +19,7 @@ public sealed class BrowserViewModel : INotifyPropertyChanged
     private LocalizedMessage error = string.Empty;
     private LocalizedMessage settingsError = string.Empty;
     private bool showToolbar = true;
+    private bool startWithToolbarVisible = true;
     private bool canGoBack;
     private bool canGoForward;
     private bool isReady;
@@ -35,6 +36,7 @@ public sealed class BrowserViewModel : INotifyPropertyChanged
     public ObservableCollection<BrowserFavorite> Favorites { get; } = [];
     public BrowserFavorite? SelectedFavorite { get => selectedFavorite; set => SetField(ref selectedFavorite, value); }
     public bool ShowToolbar { get => showToolbar; private set => SetField(ref showToolbar, value); }
+    public bool StartWithToolbarVisible { get => startWithToolbarVisible; private set => SetField(ref startWithToolbarVisible, value); }
     public bool CanGoBack { get => canGoBack; private set => SetField(ref canGoBack, value); }
     public bool CanGoForward { get => canGoForward; private set => SetField(ref canGoForward, value); }
     public bool IsReady { get => isReady; private set => SetField(ref isReady, value); }
@@ -87,7 +89,8 @@ public sealed class BrowserViewModel : INotifyPropertyChanged
             var settings = await settingsStore.LoadAsync(cancellationToken);
             HomeUrl = settings.HomeUrl;
             Address = HomeUrl;
-            ShowToolbar = settings.ShowToolbar;
+            StartWithToolbarVisible = settings.ShowToolbar;
+            ShowToolbar = StartWithToolbarVisible;
             Favorites.Clear();
             foreach (var favorite in settings.Favorites) Favorites.Add(favorite);
             SettingsLoaded = true;
@@ -171,12 +174,29 @@ public sealed class BrowserViewModel : INotifyPropertyChanged
         await PersistAsync("Página inicial guardada.");
     }
 
-    public async Task SetToolbarVisibleAsync(bool visible)
+    public Task SetToolbarVisibleAsync(bool visible)
     {
-        // The recovery control must still work if preferences cannot be read or saved.
+        // Runtime visibility is intentionally session-only. Personalization controls
+        // whether a newly opened Companion starts with the toolbar visible.
         ShowToolbar = visible;
-        if (CanPersist()) await PersistAsync(visible ? "Barra de navegación visible." : "Barra oculta. Pulsa Mostrar barra para recuperarla.");
+        var status = visible ? "Barra de navegación visible." : "Barra oculta. Pulsa Mostrar barra para recuperarla.";
+        if (!CanEditSettings && HasSettingsError)
+            SetStatus(status);
+        else
+            ReportStatus(status);
+        return Task.CompletedTask;
     }
+
+    public async Task SetStartToolbarVisibleAsync(bool visible)
+    {
+        if (!CanPersist()) return;
+        StartWithToolbarVisible = visible;
+        await PersistAsync(visible
+            ? "Companion iniciará con la barra táctil visible."
+            : "Companion iniciará con la barra táctil oculta.");
+    }
+
+    public void ResetRuntimeToolbarToPreference() => ShowToolbar = StartWithToolbarVisible;
 
     public void ReportReady()
     {
@@ -233,7 +253,7 @@ public sealed class BrowserViewModel : INotifyPropertyChanged
             await settingsStore.SaveAsync(new BrowserSettings
             {
                 HomeUrl = HomeUrl,
-                ShowToolbar = ShowToolbar,
+                ShowToolbar = StartWithToolbarVisible,
                 Favorites = [.. Favorites],
             });
             SetSettingsError(string.Empty);

@@ -52,6 +52,19 @@ public sealed class GameProfileTests
         Assert.Empty(GameProfileValidation.Normalize(Valid() with { ProcessName = "" }).ProcessName);
     }
 
+
+    [Fact]
+    public void PersistentMonitorIdentifiersUpTo512CharactersAreAccepted()
+    {
+        var persistentId = @"\\?\DISPLAY#ACME123#" + new string('A', 350);
+
+        var normalized = GameProfileValidation.Normalize(Valid() with { CompanionMonitor = persistentId });
+
+        Assert.Equal(persistentId, normalized.CompanionMonitor);
+        Assert.Throws<InvalidDataException>(() =>
+            GameProfileValidation.Normalize(Valid() with { CompanionMonitor = new string('X', 513) }));
+    }
+
     [Fact]
     public void RejectsFutureSchemaNullEntriesAndDuplicateIds()
     {

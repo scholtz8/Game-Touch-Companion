@@ -1,5 +1,4 @@
 using System.IO;
-using System.Windows.Controls;
 using GameTouchCompanion.App;
 using GameTouchCompanion.Core;
 
@@ -9,6 +8,7 @@ namespace GameTouchCompanion.IntegrationTests;
 public sealed class ShellLifecycleTests
 {
     internal static MainWindow CreateForLanguageTest(LanguagePreferenceStore store) => Create(new FakeTray(), new FakeRegistration(), store);
+
     [DesktopBrowserFact]
     [Trait("Category", "BrowserRuntime")]
     public async Task HiddenStartupRestoreCloseToTrayExitAndSessionEndAreDistinct()
@@ -23,19 +23,16 @@ public sealed class ShellLifecycleTests
                 await main.StartShellAsync(launchedFromWindows: true);
                 Assert.False(main.IsVisible);
                 Assert.False(main.ShowActivated);
-                Assert.True(((CheckBox)main.FindName("DetectionEnabledCheck")).IsChecked);
-                Assert.True(tray.Detection);
+                Assert.True(main.IsDetectionRunning);
                 Assert.Equal(0, registration.Writes);
                 tray.Open!();
                 Assert.True(main.IsVisible);
                 main.Close();
                 Assert.False(main.IsVisible);
                 Assert.False(tray.Disposed);
-                Assert.True(((CheckBox)main.FindName("DetectionEnabledCheck")).IsChecked);
-                tray.Toggle!();
-                Assert.False(tray.Detection);
+                Assert.True(main.IsDetectionRunning);
                 tray.Open!();
-                Assert.False(((CheckBox)main.FindName("DetectionEnabledCheck")).IsChecked); // no reinitialization
+                Assert.True(main.IsDetectionRunning);
                 main.PrepareForSessionEnd();
                 main.Close();
                 Assert.True(tray.Disposed);
@@ -48,6 +45,7 @@ public sealed class ShellLifecycleTests
             {
                 await second.StartShellAsync(false, forceShow: true);
                 Assert.True(second.IsVisible);
+                Assert.True(second.IsDetectionRunning);
                 secondTray.Exit!();
                 Assert.True(secondTray.Disposed);
             }
@@ -69,6 +67,7 @@ public sealed class ShellLifecycleTests
                 {
                     await main.StartShellAsync(true);
                     Assert.True(main.IsVisible);
+                    Assert.True(main.IsDetectionRunning);
                     main.Close();
                     Assert.True(tray.Disposed);
                 }
@@ -79,15 +78,14 @@ public sealed class ShellLifecycleTests
 
     [DesktopBrowserFact]
     [Trait("Category", "BrowserRuntime")]
-    public async Task RealNotifyIconCanLoadResourceUpdateAndDisposeOnDesktop()
+    public async Task RealNotifyIconCanLoadResourceAndDisposeOnDesktop()
     {
         await BrowserRuntimeTests.RunOnStaAsync(() =>
         {
             using var tray = new TrayService();
-            tray.Initialize(() => { }, () => { }, () => { }, () => { });
+            tray.Initialize(() => { }, () => { }, () => { });
             Assert.True(tray.IsAvailable);
-            tray.UpdateDetection(true);
-            tray.UpdateDetection(false);
+            Assert.Contains(Localization.Get("TrayRearm"), tray.MenuLabels);
             tray.Dispose();
             Assert.False(tray.IsAvailable);
             return Task.CompletedTask;
@@ -102,41 +100,48 @@ public sealed class ShellLifecycleTests
             new JsonGameProfileStore(Path.Combine(folder, "profiles.json")), new NoGame(),
             Path.Combine(folder, "webview"), registration, tray, language);
     }
+
     private sealed class FakeTray : ITrayService
     {
         public bool Available { get; init; } = true;
         public bool FailInitialize { get; init; }
         public bool IsAvailable => Available && !Disposed;
         public bool Disposed { get; private set; }
-        public bool Detection { get; private set; }
-        public Action? Open, Toggle, Exit;
-        public void Initialize(Action openConfiguration, Action toggleDetection, Action rearm, Action exit)
+        public Action? Open, Rearm, Exit;
+
+        public void Initialize(Action openConfiguration, Action rearm, Action exit)
         {
             if (FailInitialize) throw new InvalidOperationException("Simulated tray failure");
-            Open = openConfiguration; Toggle = toggleDetection; Exit = exit;
+            Open = openConfiguration;
+            Rearm = rearm;
+            Exit = exit;
         }
-        public void UpdateDetection(bool enabled) => Detection = enabled;
+
         public void Dispose() => Disposed = true;
     }
+
     private sealed class FakeRegistration : IStartupRegistrationService
     {
         public int Writes { get; private set; }
         public StartupRegistration Read() => new(false, false);
         public void SetEnabled(bool enabled, bool replaceExisting = false) => Writes++;
     }
+
     private sealed class Monitors : GameTouchCompanion.Native.IMonitorService
     {
         public IReadOnlyList<MonitorProfile> GetMonitors() =>
         [new("GAME", new(0, 0, 1000, 800), new(0, 0, 1000, 800), true),
          new("TOUCH", new(1000, 0, 800, 600), new(1000, 0, 800, 600), false)];
     }
+
     private sealed class Settings : IApplicationSettingsStore
     {
-        private ApplicationSettings value = new() { EnableDetectionOnStartup = true, StartMinimizedToTray = true, CloseToTray = true };
+        private ApplicationSettings value = new() { StartMinimizedToTray = true, CloseToTray = true };
         public string FilePath => "memory";
         public Task<ApplicationSettings> LoadAsync(CancellationToken cancellationToken = default) => Task.FromResult(value);
         public Task SaveAsync(ApplicationSettings settings, CancellationToken cancellationToken = default) { value = settings; return Task.CompletedTask; }
     }
+
     private sealed class NoGame : IGameDetectionSource
     {
         public GameDetectionSnapshot Capture(IReadOnlyCollection<string> executableNames) => new([], [], 0);
