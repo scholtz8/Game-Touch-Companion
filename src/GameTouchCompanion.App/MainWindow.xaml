@@ -259,28 +259,26 @@
               <TextBlock Text="{local:Tr LanguageHelp}" TextWrapping="Wrap" Margin="0,8,0,18"/>
 
               <TextBlock Text="{local:Tr Ui040}" FontSize="20" FontWeight="SemiBold" Margin="0,6,0,8"/>
-              <CheckBox x:Name="WindowsStartupCheck" Content="{local:Tr Ui041}" Margin="0,8"/>
-              <TextBlock x:Name="WindowsStartupStatus" Visibility="Collapsed" TextWrapping="Wrap" Margin="0,6"/>
-              <TextBlock Text="{local:Tr Ui042}" TextWrapping="Wrap" Foreground="{Binding ConfigurationSecondaryForeground, Source={x:Static local:Appearance.Current}}"/>
-              <WrapPanel Margin="0,8">
-                  <Button x:Name="RegisterCurrentCopyButton" Content="{local:Tr Ui043}" Click="RegisterCurrentCopy_Click" Padding="12,8" Margin="0,0,8,8"/>
-                  <Button Content="{local:Tr Ui044}" Click="RefreshStartup_Click" Padding="12,8" Margin="0,0,8,8"/>
-              </WrapPanel>
-
-              <TextBlock Text="{local:Tr TrayBehaviorHeading}" FontSize="20" FontWeight="SemiBold" Margin="0,14,0,8"/>
+              <CheckBox x:Name="WindowsStartupCheck" Content="{local:Tr Ui041}" Margin="0,8"
+                        Checked="WindowsStartupCheck_Changed" Unchecked="WindowsStartupCheck_Changed"/>
               <CheckBox x:Name="StartInTrayCheck" Content="{local:Tr Ui045}"
-                        IsChecked="{Binding StartMinimizedToTray, Mode=OneWay}" IsEnabled="{Binding SettingsLoaded}" Margin="0,8"/>
+                        IsChecked="{Binding StartMinimizedToTray, Mode=OneWay}" Margin="24,4,0,8"/>
+              <TextBlock Text="{local:Tr Ui042}" TextWrapping="Wrap" Margin="24,0,0,10"
+                         Foreground="{Binding ConfigurationSecondaryForeground, Source={x:Static local:Appearance.Current}}"/>
               <CheckBox x:Name="CloseToTrayCheck" Content="{local:Tr Ui046}"
                         IsChecked="{Binding CloseToTray, Mode=OneWay}" IsEnabled="{Binding SettingsLoaded}" Margin="0,8"/>
               <TextBlock x:Name="TrayStatus" Visibility="Collapsed" TextWrapping="Wrap" Margin="0,8"/>
-              <WrapPanel Margin="0,8">
-                  <Button Content="{local:Tr Ui047}" Click="HideToTray_Click" Padding="12,8" Margin="0,0,8,8"/>
-                  <Button Content="{local:Tr Ui048}" Click="ExitCompletely_Click" Padding="12,8" Margin="0,0,8,8"/>
-              </WrapPanel>
-              <TextBlock Text="{local:Tr Ui049}" TextWrapping="Wrap" Foreground="{Binding ConfigurationSecondaryForeground, Source={x:Static local:Appearance.Current}}" Margin="0,8"/>
+
+              <TextBlock Text="{local:Tr MaintenanceHeading}" FontSize="20" FontWeight="SemiBold" Margin="0,22,0,8"/>
+              <TextBlock Text="{local:Tr RegistrationMaintenanceTitle}" FontWeight="SemiBold" Margin="0,4,0,0"/>
+              <TextBlock Text="{local:Tr RegistrationMaintenanceHelp}" TextWrapping="Wrap" Margin="0,6,0,10"
+                         Foreground="{Binding ConfigurationSecondaryForeground, Source={x:Static local:Appearance.Current}}"/>
+              <Button x:Name="RegisterCurrentCopyButton" Content="{local:Tr Ui043}" Click="RegisterCurrentCopy_Click"
+                      HorizontalAlignment="Left" Padding="14,9"/>
+              <TextBlock x:Name="WindowsStartupStatus" Visibility="Collapsed" TextWrapping="Wrap" Margin="0,8,0,0"/>
 
               <Button x:Name="SaveGeneralSettingsButton" Content="{local:Tr SaveAllSettings}" Click="SaveGeneralSettings_Click"
-                      HorizontalAlignment="Left" Padding="20,11" Margin="0,24,0,0"/>
+                      HorizontalAlignment="Left" Padding="20,11" Margin="0,28,0,0"/>
               <TextBlock x:Name="GeneralSettingsStatus" Visibility="Collapsed" TextWrapping="Wrap" Margin="0,10,0,0"/>
           </StackPanel></ScrollViewer>
       </TabItem>

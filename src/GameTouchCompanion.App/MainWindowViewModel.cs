@@ -265,10 +265,14 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
                     ? "La pantalla Companion configurada no está disponible. Se conserva su ID persistente; reconéctala o elige otra pantalla explícitamente."
                     : "La pantalla de juego configurada no está disponible. Se conserva su ID persistente; reconéctala o elige otra pantalla explícitamente.");
             }
-            else if (legacySelectionNeedsReview && !IsSelectionReviewRequired)
+            else if (legacySelectionNeedsReview)
             {
-                IsSelectionReviewRequired = true;
-                SetSelectionReviewMessage("Se encontró una selección antigua basada en DISPLAY1/2/3. Verifica los nombres físicos mostrados y confirma la selección una vez para migrarla al identificador persistente.");
+                // Preserve a more specific topology-loss notice that may already be active.
+                if (!IsSelectionReviewRequired)
+                {
+                    IsSelectionReviewRequired = true;
+                    SetSelectionReviewMessage("Se encontró una selección antigua basada en DISPLAY1/2/3. Verifica los nombres físicos mostrados y confirma la selección una vez para migrarla al identificador persistente.");
+                }
             }
             else if (IsSelectionReviewRequired && (explicitUserSelection || PersistentSelectionMatchesExactly(desiredSettings, resolved)))
             {

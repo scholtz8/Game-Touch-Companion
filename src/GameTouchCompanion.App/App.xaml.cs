@@ -7,8 +7,13 @@ namespace GameTouchCompanion.App;
 
 public partial class App : Application
 {
+    private SingleInstanceCoordinator? singleInstance;
+    private bool pendingShowRequest;
+
     protected override async void OnStartup(StartupEventArgs e)
     {
+        base.OnStartup(e);
+
         var logDirectory = LogPathResolver.Resolve();
         Log.Logger = new LoggerConfiguration().MinimumLevel.Debug()
             .WriteTo.File(
@@ -24,7 +29,27 @@ public partial class App : Application
             Environment.OSVersion,
             Environment.Version,
             Assembly.GetEntryAssembly()?.GetName().Version);
-        base.OnStartup(e);
+
+        var launchedFromWindows = e.Args.Contains("--startup", StringComparer.OrdinalIgnoreCase);
+        var explicitShow = e.Args.Contains("--show", StringComparer.OrdinalIgnoreCase);
+        singleInstance = new SingleInstanceCoordinator();
+        if (!singleInstance.IsPrimary)
+        {
+            var shouldShowExisting = !launchedFromWindows || explicitShow;
+            var signaled = !shouldShowExisting || await singleInstance.SignalPrimaryAsync("show");
+            Log.Information("Secondary launch suppressed. WindowsStartup={WindowsStartup}; ShowExisting={ShowExisting}; Signaled={Signaled}",
+                launchedFromWindows, shouldShowExisting, signaled);
+            Shutdown(0);
+            return;
+        }
+
+        singleInstance.StartListening(command => Dispatcher.InvokeAsync(() =>
+        {
+            if (!string.Equals(command, "show", StringComparison.OrdinalIgnoreCase)) return;
+            if (MainWindow is MainWindow main) main.ShowConfigurationFromTray();
+            else pendingShowRequest = true;
+        }).Task);
+
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
         try
         {
@@ -32,13 +57,23 @@ public partial class App : Application
             {
                 var selection = new LanguageSelectionWindow(store);
                 return selection.ShowDialog() == true ? selection.SelectedLanguage : null;
-            })) { Shutdown(); return; }
+            }))
+            {
+                Shutdown();
+                return;
+            }
+
             await Appearance.Current.InitializeAsync();
             var main = new MainWindow();
             MainWindow = main;
             ShutdownMode = ShutdownMode.OnMainWindowClose;
             SessionEnding += (_, _) => main.PrepareForSessionEnd();
-            await main.StartShellAsync(e.Args.Contains("--startup"), e.Args.Contains("--show"));
+            await main.StartShellAsync(launchedFromWindows, explicitShow || pendingShowRequest);
+            if (pendingShowRequest)
+            {
+                pendingShowRequest = false;
+                main.ShowConfigurationFromTray();
+            }
         }
         catch (Exception ex)
         {
@@ -51,6 +86,8 @@ public partial class App : Application
 
     protected override void OnExit(ExitEventArgs e)
     {
+        singleInstance?.Dispose();
+        singleInstance = null;
         Log.Information("Shutdown");
         Log.CloseAndFlush();
         base.OnExit(e);

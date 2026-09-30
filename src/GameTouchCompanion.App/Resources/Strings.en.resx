@@ -127,25 +127,25 @@
     <value>There is no startup preference or session toggle. Closing the Companion dismisses only the current game instance; detection keeps waiting for new instances and other configured games.</value>
   </data>
   <data name="Ui040" xml:space="preserve">
-    <value>Windows startup and system tray</value>
+    <value>Startup and behavior</value>
   </data>
   <data name="Ui041" xml:space="preserve">
-    <value>Start Game Touch Companion when I sign in to Windows</value>
+    <value>Start Game Touch Companion with Windows</value>
   </data>
   <data name="Ui042" xml:space="preserve">
-    <value>Registers the path of this copy of the app for your Windows user account. If you move the app, register the new location. Do not run multiple copies at the same time.</value>
+    <value>“Start hidden with Windows” is available only when Windows startup is enabled.</value>
   </data>
   <data name="Ui043" xml:space="preserve">
-    <value>Register this copy (replace previous path)</value>
+    <value>Update registration for this copy</value>
   </data>
   <data name="Ui044" xml:space="preserve">
     <value>Check registration</value>
   </data>
   <data name="Ui045" xml:space="preserve">
-    <value>Start hidden in the system tray</value>
+    <value>Start hidden with Windows</value>
   </data>
   <data name="Ui046" xml:space="preserve">
-    <value>When I close the Settings window, keep the app running in the system tray</value>
+    <value>Close Settings to the system tray</value>
   </data>
   <data name="Ui047" xml:space="preserve">
     <value>Hide in system tray now</value>
@@ -1110,7 +1110,7 @@
     <value>always active</value>
   </data>
   <data name="GeneralSettingsHelp" xml:space="preserve">
-    <value>Change general preferences and save them together with the button at the bottom of this page.</value>
+    <value>Configure the language and general app behavior. Save the changes together with the button at the bottom.</value>
   </data>
   <data name="TrayBehaviorHeading" xml:space="preserve">
     <value>System tray behavior</value>
@@ -1171,5 +1171,14 @@
   </data>
   <data name="Dynamic175" xml:space="preserve">
     <value>A legacy selection based on DISPLAY1/2/3 was found. Verify the physical display names shown and confirm the selection once to migrate it to the persistent identifier.</value>
+  </data>
+  <data name="MaintenanceHeading" xml:space="preserve">
+    <value>Maintenance</value>
+  </data>
+  <data name="RegistrationMaintenanceTitle" xml:space="preserve">
+    <value>This installation registration</value>
+  </data>
+  <data name="RegistrationMaintenanceHelp" xml:space="preserve">
+    <value>If you use Windows startup, update its registration after moving Game Touch Companion or extracting a new version to another folder. This action is not needed while Windows startup is disabled.</value>
   </data>
 </root>

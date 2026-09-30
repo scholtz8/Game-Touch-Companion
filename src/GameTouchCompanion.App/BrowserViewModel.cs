@@ -179,11 +179,7 @@ public sealed class BrowserViewModel : INotifyPropertyChanged
         // Runtime visibility is intentionally session-only. Personalization controls
         // whether a newly opened Companion starts with the toolbar visible.
         ShowToolbar = visible;
-        var status = visible ? "Barra de navegación visible." : "Barra oculta. Pulsa Mostrar barra para recuperarla.";
-        if (!CanEditSettings && HasSettingsError)
-            SetStatus(status);
-        else
-            ReportStatus(status);
+        ReportStatus(visible ? "Barra de navegación visible." : "Barra oculta. Pulsa Mostrar barra para recuperarla.");
         return Task.CompletedTask;
     }
 
@@ -220,7 +216,9 @@ public sealed class BrowserViewModel : INotifyPropertyChanged
 
     public void ReportStatus(LocalizedMessage message)
     {
-        SetError(string.Empty);
+        // Runtime status changes must not hide a persistent browser-settings load/save error.
+        if (!HasSettingsError)
+            SetError(string.Empty);
         SetStatus(message);
     }
 

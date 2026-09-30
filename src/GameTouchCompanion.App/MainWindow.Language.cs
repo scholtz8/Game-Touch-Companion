@@ -11,9 +11,9 @@ public partial class MainWindow
     {
         if (LanguageCombo.SelectedValue is not string language || isClosed) return;
 
-        var startHidden = StartInTrayCheck.IsChecked == true;
-        var closeHidden = CloseToTrayCheck.IsChecked == true;
         var startWithWindows = WindowsStartupCheck.IsChecked == true;
+        var startHidden = startWithWindows && StartInTrayCheck.IsChecked == true;
+        var closeHidden = CloseToTrayCheck.IsChecked == true;
 
         SaveGeneralSettingsButton.IsEnabled = false;
         LanguageCombo.IsEnabled = false;
@@ -61,9 +61,9 @@ public partial class MainWindow
             {
                 SaveGeneralSettingsButton.IsEnabled = true;
                 LanguageCombo.IsEnabled = true;
-                StartInTrayCheck.IsEnabled = viewModel.SettingsLoaded;
                 CloseToTrayCheck.IsEnabled = viewModel.SettingsLoaded;
                 WindowsStartupCheck.IsEnabled = startupRegistration is not null;
+                UpdateStartHiddenAvailability();
             }
         }
     }

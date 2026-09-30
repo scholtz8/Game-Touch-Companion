@@ -127,25 +127,25 @@
     <value>No requiere una preferencia de inicio ni un interruptor de sesión. Cerrar Companion descarta solo la instancia actual del juego; la detección continúa esperando nuevas instancias y otros juegos configurados.</value>
   </data>
   <data name="Ui040" xml:space="preserve">
-    <value>Inicio de Windows y bandeja</value>
+    <value>Inicio y comportamiento</value>
   </data>
   <data name="Ui041" xml:space="preserve">
-    <value>Iniciar Game Touch Companion al iniciar sesión en Windows</value>
+    <value>Iniciar Game Touch Companion con Windows</value>
   </data>
   <data name="Ui042" xml:space="preserve">
-    <value>Se registra para tu usuario de Windows la ruta de esta copia de la aplicación. Si la mueves, tendrás que registrar la nueva ubicación. No ejecutes varias copias al mismo tiempo.</value>
+    <value>«Iniciar oculto con Windows» solo está disponible cuando el inicio con Windows está activado.</value>
   </data>
   <data name="Ui043" xml:space="preserve">
-    <value>Registrar esta copia (reemplaza la ruta anterior)</value>
+    <value>Actualizar registro de esta copia</value>
   </data>
   <data name="Ui044" xml:space="preserve">
     <value>Comprobar registro</value>
   </data>
   <data name="Ui045" xml:space="preserve">
-    <value>Iniciar oculto en la bandeja del sistema</value>
+    <value>Iniciar oculto con Windows</value>
   </data>
   <data name="Ui046" xml:space="preserve">
-    <value>Al cerrar Configuración, mantener la app en la bandeja en lugar de salir</value>
+    <value>Cerrar Configuración a la bandeja</value>
   </data>
   <data name="Ui047" xml:space="preserve">
     <value>Ocultar en bandeja ahora</value>
@@ -1110,7 +1110,7 @@
     <value>siempre activa</value>
   </data>
   <data name="GeneralSettingsHelp" xml:space="preserve">
-    <value>Cambia las preferencias generales y guárdalas juntas con el botón al final de esta página.</value>
+    <value>Configura el idioma y el comportamiento general de la aplicación. Los cambios se guardan juntos con el botón al final.</value>
   </data>
   <data name="TrayBehaviorHeading" xml:space="preserve">
     <value>Comportamiento de la bandeja</value>
@@ -1171,5 +1171,14 @@
   </data>
   <data name="Dynamic175" xml:space="preserve">
     <value>Se encontró una selección antigua basada en DISPLAY1/2/3. Verifica los nombres físicos mostrados y confirma la selección una vez para migrarla al identificador persistente.</value>
+  </data>
+  <data name="MaintenanceHeading" xml:space="preserve">
+    <value>Mantenimiento</value>
+  </data>
+  <data name="RegistrationMaintenanceTitle" xml:space="preserve">
+    <value>Registro de esta instalación</value>
+  </data>
+  <data name="RegistrationMaintenanceHelp" xml:space="preserve">
+    <value>Si usas el inicio con Windows, actualiza su registro cuando muevas Game Touch Companion o extraigas una versión nueva en otra carpeta. La acción no es necesaria cuando el inicio con Windows está desactivado.</value>
   </data>
 </root>

@@ -9,6 +9,9 @@
 - **Reset auto-launch** is available directly from Diagnostics in addition to the tray menu.
 
 ### Changed
+- General Settings is reorganized into Language, Startup and behavior, and Maintenance sections with a single **Save changes** action.
+- **Start hidden with Windows** is now dependent on **Start Game Touch Companion with Windows**: disabling Windows startup also disables and clears the hidden-start preference.
+- The old **Hide in system tray now**, **Exit completely**, and **Check registration** actions were removed from Settings. **Update registration for this copy** remains as a separate maintenance action with visible status feedback.
 - A missing configured physical display is retained as unavailable and never silently replaced by whichever display inherits the old GDI number; explicit reselection is required to change the saved target.
 - The dedicated Detection tab was removed because detection is always active. Detection state and technical details now live in Diagnostics.
 - General Settings was simplified: language, Windows startup and tray preferences share one **Save changes** action at the bottom. Passive Companion-protection copy and redundant cross-tab navigation buttons were removed.

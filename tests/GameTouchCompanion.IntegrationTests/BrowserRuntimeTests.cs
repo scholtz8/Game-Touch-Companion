@@ -169,12 +169,14 @@ public sealed class BrowserRuntimeTests
         }
     }
 
-    internal static async Task WaitUntilAsync(Func<bool> condition, Func<string> failure)
+    internal static async Task WaitUntilAsync(Func<bool> condition, Func<string> failure, TimeSpan? timeout = null)
     {
+        var limit = timeout ?? TimeSpan.FromSeconds(20);
         var stopwatch = Stopwatch.StartNew();
+
         while (!condition())
         {
-            Assert.True(stopwatch.Elapsed < TimeSpan.FromSeconds(20), failure());
+            Assert.True(stopwatch.Elapsed < limit, failure());
             await Task.Delay(50);
         }
     }
