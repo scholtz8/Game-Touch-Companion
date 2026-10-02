@@ -11,6 +11,13 @@ public partial class ProfilesPanel : UserControl
     private ProfilesViewModel? Model => DataContext as ProfilesViewModel;
     private IReadOnlyList<MonitorProfile> monitors = [];
     private ProfilesViewModel? subscribedModel;
+    private IReadOnlyList<MonitorChoice> monitorChoices = [];
+    private bool updatingMonitorSelection;
+
+    private sealed record MonitorChoice(string Label, MonitorProfile? Monitor)
+    {
+        public override string ToString() => Label;
+    }
 
     public ProfilesPanel()
     {
@@ -27,8 +34,34 @@ public partial class ProfilesPanel : UserControl
     public void SetMonitors(IEnumerable<MonitorProfile> availableMonitors)
     {
         monitors = availableMonitors.ToArray();
-        AvailableMonitorCombo.ItemsSource = monitors;
+        RebuildMonitorChoices();
         UpdateMonitorSelection();
+    }
+
+    private void RebuildMonitorChoices()
+    {
+        if (AvailableMonitorCombo is null) return;
+
+        var choices = new List<MonitorChoice>
+        {
+            new(Localization.Get("ProfileMonitorDefaultOption"), null)
+        };
+
+        choices.AddRange(
+            monitors.Select(monitor =>
+                new MonitorChoice(Localization.MonitorLabel(monitor), monitor)));
+
+        monitorChoices = choices;
+
+        updatingMonitorSelection = true;
+        try
+        {
+            AvailableMonitorCombo.ItemsSource = monitorChoices;
+        }
+        finally
+        {
+            updatingMonitorSelection = false;
+        }
     }
 
     private void SubscribeModel()
@@ -49,28 +82,62 @@ public partial class ProfilesPanel : UserControl
     {
         if (!Dispatcher.CheckAccess())
         {
-            if (!Dispatcher.HasShutdownStarted) Dispatcher.BeginInvoke(UpdateMonitorSelection);
+            if (!Dispatcher.HasShutdownStarted)
+            {
+                Dispatcher.BeginInvoke(() =>
+                {
+                    RebuildMonitorChoices();
+                    UpdateMonitorSelection();
+                });
+            }
+
             return;
         }
+
+        RebuildMonitorChoices();
         UpdateMonitorSelection();
     }
 
     private void UpdateMonitorSelection()
     {
         if (ProfileMonitorStatus is null || AvailableMonitorCombo is null) return;
-        var reference = Model?.CompanionMonitor;
-        if (string.IsNullOrWhiteSpace(reference))
-        {
-            AvailableMonitorCombo.SelectedItem = null;
-            ProfileMonitorStatus.Text = Localization.Get("ProfileMonitorCurrent");
-            return;
-        }
 
-        var monitor = MonitorSelectionService.FindByReference(monitors, reference);
-        AvailableMonitorCombo.SelectedItem = monitor;
-        ProfileMonitorStatus.Text = monitor is null
-            ? Localization.Get("ProfileMonitorUnavailable")
-            : string.Format(Localization.Get("ProfileMonitorConfigured"), Localization.MonitorLabel(monitor));
+        updatingMonitorSelection = true;
+
+        try
+        {
+            var reference = Model?.CompanionMonitor;
+
+            if (string.IsNullOrWhiteSpace(reference))
+            {
+                AvailableMonitorCombo.SelectedItem =
+                    monitorChoices.FirstOrDefault(choice => choice.Monitor is null);
+
+                ProfileMonitorStatus.Text = Localization.Get("ProfileMonitorCurrent");
+                return;
+            }
+
+            var monitor = MonitorSelectionService.FindByReference(monitors, reference);
+
+            AvailableMonitorCombo.SelectedItem = monitor is null
+                ? null
+                : monitorChoices.FirstOrDefault(choice =>
+                    choice.Monitor is not null &&
+                    string.Equals(
+                        choice.Monitor.IdentityKey,
+                        monitor.IdentityKey,
+                        StringComparison.OrdinalIgnoreCase));
+
+            ProfileMonitorStatus.Text = monitor is null
+                ? Localization.Get("ProfileMonitorUnavailable")
+                : string.Format(
+                    Localization.Get("ProfileMonitorConfigured"),
+                    Localization.MonitorLabel(monitor));
+        }
+        finally
+        {
+            updatingMonitorSelection = false;
+        }
     }
 
     private void New_Click(object sender, RoutedEventArgs e) => Model?.NewProfile();
@@ -81,14 +148,15 @@ public partial class ProfilesPanel : UserControl
     private void CancelDelete_Click(object sender, RoutedEventArgs e) => Model?.CancelDelete();
     private void Discard_Click(object sender, RoutedEventArgs e) => Model?.ConfirmDiscard();
     private void KeepDraft_Click(object sender, RoutedEventArgs e) => Model?.CancelDiscard();
-    private void UseMonitor_Click(object sender, RoutedEventArgs e)
+    private void AvailableMonitorCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (Model is not null && AvailableMonitorCombo.SelectedItem is MonitorProfile monitor)
-            Model.CompanionMonitor = monitor.IdentityKey;
-    }
-    private void UseCurrentMonitor_Click(object sender, RoutedEventArgs e)
-    {
-        if (Model is not null) Model.CompanionMonitor = string.Empty;
+        if (updatingMonitorSelection ||
+            Model is null ||
+            AvailableMonitorCombo.SelectedItem is not MonitorChoice choice)
+            return;
+
+        Model.CompanionMonitor = choice.Monitor?.IdentityKey ?? string.Empty;
+        UpdateMonitorSelection();
     }
     private void AddTab_Click(object sender, RoutedEventArgs e) => Model?.AddTab();
     private void RemoveTab_Click(object sender, RoutedEventArgs e) => Model?.RemoveTab((sender as FrameworkElement)?.Tag as ProfileTabDraft);

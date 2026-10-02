@@ -43,10 +43,10 @@
     <value>GAME TOUCH COMPANION</value>
   </data>
   <data name="Ui012" xml:space="preserve">
-    <value>Selecciona la pantalla de Companion y abre el navegador.</value>
+    <value>Selecciona las pantallas de juego y Companion.</value>
   </data>
   <data name="Ui013" xml:space="preserve">
-    <value>Runtime</value>
+    <value>Distribución actual</value>
   </data>
   <data name="Ui014" xml:space="preserve">
     <value>Comprobando WebView2 Runtime…</value>
@@ -187,7 +187,7 @@
     <value>Última muestra de detección (se actualiza automáticamente cada 2 segundos)</value>
   </data>
   <data name="Ui060" xml:space="preserve">
-    <value>Los eventos táctiles no se registran en producción; usa TouchTestPage. Aquí tampoco se contabilizan con precisión las pérdidas de foco; para eso usa FocusProbe. Abrir Configuración cambia intencionalmente la ventana en primer plano, así que hazlo fuera del intervalo de prueba.</value>
+    <value>Los eventos táctiles no se registran en producción. Aquí tampoco se contabilizan con precisión las pérdidas de foco; para eso usa FocusProbe. Abrir Configuración cambia intencionalmente la ventana en primer plano, así que hazlo fuera del intervalo de prueba.</value>
   </data>
   <data name="Ui061" xml:space="preserve">
     <value>Game Touch Companion</value>
@@ -319,7 +319,7 @@
     <value>URL del mapa (HTTP/HTTPS)</value>
   </data>
   <data name="Ui104" xml:space="preserve">
-    <value>Pantalla de Companion (vacío = selección actual)</value>
+    <value>Pantalla de Companion</value>
   </data>
   <data name="Ui105" xml:space="preserve">
     <value>Pantallas disponibles para este perfil</value>
@@ -1146,7 +1146,10 @@
     <value>Permite que una instancia de juego descartada vuelva a intentar abrir Companion automáticamente. Normalmente no es necesario: al reiniciar el juego se crea una nueva instancia elegible.</value>
   </data>
   <data name="ProfileMonitorCurrent" xml:space="preserve">
-    <value>Sin pantalla fija: el perfil usará la selección Companion actual.</value>
+    <value>Usa la pantalla predeterminada de Companion.</value>
+  </data>
+  <data name="ProfileMonitorDefaultOption" xml:space="preserve">
+    <value>Usar pantalla predeterminada de Companion</value>
   </data>
   <data name="ProfileMonitorUnavailable" xml:space="preserve">
     <value>La pantalla guardada no está conectada. Su identificador persistente se conserva y no será reemplazado automáticamente.</value>

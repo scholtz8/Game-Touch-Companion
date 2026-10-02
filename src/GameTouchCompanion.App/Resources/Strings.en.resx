@@ -43,10 +43,10 @@
     <value>GAME TOUCH COMPANION</value>
   </data>
   <data name="Ui012" xml:space="preserve">
-    <value>Select the Companion display, then open the browser.</value>
+    <value>Select the game and Companion displays.</value>
   </data>
   <data name="Ui013" xml:space="preserve">
-    <value>Runtime</value>
+    <value>Current layout</value>
   </data>
   <data name="Ui014" xml:space="preserve">
     <value>Checking WebView2 Runtime…</value>
@@ -187,7 +187,7 @@
     <value>Latest detection sample (updates automatically every 2 seconds)</value>
   </data>
   <data name="Ui060" xml:space="preserve">
-    <value>Touch events are not tracked in production; use TouchTestPage. Exact focus-loss counts are not available here; use FocusProbe. Opening the Settings window intentionally changes the active window, so do it outside the test interval.</value>
+    <value>Touch events are not tracked in production. Exact focus-loss counts are not available here; use FocusProbe. Opening the Settings window intentionally changes the active window, so do it outside the test interval.</value>
   </data>
   <data name="Ui061" xml:space="preserve">
     <value>Game Touch Companion</value>
@@ -319,7 +319,7 @@
     <value>Map URL (HTTP/HTTPS)</value>
   </data>
   <data name="Ui104" xml:space="preserve">
-    <value>Companion display (blank = current selection)</value>
+    <value>Companion display</value>
   </data>
   <data name="Ui105" xml:space="preserve">
     <value>Displays available for this profile</value>
@@ -1146,7 +1146,10 @@
     <value>Allows a dismissed running game instance to attempt automatic Companion opening again. This is normally unnecessary: restarting the game creates a new eligible instance.</value>
   </data>
   <data name="ProfileMonitorCurrent" xml:space="preserve">
-    <value>No fixed display: this profile will use the current Companion display selection.</value>
+    <value>Uses the default Companion display.</value>
+  </data>
+  <data name="ProfileMonitorDefaultOption" xml:space="preserve">
+    <value>Use default Companion display</value>
   </data>
   <data name="ProfileMonitorUnavailable" xml:space="preserve">
     <value>The saved display is not connected. Its persistent identifier is kept and will not be replaced automatically.</value>

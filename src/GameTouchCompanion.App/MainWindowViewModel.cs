@@ -231,10 +231,17 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         IsUpdating = true;
         try
         {
+            selectedGameMonitor = null;
+            selectedCompanionMonitor = null;
+
             Monitors.Clear();
-            foreach (var monitor in detectedMonitors) Monitors.Add(monitor);
+            foreach (var monitor in detectedMonitors)
+                Monitors.Add(monitor);
         }
-        finally { IsUpdating = false; }
+        finally
+        {
+            IsUpdating = false;
+        }
 
         await ApplyResolvedSelectionAsync(desiredSettings, cancellationToken);
     }

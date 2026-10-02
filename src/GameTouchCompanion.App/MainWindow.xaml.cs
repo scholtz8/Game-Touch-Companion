@@ -70,6 +70,7 @@ public partial class MainWindow : Window
         initializationStarted = true;
         CheckRuntime();
         await InitializeMonitorsAsync();
+        GameProfilesPanel.SetMonitors(viewModel.Monitors);
         await browserViewModel.InitializeAsync();
         CustomizationPanel.BindBrowserSettings(browserViewModel);
         await profilesViewModel.InitializeAsync();

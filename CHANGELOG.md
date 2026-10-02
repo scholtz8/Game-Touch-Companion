@@ -3,8 +3,8 @@
 ## Unreleased — Adaptive touch keyboard and physical URL input
 
 ### Added
-- The Companion touch keyboard now includes an explicit **physical keyboard** toggle for URL editing. Enabling it temporarily gives Companion keyboard focus, and disabling it/pressing Enter returns focus to the previously active window.
-- Physical keyboard mode is available only while editing the Companion address bar; normal touch browsing remains `NoActivate`.
+- The Companion touch keyboard now includes an explicit **physical keyboard** toggle for the address bar and webpage text fields. Enabling it temporarily gives Companion keyboard focus, and disabling it returns focus to the previously active window.
+- Physical keyboard mode is available while editing the Companion address bar or webpage text fields; normal touch browsing remains `NoActivate`.
 
 ### Changed
 - Touch-keyboard rows now stretch across the full available Companion width instead of using fixed key widths, so key sizing adapts to the current monitor/window width.
