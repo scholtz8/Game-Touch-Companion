@@ -158,6 +158,8 @@
               <TextBlock Text="{local:Tr Dynamic121}" TextWrapping="Wrap" Margin="0,8"/>
               <TextBlock Text="{local:Tr Message011}" FontSize="22" FontWeight="SemiBold" Margin="0,18,0,0"/>
               <TextBlock Text="{local:Tr GuidePlay}" TextWrapping="Wrap" Margin="0,8"/>
+              <Button x:Name="OpenCompanionButton" Width="240" Height="46" HorizontalAlignment="Left" Margin="0,18,0,0"
+                      IsEnabled="{Binding CanOpenCompanion}" Click="OpenCompanion_Click" Content="{local:Tr Ui022}"/>
               <TextBlock x:Name="SetupSummary" Visibility="Collapsed" TextWrapping="Wrap"/>
           </StackPanel></ScrollViewer>
       </TabItem>
@@ -169,7 +171,6 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <StackPanel>
@@ -231,13 +232,11 @@
             </Border>
         </StackPanel>
 
-        <Button x:Name="OpenCompanionButton" Grid.Row="4" Width="240" Height="46" HorizontalAlignment="Left"
-                IsEnabled="{Binding CanOpenCompanion}" Click="OpenCompanion_Click" Content="{local:Tr Ui022}"/>
       </Grid>
       </ScrollViewer>
       </TabItem>
       <TabItem x:Name="BrowserTab" Header="{local:Tr Ui005}">
-          <local:BrowserSettingsPanel x:Name="BrowserPanel" OpenCompanionRequested="BrowserPanel_OpenCompanionRequested"/>
+          <local:BrowserSettingsPanel x:Name="BrowserPanel"/>
       </TabItem>
       <TabItem x:Name="ProfilesTab" Header="{local:Tr Ui006}"><local:ProfilesPanel x:Name="GameProfilesPanel"/></TabItem>
       <TabItem x:Name="SettingsTab" Header="{local:Tr Ui033}">

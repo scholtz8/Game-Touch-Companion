@@ -12,6 +12,13 @@ public sealed class NoActivateWindowServiceTests
     }
 
     [Fact]
+    public void ComposeActivatableStyleRemovesNoActivateButKeepsToolWindow()
+    {
+        var result = NoActivateWindowService.ComposeActivatableExtendedStyle((nint)0x080000A0);
+        Assert.Equal((long)0x000000A0, result.ToInt64());
+    }
+
+    [Fact]
     public void MouseActivateReturnsNoActivate()
     {
         Assert.True(NoActivateWindowService.TryHandleMessage(NativeConstants.WmMouseActivate, out var result));

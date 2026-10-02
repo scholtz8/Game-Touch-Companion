@@ -250,7 +250,7 @@
     <value>Escribe una dirección aquí. Después vuelve al juego y usa la pantalla táctil de Companion para navegar.</value>
   </data>
   <data name="Ui081" xml:space="preserve">
-    <value>Dirección HTTP o HTTPS</value>
+    <value>Dirección web</value>
   </data>
   <data name="Ui082" xml:space="preserve">
     <value>Ir</value>
@@ -433,7 +433,7 @@
     <value>No se pudo leer browser.json. Corrige el archivo y reinicia la app. La edición de preferencias está bloqueada para evitar sobrescribirlo.</value>
   </data>
   <data name="Dynamic012" xml:space="preserve">
-    <value>Introduce una dirección HTTP o HTTPS válida, sin nombre de usuario ni contraseña. No se admiten otros tipos de dirección.</value>
+    <value>Introduce una dirección web válida. Puedes usar un dominio, localhost, una IP o una URL HTTP/HTTPS, sin nombre de usuario ni contraseña.</value>
   </data>
   <data name="Dynamic013" xml:space="preserve">
     <value>Cargando página…</value>
@@ -442,7 +442,7 @@
     <value>Dirección lista. Se abrirá cuando inicies Companion.</value>
   </data>
   <data name="Dynamic015" xml:space="preserve">
-    <value>El favorito necesita una dirección HTTP o HTTPS válida, sin nombre de usuario ni contraseña.</value>
+    <value>El favorito necesita una dirección web válida, como un dominio, localhost, una IP o una URL HTTP/HTTPS, sin nombre de usuario ni contraseña.</value>
   </data>
   <data name="Dynamic016" xml:space="preserve">
     <value>Esta dirección ya está en favoritos.</value>
@@ -457,7 +457,7 @@
     <value>Eliminado de favoritos.</value>
   </data>
   <data name="Dynamic020" xml:space="preserve">
-    <value>La página de inicio debe tener una dirección HTTP o HTTPS válida, sin nombre de usuario ni contraseña.</value>
+    <value>La página de inicio necesita una dirección web válida, como un dominio, localhost, una IP o una URL HTTP/HTTPS, sin nombre de usuario ni contraseña.</value>
   </data>
   <data name="Dynamic021" xml:space="preserve">
     <value>Página inicial guardada.</value>
@@ -1099,6 +1099,12 @@
   </data>
   <data name="Ui172" xml:space="preserve">
     <value>Cambiar tamaño del teclado</value>
+  </data>
+  <data name="Ui173" xml:space="preserve">
+    <value>Teclado físico para la URL o campos de texto de la página. Al activarlo, Companion toma el foco temporalmente y lo devuelve al desactivarlo.</value>
+  </data>
+  <data name="Ui174" xml:space="preserve">
+    <value>Alternar teclado físico para la URL o campos de texto de la página</value>
   </data>
   <data name="Dynamic166" xml:space="preserve">
     <value>WebView2 Runtime no está disponible; instala el runtime para permitir la apertura automática de Companion.</value>

@@ -16,6 +16,10 @@ internal static partial class NativeMethods
     [LibraryImport("user32.dll")]
     internal static partial nint GetForegroundWindow();
 
+    [LibraryImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static partial bool SetForegroundWindow(nint hWnd);
+
     [LibraryImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static partial bool EnumDisplayMonitors(

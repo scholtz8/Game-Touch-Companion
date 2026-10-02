@@ -250,7 +250,7 @@
     <value>Enter an address here, then return to your game and use the Companion touchscreen to navigate.</value>
   </data>
   <data name="Ui081" xml:space="preserve">
-    <value>Web address (HTTP or HTTPS)</value>
+    <value>Web address</value>
   </data>
   <data name="Ui082" xml:space="preserve">
     <value>Go</value>
@@ -433,7 +433,7 @@
     <value>Could not read browser.json. Fix the file and restart the app. Preference editing is disabled to avoid overwriting the file.</value>
   </data>
   <data name="Dynamic012" xml:space="preserve">
-    <value>Enter a valid HTTP or HTTPS address without a username or password. Other URL schemes are not supported.</value>
+    <value>Enter a valid web address. You can use a domain, localhost, an IP address, or an HTTP/HTTPS URL without a username or password.</value>
   </data>
   <data name="Dynamic013" xml:space="preserve">
     <value>Loading page…</value>
@@ -442,7 +442,7 @@
     <value>Address ready. It will open when the Companion starts.</value>
   </data>
   <data name="Dynamic015" xml:space="preserve">
-    <value>Favorites require a valid HTTP or HTTPS address without a username or password.</value>
+    <value>Favorites require a valid web address such as a domain, localhost, an IP address, or an HTTP/HTTPS URL without a username or password.</value>
   </data>
   <data name="Dynamic016" xml:space="preserve">
     <value>This address is already in Favorites.</value>
@@ -457,7 +457,7 @@
     <value>Removed from Favorites.</value>
   </data>
   <data name="Dynamic020" xml:space="preserve">
-    <value>The home page must be a valid HTTP or HTTPS address without a username or password.</value>
+    <value>The home page requires a valid web address such as a domain, localhost, an IP address, or an HTTP/HTTPS URL without a username or password.</value>
   </data>
   <data name="Dynamic021" xml:space="preserve">
     <value>Home page saved.</value>
@@ -1099,6 +1099,12 @@
   </data>
   <data name="Ui172" xml:space="preserve">
     <value>Change keyboard size</value>
+  </data>
+  <data name="Ui173" xml:space="preserve">
+    <value>Physical keyboard for the URL or webpage text fields. When enabled, Companion temporarily takes focus and returns it when disabled.</value>
+  </data>
+  <data name="Ui174" xml:space="preserve">
+    <value>Toggle physical keyboard input for the URL or webpage text fields</value>
   </data>
   <data name="Dynamic166" xml:space="preserve">
     <value>WebView2 Runtime is unavailable; install the runtime to allow automatic Companion opening.</value>

@@ -3,6 +3,7 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Threading;
 using GameTouchCompanion.App;
 using GameTouchCompanion.Core;
@@ -47,6 +48,14 @@ public sealed class BrowserRuntimeTests
             try
             {
                 companion.ShowWithoutActivation();
+                var addressBox = Assert.IsType<TextBox>(companion.FindName("AddressBox"));
+                Assert.False(addressBox.Focusable);
+
+                var physicalKeyboard = Assert.IsType<Button>(companion.FindName("PhysicalKeyboardAction"));
+                Assert.False(physicalKeyboard.IsEnabled);
+
+                var adaptiveKeyboard = Assert.IsType<Grid>(companion.FindName("KeyboardKeysPanel"));
+                Assert.Equal(4, adaptiveKeyboard.Children.OfType<UniformGrid>().Count());
                 await WaitUntilAsync(() => model.IsReady && model.CurrentUrl == BrowserUrlPolicy.LocalHomeUrl,
                     () => $"Local page did not initialize. {model.Status}");
                 var host = Assert.IsType<Grid>(companion.FindName("BrowserHost"));

@@ -1,14 +1,12 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using GameTouchCompanion.Core;
 
 namespace GameTouchCompanion.App;
 
 public partial class BrowserSettingsPanel : UserControl
 {
     public BrowserSettingsPanel() => InitializeComponent();
-    public event EventHandler? OpenCompanionRequested;
     private BrowserViewModel? ViewModel => DataContext as BrowserViewModel;
 
     private void Navigate_Click(object sender, RoutedEventArgs e) => ViewModel?.NavigateAddress();
@@ -19,13 +17,6 @@ public partial class BrowserSettingsPanel : UserControl
         e.Handled = true;
     }
 
-    private void Open_Click(object sender, RoutedEventArgs e)
-    {
-        if (ViewModel?.NavigateAddress() == true)
-            OpenCompanionRequested?.Invoke(this, EventArgs.Empty);
-    }
-
-    private void LocalPage_Click(object sender, RoutedEventArgs e) => ViewModel?.Navigate(BrowserUrlPolicy.LocalHomeUrl);
     private async void SetHome_Click(object sender, RoutedEventArgs e)
     {
         if (ViewModel is { } model) await model.SetHomeFromAddressAsync();

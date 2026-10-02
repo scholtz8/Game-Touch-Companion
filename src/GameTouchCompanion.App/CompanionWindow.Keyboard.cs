@@ -2,7 +2,9 @@ using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using GameTouchCompanion.Core;
+using GameTouchCompanion.Native;
 using Microsoft.Web.WebView2.Core;
 using Serilog;
 
@@ -21,6 +23,8 @@ public partial class CompanionWindow
     private TabRuntime? keyboardTab;
     private bool keyboardShift;
     private bool keyboardLarge;
+    private bool physicalKeyboardInputEnabled;
+    private nint physicalKeyboardPreviousForeground;
     private bool replaceAddressOnNextInput;
     private bool addressEditing;
 
@@ -146,10 +150,9 @@ public partial class CompanionWindow
     {
         if (activeTab is null) return;
         var input = AddressBox.Text.Trim();
-        if (!BrowserUrlPolicy.TryNormalize(input, out var normalized) &&
-            !BrowserUrlPolicy.TryNormalize("https://" + input, out normalized))
+        if (!BrowserUrlPolicy.TryNormalize(input, out var normalized))
         {
-            viewModel.ReportError("Introduce una dirección HTTP o HTTPS válida, sin credenciales. Otros esquemas no están permitidos.");
+            viewModel.ReportError("Introduce una dirección web válida. Puedes usar un dominio, localhost, una IP o una URL HTTP/HTTPS, sin credenciales.");
             return;
         }
         addressEditing = false;
@@ -170,11 +173,14 @@ public partial class CompanionWindow
     {
         keyboardTarget = target;
         keyboardTab = tab;
+        PhysicalKeyboardAction.IsEnabled =
+            target is TouchKeyboardTarget.Address or TouchKeyboardTarget.WebPage;
         TouchKeyboardPanel.Visibility = Visibility.Visible;
     }
 
     private void HideTouchKeyboard()
     {
+        DisablePhysicalKeyboardInput();
         TouchKeyboardPanel.Visibility = Visibility.Collapsed;
         keyboardTarget = TouchKeyboardTarget.None;
         keyboardTab = null;
@@ -193,11 +199,121 @@ public partial class CompanionWindow
     private void ToggleKeyboardSize_Click(object sender, RoutedEventArgs e)
     {
         keyboardLarge = !keyboardLarge;
-        var scale = keyboardLarge ? 1.25 : 1.0;
-        KeyboardScaleTransform.ScaleX = scale;
-        KeyboardScaleTransform.ScaleY = scale;
+        ApplyKeyboardKeySize();
         KeyboardSizeAction.Content = keyboardLarge ? "A−" : "A+";
-        Log.Debug("Touch keyboard size changed. Large={Large}; Scale={Scale}", keyboardLarge, scale);
+        Log.Debug("Touch keyboard key height changed. Large={Large}", keyboardLarge);
+    }
+
+    private void ApplyKeyboardKeySize()
+    {
+        var minHeight = keyboardLarge ? 62d : 48d;
+        var fontSize = keyboardLarge ? 22d : 18d;
+        foreach (var button in FindVisualDescendants<Button>(KeyboardKeysPanel))
+        {
+            button.MinHeight = minHeight;
+            button.FontSize = fontSize;
+        }
+    }
+
+    private static IEnumerable<T> FindVisualDescendants<T>(DependencyObject root) where T : DependencyObject
+    {
+        for (var index = 0; index < VisualTreeHelper.GetChildrenCount(root); index++)
+        {
+            var child = VisualTreeHelper.GetChild(root, index);
+            if (child is T match) yield return match;
+            foreach (var descendant in FindVisualDescendants<T>(child)) yield return descendant;
+        }
+    }
+
+    private void TogglePhysicalKeyboard_Click(object sender, RoutedEventArgs e)
+    {
+        if (physicalKeyboardInputEnabled) DisablePhysicalKeyboardInput();
+        else EnablePhysicalKeyboardInput();
+    }
+
+    private void EnablePhysicalKeyboardInput()
+    {
+        if (physicalKeyboardInputEnabled ||
+            keyboardTarget is not (TouchKeyboardTarget.Address or TouchKeyboardTarget.WebPage) ||
+            hwnd == nint.Zero)
+            return;
+
+        if (keyboardTarget == TouchKeyboardTarget.WebPage && keyboardTab?.View is null)
+            return;
+
+        physicalKeyboardPreviousForeground = NoActivateWindowService.GetForegroundWindow();
+        physicalKeyboardInputEnabled = true;
+        replaceAddressOnNextInput = false;
+        PhysicalKeyboardAction.Content = "⌨ ON";
+
+        NoActivateWindowService.AllowActivation(hwnd);
+
+        if (keyboardTarget == TouchKeyboardTarget.Address)
+        {
+            AddressBox.Focusable = true;
+            AddressBox.SelectAll();
+        }
+
+        _ = Dispatcher.BeginInvoke(() =>
+        {
+            if (!physicalKeyboardInputEnabled || isClosing) return;
+
+            Activate();
+
+            if (keyboardTarget == TouchKeyboardTarget.Address)
+            {
+                AddressBox.Focus();
+                Keyboard.Focus(AddressBox);
+            }
+            else if (keyboardTarget == TouchKeyboardTarget.WebPage &&
+                    keyboardTab?.View is { } webView)
+            {
+                webView.Focus();
+                Keyboard.Focus(webView);
+            }
+        });
+
+        Log.Information(
+            "Physical keyboard input enabled temporarily. Target={Target}; PreviousForeground={Foreground:X}",
+            keyboardTarget,
+            physicalKeyboardPreviousForeground);
+    }
+
+    private void DisablePhysicalKeyboardInput(bool restoreForeground = true)
+    {
+        if (!physicalKeyboardInputEnabled)
+        {
+            PhysicalKeyboardAction.Content = "⌨ OFF";
+            return;
+        }
+
+        physicalKeyboardInputEnabled = false;
+        PhysicalKeyboardAction.Content = "⌨ OFF";
+        Keyboard.ClearFocus();
+        AddressBox.Focusable = false;
+
+        var previousForeground = physicalKeyboardPreviousForeground;
+        physicalKeyboardPreviousForeground = nint.Zero;
+        if (hwnd != nint.Zero) NoActivateWindowService.Apply(hwnd);
+        if (restoreForeground && previousForeground != nint.Zero && previousForeground != hwnd)
+            _ = NoActivateWindowService.TrySetForegroundWindow(previousForeground);
+
+        Log.Information("Physical keyboard URL input disabled. ForegroundRestored={Restored}", restoreForeground);
+    }
+
+    private void AddressBox_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        if (!physicalKeyboardInputEnabled) return;
+        if (e.Key == Key.Enter)
+        {
+            e.Handled = true;
+            NavigateAddressBar();
+        }
+        else if (e.Key == Key.Escape)
+        {
+            e.Handled = true;
+            DisablePhysicalKeyboardInput();
+        }
     }
 
     private async void KeyboardKey_Click(object sender, RoutedEventArgs e)

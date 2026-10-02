@@ -96,12 +96,18 @@ public sealed class BrowserViewModelTests
         Assert.Equal("https://example.com/wiki", Assert.Single(navigations));
         Assert.Empty(viewModel.CurrentUrl);
 
+        viewModel.Address = "www.google.com/maps";
+        Assert.True(viewModel.NavigateAddress());
+        Assert.Equal("https://www.google.com/maps", viewModel.Address);
+        Assert.Equal("https://www.google.com/maps", viewModel.RequestedUrl);
+        Assert.Equal(2, navigations.Count);
+
         viewModel.Address = "javascript:alert(1)";
         Assert.False(viewModel.NavigateAddress());
 
         Assert.True(viewModel.HasError);
-        Assert.Equal("https://example.com/wiki", viewModel.RequestedUrl);
-        Assert.Single(navigations);
+        Assert.Equal("https://www.google.com/maps", viewModel.RequestedUrl);
+        Assert.Equal(2, navigations.Count);
         Assert.Empty(viewModel.CurrentUrl);
         Assert.Equal(0, store.SaveAttempts);
     }
@@ -186,7 +192,7 @@ public sealed class BrowserViewModelTests
     [InlineData("file:///C:/private.json")]
     [InlineData("https://user:password@example.com/")]
     [InlineData("https://touch-test.local/private.json")]
-    [InlineData("example.com")]
+    [InlineData("javascript:alert(1)")]
     public async Task InvalidHomeAndFavoriteDoNotPersistOrRequestNavigation(string input)
     {
         var store = new MemoryBrowserSettingsStore(new BrowserSettings());
@@ -204,6 +210,24 @@ public sealed class BrowserViewModelTests
         Assert.Empty(navigations);
         Assert.Equal(0, store.SaveAttempts);
         Assert.True(viewModel.HasError);
+    }
+
+
+    [Fact]
+    public async Task UserFriendlyAddressesPersistCanonicalHomeAndFavorites()
+    {
+        var store = new MemoryBrowserSettingsStore(new BrowserSettings());
+        var viewModel = new BrowserViewModel(store);
+        await viewModel.InitializeAsync();
+
+        viewModel.Address = "google.com/start";
+        await viewModel.SetHomeFromAddressAsync();
+        await viewModel.AddFavoriteAsync("localhost:8080/wiki", "Local wiki");
+
+        Assert.Equal("https://google.com/start", viewModel.HomeUrl);
+        Assert.Equal("https://google.com/start", store.Current.HomeUrl);
+        Assert.Equal(new BrowserFavorite("Local wiki", "http://localhost:8080/wiki"), Assert.Single(viewModel.Favorites));
+        Assert.Equal(viewModel.Favorites, store.Current.Favorites);
     }
 
     [Fact]

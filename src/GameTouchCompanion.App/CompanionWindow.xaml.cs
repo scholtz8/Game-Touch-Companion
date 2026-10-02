@@ -102,6 +102,7 @@ public partial class CompanionWindow : Window
         base.OnClosing(e);
         if (e.Cancel) return;
         isClosing = true;
+        DisablePhysicalKeyboardInput(restoreForeground: false);
         PropertyChangedEventManager.RemoveHandler(Appearance.Current, AppearanceChanged, string.Empty);
         hwnd = nint.Zero;
         viewModel.NavigationRequested -= NavigateRequested;
@@ -434,7 +435,7 @@ public partial class CompanionWindow : Window
 
     private nint WindowProc(nint window, int message, nint wParam, nint lParam, ref bool handled)
     {
-        if (NoActivateWindowService.TryHandleMessage(message, out var result))
+        if (!physicalKeyboardInputEnabled && NoActivateWindowService.TryHandleMessage(message, out var result))
         {
             handled = true;
             Log.Debug("WM_MOUSEACTIVATE -> MA_NOACTIVATE for HWND={Hwnd:X}", window);

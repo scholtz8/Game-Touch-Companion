@@ -258,15 +258,6 @@ public partial class MainWindow : Window
             viewModel.SelectedCompanionMonitor.Bounds);
     }
 
-    private void BrowserPanel_OpenCompanionRequested(object? sender, EventArgs e)
-    {
-        if (!viewModel.CanOpenCompanion)
-        {
-            browserViewModel.ReportError("Revisa la selección y los avisos de la pestaña Pantallas antes de abrir Companion.");
-            return;
-        }
-        OpenCompanion_Click(this, new RoutedEventArgs());
-    }
 
     private async void ConfirmSelectionReview_Click(object sender, RoutedEventArgs e)
     {

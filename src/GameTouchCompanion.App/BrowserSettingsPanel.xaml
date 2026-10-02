@@ -21,8 +21,6 @@
                          Text="{Binding Address, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" KeyDown="Address_KeyDown"/>
             </DockPanel>
             <WrapPanel Margin="0,12,0,0">
-                <Button Content="{local:Tr Ui083}" Padding="16,10" Margin="0,0,10,10" Click="Open_Click"/>
-                <Button Content="{local:Tr Ui084}" Padding="16,10" Margin="0,0,10,10" Click="LocalPage_Click"/>
                 <Button Content="{local:Tr Ui085}" Padding="16,10" Margin="0,0,10,10" Click="SetHome_Click" IsEnabled="{Binding CanEditSettings}"/>
                 <Button Content="{local:Tr Ui086}" Padding="16,10" Margin="0,0,0,10" Click="AddFavorite_Click" IsEnabled="{Binding CanEditSettings}"/>
             </WrapPanel>

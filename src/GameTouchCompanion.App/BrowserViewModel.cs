@@ -113,7 +113,7 @@ public sealed class BrowserViewModel : INotifyPropertyChanged
     {
         if (!BrowserUrlPolicy.TryNormalize(input, out var normalized))
         {
-            ReportError("Introduce una dirección HTTP o HTTPS válida, sin credenciales. Otros esquemas no están permitidos.");
+            ReportError("Introduce una dirección web válida. Puedes usar un dominio, localhost, una IP o una URL HTTP/HTTPS, sin credenciales.");
             return false;
         }
 
@@ -133,7 +133,7 @@ public sealed class BrowserViewModel : INotifyPropertyChanged
         if (!CanPersist()) return;
         if (!BrowserUrlPolicy.TryNormalize(url, out var normalized))
         {
-            ReportError("El favorito necesita una dirección HTTP o HTTPS válida, sin credenciales.");
+            ReportError("El favorito necesita una dirección web válida, como un dominio, localhost, una IP o una URL HTTP/HTTPS, sin credenciales.");
             return;
         }
         if (Favorites.Any(favorite => string.Equals(favorite.Url, normalized, StringComparison.Ordinal)))
@@ -142,7 +142,10 @@ public sealed class BrowserViewModel : INotifyPropertyChanged
             return;
         }
 
-        var label = string.IsNullOrWhiteSpace(title) ? new Uri(normalized).Host : title.Trim();
+        var normalizedUri = new Uri(normalized);
+        var label = string.IsNullOrWhiteSpace(title)
+            ? (normalizedUri.Host.Length > 0 ? normalizedUri.Host : normalized)
+            : title.Trim();
         if (label.Any(char.IsControl))
         {
             ReportError("El nombre del favorito no puede contener caracteres de control.");
@@ -165,7 +168,7 @@ public sealed class BrowserViewModel : INotifyPropertyChanged
         if (!CanPersist()) return;
         if (!BrowserUrlPolicy.TryNormalize(Address, out var normalized))
         {
-            ReportError("La página inicial necesita una dirección HTTP o HTTPS válida, sin credenciales.");
+            ReportError("La página inicial necesita una dirección web válida, como un dominio, localhost, una IP o una URL HTTP/HTTPS, sin credenciales.");
             return;
         }
 

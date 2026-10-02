@@ -1,5 +1,30 @@
 # Changelog
 
+## Unreleased — Adaptive touch keyboard and physical URL input
+
+### Added
+- The Companion touch keyboard now includes an explicit **physical keyboard** toggle for URL editing. Enabling it temporarily gives Companion keyboard focus, and disabling it/pressing Enter returns focus to the previously active window.
+- Physical keyboard mode is available only while editing the Companion address bar; normal touch browsing remains `NoActivate`.
+
+### Changed
+- Touch-keyboard rows now stretch across the full available Companion width instead of using fixed key widths, so key sizing adapts to the current monitor/window width.
+- The existing `A+ / A−` control now changes key height/font size while preserving full-width adaptive layout.
+
+## Unreleased — Flexible browser addresses
+
+### Changed
+- Browser address input now accepts domains without a scheme, localhost, LAN hostnames, IPv4/IPv6 addresses, optional ports/paths, explicit HTTP/HTTPS URLs, and `about:blank`.
+- Public domains default to HTTPS; localhost, IP addresses, single-label LAN hosts and common local suffixes default to HTTP. Explicit HTTP/HTTPS is always preserved.
+- The same normalization policy is used by Configuration, the Companion address bar, home-page settings, favorites and profile URLs.
+- Address validation continues to reject credentials, malformed ports/percent escapes, `file:`, `javascript:`, `vbscript:`, `data:` and unsupported external schemes.
+
+## Unreleased — Home and browser separation
+
+### Changed
+- **Open Companion** is now a primary action on the Home tab instead of being duplicated in Screens/Browser.
+- Browser settings no longer expose the internal **Local test page** action; the packaged TouchTestPage remains available for automated/manual diagnostics.
+- Browser now presents only configuration/navigation settings and favorites, preparing it for the later browser-settings phases.
+
 ## Unreleased — Persistent displays and Settings UX
 
 ### Added

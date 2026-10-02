@@ -54,10 +54,14 @@
         </Style>
         <Style x:Key="KeyboardKey" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
             <Setter Property="MinHeight" Value="48"/>
-            <Setter Property="MinWidth" Value="50"/>
+            <Setter Property="MinWidth" Value="0"/>
             <Setter Property="Margin" Value="2"/>
             <Setter Property="Padding" Value="6,4"/>
             <Setter Property="FontSize" Value="18"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="VerticalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
         </ResourceDictionary>
     </Window.Resources>
@@ -138,7 +142,7 @@
             <DockPanel Grid.Row="1" Margin="10,3,10,7" LastChildFill="True">
                 <Button DockPanel.Dock="Right" Content="{local:Tr Ui167}" Click="NavigateAddress_Click" MinHeight="32" Padding="12,3" Margin="5,0,0,0"/>
                 <TextBox x:Name="AddressBox" MinHeight="32" Padding="8,5" FontSize="14" Focusable="False" IsTabStop="False"
-                         PreviewMouseDown="AddressBox_PreviewMouseDown" PreviewTouchDown="AddressBox_PreviewTouchDown"
+                         PreviewMouseDown="AddressBox_PreviewMouseDown" PreviewTouchDown="AddressBox_PreviewTouchDown" PreviewKeyDown="AddressBox_PreviewKeyDown"
                          ToolTip="{local:Tr Ui166}" AutomationProperties.Name="{local:Tr Ui166}"/>
             </DockPanel>
         </Grid>
@@ -172,57 +176,74 @@
         </Grid>
 
         <Border x:Name="TouchKeyboardPanel" Grid.Row="6" Visibility="Collapsed" Background="{Binding Surface, Source={x:Static local:Appearance.Current}}"
-                BorderBrush="#64748B" BorderThickness="0,1,0,0" Padding="5">
-            <StackPanel>
+                BorderBrush="#64748B" BorderThickness="0,1,0,0" Padding="5" HorizontalAlignment="Stretch">
+            <StackPanel HorizontalAlignment="Stretch">
                 <DockPanel Margin="3,0,3,3">
                     <Button DockPanel.Dock="Right" Content="⌄" Style="{StaticResource KeyboardKey}" Click="HideKeyboard_Click" ToolTip="{local:Tr Ui169}" Width="50"/>
                     <Button x:Name="KeyboardSizeAction" DockPanel.Dock="Right" Content="A+" Style="{StaticResource KeyboardKey}" Click="ToggleKeyboardSize_Click"
                             ToolTip="{local:Tr Ui172}" Width="56"/>
+                    <Button x:Name="PhysicalKeyboardAction" DockPanel.Dock="Right" Content="⌨ OFF" Style="{StaticResource KeyboardKey}" Click="TogglePhysicalKeyboard_Click"
+                            ToolTip="{local:Tr Ui173}" AutomationProperties.Name="{local:Tr Ui174}" Width="92" IsEnabled="False"/>
                     <TextBlock Text="{local:Tr Ui168}" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="White"/>
                 </DockPanel>
-                <StackPanel x:Name="KeyboardKeysPanel">
-                    <StackPanel.LayoutTransform>
-                        <ScaleTransform x:Name="KeyboardScaleTransform" ScaleX="1" ScaleY="1"/>
-                    </StackPanel.LayoutTransform>
-                <WrapPanel HorizontalAlignment="Center">
-                    <Button Style="{StaticResource KeyboardKey}" Tag="1" Content="1" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="2" Content="2" Click="KeyboardKey_Click"/>
-                    <Button Style="{StaticResource KeyboardKey}" Tag="3" Content="3" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="4" Content="4" Click="KeyboardKey_Click"/>
-                    <Button Style="{StaticResource KeyboardKey}" Tag="5" Content="5" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="6" Content="6" Click="KeyboardKey_Click"/>
-                    <Button Style="{StaticResource KeyboardKey}" Tag="7" Content="7" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="8" Content="8" Click="KeyboardKey_Click"/>
-                    <Button Style="{StaticResource KeyboardKey}" Tag="9" Content="9" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="0" Content="0" Click="KeyboardKey_Click"/>
-                    <Button Style="{StaticResource KeyboardKey}" Tag="backspace" Content="⌫" Click="KeyboardSpecialKey_Click" Width="64"/>
-                </WrapPanel>
-                <WrapPanel HorizontalAlignment="Center">
-                    <Button Style="{StaticResource KeyboardKey}" Tag="q" Content="Q" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="w" Content="W" Click="KeyboardKey_Click"/>
-                    <Button Style="{StaticResource KeyboardKey}" Tag="e" Content="E" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="r" Content="R" Click="KeyboardKey_Click"/>
-                    <Button Style="{StaticResource KeyboardKey}" Tag="t" Content="T" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="y" Content="Y" Click="KeyboardKey_Click"/>
-                    <Button Style="{StaticResource KeyboardKey}" Tag="u" Content="U" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="i" Content="I" Click="KeyboardKey_Click"/>
-                    <Button Style="{StaticResource KeyboardKey}" Tag="o" Content="O" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="p" Content="P" Click="KeyboardKey_Click"/>
-                </WrapPanel>
-                <WrapPanel HorizontalAlignment="Center">
-                    <Button Style="{StaticResource KeyboardKey}" Tag="a" Content="A" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="s" Content="S" Click="KeyboardKey_Click"/>
-                    <Button Style="{StaticResource KeyboardKey}" Tag="d" Content="D" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="f" Content="F" Click="KeyboardKey_Click"/>
-                    <Button Style="{StaticResource KeyboardKey}" Tag="g" Content="G" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="h" Content="H" Click="KeyboardKey_Click"/>
-                    <Button Style="{StaticResource KeyboardKey}" Tag="j" Content="J" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="k" Content="K" Click="KeyboardKey_Click"/>
-                    <Button Style="{StaticResource KeyboardKey}" Tag="l" Content="L" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="ñ" Content="Ñ" Click="KeyboardKey_Click"/>
-                </WrapPanel>
-                <WrapPanel HorizontalAlignment="Center">
-                    <Button x:Name="KeyboardShiftAction" Style="{StaticResource KeyboardKey}" Tag="shift" Content="⇧" Click="KeyboardSpecialKey_Click" Width="64"/>
-                    <Button Style="{StaticResource KeyboardKey}" Tag="z" Content="Z" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="x" Content="X" Click="KeyboardKey_Click"/>
-                    <Button Style="{StaticResource KeyboardKey}" Tag="c" Content="C" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="v" Content="V" Click="KeyboardKey_Click"/>
-                    <Button Style="{StaticResource KeyboardKey}" Tag="b" Content="B" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="n" Content="N" Click="KeyboardKey_Click"/>
-                    <Button Style="{StaticResource KeyboardKey}" Tag="m" Content="M" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="." Content="." Click="KeyboardKey_Click"/>
-                    <Button Style="{StaticResource KeyboardKey}" Tag="-" Content="-" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="_" Content="_" Click="KeyboardKey_Click"/>
-                    <Button Style="{StaticResource KeyboardKey}" Tag="/" Content="/" Click="KeyboardKey_Click"/>
-                </WrapPanel>
-                <WrapPanel HorizontalAlignment="Center">
-                    <Button Style="{StaticResource KeyboardKey}" Tag="@" Content="@" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag=":" Content=":" Click="KeyboardKey_Click"/>
-                    <Button Style="{StaticResource KeyboardKey}" Tag=".com" Content=".com" Click="KeyboardKey_Click" Width="68"/>
-                    <Button Style="{StaticResource KeyboardKey}" Tag="space" Content="{local:Tr Ui171}" Click="KeyboardSpecialKey_Click" Width="240"/>
-                    <Button Style="{StaticResource KeyboardKey}" Tag="clear" Content="{local:Tr Ui170}" Click="KeyboardSpecialKey_Click" Width="72"/>
-                    <Button Style="{StaticResource KeyboardKey}" Tag="enter" Content="↵" Click="KeyboardSpecialKey_Click" Width="64"/>
-                </WrapPanel>
-                </StackPanel>
+
+                <Grid x:Name="KeyboardKeysPanel" HorizontalAlignment="Stretch">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <UniformGrid Grid.Row="0" Columns="11" Rows="1" HorizontalAlignment="Stretch">
+                        <Button Style="{StaticResource KeyboardKey}" Tag="1" Content="1" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="2" Content="2" Click="KeyboardKey_Click"/>
+                        <Button Style="{StaticResource KeyboardKey}" Tag="3" Content="3" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="4" Content="4" Click="KeyboardKey_Click"/>
+                        <Button Style="{StaticResource KeyboardKey}" Tag="5" Content="5" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="6" Content="6" Click="KeyboardKey_Click"/>
+                        <Button Style="{StaticResource KeyboardKey}" Tag="7" Content="7" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="8" Content="8" Click="KeyboardKey_Click"/>
+                        <Button Style="{StaticResource KeyboardKey}" Tag="9" Content="9" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="0" Content="0" Click="KeyboardKey_Click"/>
+                        <Button Style="{StaticResource KeyboardKey}" Tag="backspace" Content="⌫" Click="KeyboardSpecialKey_Click"/>
+                    </UniformGrid>
+
+                    <UniformGrid Grid.Row="1" Columns="10" Rows="1" HorizontalAlignment="Stretch">
+                        <Button Style="{StaticResource KeyboardKey}" Tag="q" Content="Q" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="w" Content="W" Click="KeyboardKey_Click"/>
+                        <Button Style="{StaticResource KeyboardKey}" Tag="e" Content="E" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="r" Content="R" Click="KeyboardKey_Click"/>
+                        <Button Style="{StaticResource KeyboardKey}" Tag="t" Content="T" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="y" Content="Y" Click="KeyboardKey_Click"/>
+                        <Button Style="{StaticResource KeyboardKey}" Tag="u" Content="U" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="i" Content="I" Click="KeyboardKey_Click"/>
+                        <Button Style="{StaticResource KeyboardKey}" Tag="o" Content="O" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="p" Content="P" Click="KeyboardKey_Click"/>
+                    </UniformGrid>
+
+                    <UniformGrid Grid.Row="2" Columns="10" Rows="1" HorizontalAlignment="Stretch">
+                        <Button Style="{StaticResource KeyboardKey}" Tag="a" Content="A" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="s" Content="S" Click="KeyboardKey_Click"/>
+                        <Button Style="{StaticResource KeyboardKey}" Tag="d" Content="D" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="f" Content="F" Click="KeyboardKey_Click"/>
+                        <Button Style="{StaticResource KeyboardKey}" Tag="g" Content="G" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="h" Content="H" Click="KeyboardKey_Click"/>
+                        <Button Style="{StaticResource KeyboardKey}" Tag="j" Content="J" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="k" Content="K" Click="KeyboardKey_Click"/>
+                        <Button Style="{StaticResource KeyboardKey}" Tag="l" Content="L" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="ñ" Content="Ñ" Click="KeyboardKey_Click"/>
+                    </UniformGrid>
+
+                    <UniformGrid Grid.Row="3" Columns="12" Rows="1" HorizontalAlignment="Stretch">
+                        <Button x:Name="KeyboardShiftAction" Style="{StaticResource KeyboardKey}" Tag="shift" Content="⇧" Click="KeyboardSpecialKey_Click"/>
+                        <Button Style="{StaticResource KeyboardKey}" Tag="z" Content="Z" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="x" Content="X" Click="KeyboardKey_Click"/>
+                        <Button Style="{StaticResource KeyboardKey}" Tag="c" Content="C" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="v" Content="V" Click="KeyboardKey_Click"/>
+                        <Button Style="{StaticResource KeyboardKey}" Tag="b" Content="B" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="n" Content="N" Click="KeyboardKey_Click"/>
+                        <Button Style="{StaticResource KeyboardKey}" Tag="m" Content="M" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="." Content="." Click="KeyboardKey_Click"/>
+                        <Button Style="{StaticResource KeyboardKey}" Tag="-" Content="-" Click="KeyboardKey_Click"/><Button Style="{StaticResource KeyboardKey}" Tag="_" Content="_" Click="KeyboardKey_Click"/>
+                        <Button Style="{StaticResource KeyboardKey}" Tag="/" Content="/" Click="KeyboardKey_Click"/>
+                    </UniformGrid>
+
+                    <Grid Grid.Row="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/><ColumnDefinition Width="1*"/><ColumnDefinition Width="1.3*"/>
+                            <ColumnDefinition Width="4*"/><ColumnDefinition Width="1.5*"/><ColumnDefinition Width="1.2*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Style="{StaticResource KeyboardKey}" Tag="@" Content="@" Click="KeyboardKey_Click"/>
+                        <Button Grid.Column="1" Style="{StaticResource KeyboardKey}" Tag=":" Content=":" Click="KeyboardKey_Click"/>
+                        <Button Grid.Column="2" Style="{StaticResource KeyboardKey}" Tag=".com" Content=".com" Click="KeyboardKey_Click"/>
+                        <Button Grid.Column="3" Style="{StaticResource KeyboardKey}" Tag="space" Content="{local:Tr Ui171}" Click="KeyboardSpecialKey_Click"/>
+                        <Button Grid.Column="4" Style="{StaticResource KeyboardKey}" Tag="clear" Content="{local:Tr Ui170}" Click="KeyboardSpecialKey_Click"/>
+                        <Button Grid.Column="5" Style="{StaticResource KeyboardKey}" Tag="enter" Content="↵" Click="KeyboardSpecialKey_Click"/>
+                    </Grid>
+                </Grid>
             </StackPanel>
         </Border>
     </Grid>

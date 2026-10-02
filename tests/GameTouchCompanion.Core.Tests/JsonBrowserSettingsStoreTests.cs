@@ -103,6 +103,24 @@ public sealed class JsonBrowserSettingsStoreTests
         Assert.Equal("  Example  ", original.Favorites[0].Title);
     }
 
+    [Fact]
+    public async Task UserFriendlyAddressesAreCanonicalizedWhenSaved()
+    {
+        using var temporaryDirectory = new TemporaryDirectory();
+        var store = new JsonBrowserSettingsStore(Path.Combine(temporaryDirectory.Path, "browser.json"));
+
+        await store.SaveAsync(new BrowserSettings
+        {
+            HomeUrl = "google.com/start",
+            Favorites = [new("Local", "localhost:8080/wiki")],
+        });
+
+        var saved = await store.LoadAsync();
+
+        Assert.Equal("https://google.com/start", saved.HomeUrl);
+        Assert.Equal(new BrowserFavorite("Local", "http://localhost:8080/wiki"), Assert.Single(saved.Favorites));
+    }
+
     [Theory]
     [InlineData("{ invalid json }")]
     [InlineData("[]")]
@@ -130,7 +148,7 @@ public sealed class JsonBrowserSettingsStoreTests
     [InlineData("{\"favorites\":[{\"title\":\"\",\"url\":\"https://example.com/\"}]}")]
     [InlineData("{\"favorites\":[{\"title\":null,\"url\":\"https://example.com/\"}]}")]
     [InlineData("{\"favorites\":[{\"title\":\"Example\",\"url\":null}]}")]
-    [InlineData("{\"favorites\":[{\"title\":\"Example\",\"url\":\"example.com\"}]}")]
+    [InlineData("{\"favorites\":[{\"title\":\"Example\",\"url\":\"javascript:alert(1)\"}]}")]
     [InlineData("{\"favorites\":[{\"title\":\"Example\",\"url\":\"file:///C:/private.txt\"}]}")]
     public async Task InvalidSettingsDataIsReportedAndPreserved(string original)
     {

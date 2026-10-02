@@ -12,7 +12,7 @@ public sealed class GameProfileTests
     {
         var profile = GameProfileValidation.Normalize(Valid() with
         {
-            DisplayName = " Juego ", ProcessName = " Game.exe ", Url = " HTTPS://EXAMPLE.COM:443/map ",
+            DisplayName = " Juego ", ProcessName = " Game.exe ", Url = " EXAMPLE.COM/map ",
             CompanionMonitor = " DISPLAY2 ", AutoLaunch = true,
         });
         Assert.Equal("Juego", profile.DisplayName);

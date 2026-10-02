@@ -5,6 +5,9 @@ public static class NoActivateWindowService
     public static nint ComposeExtendedStyle(nint currentStyle) =>
         currentStyle | (nint)(NativeConstants.WsExNoActivate | NativeConstants.WsExToolWindow);
 
+    public static nint ComposeActivatableExtendedStyle(nint currentStyle) =>
+        (nint)((currentStyle.ToInt64() & ~NativeConstants.WsExNoActivate) | NativeConstants.WsExToolWindow);
+
     public static bool TryHandleMessage(int message, out nint result)
     {
         result = message == NativeConstants.WmMouseActivate ? NativeConstants.MaNoActivate : nint.Zero;
@@ -18,4 +21,15 @@ public static class NoActivateWindowService
         NativeMethods.ShowWindow(hwnd, NativeConstants.SwShowNoActivate);
         NativeMethods.KeepPositionWithoutActivation(hwnd);
     }
+
+    public static void AllowActivation(nint hwnd)
+    {
+        var style = NativeMethods.GetExtendedStyle(hwnd);
+        NativeMethods.SetExtendedStyle(hwnd, ComposeActivatableExtendedStyle(style));
+    }
+
+    public static nint GetForegroundWindow() => NativeMethods.GetForegroundWindow();
+
+    public static bool TrySetForegroundWindow(nint hwnd) =>
+        hwnd != nint.Zero && NativeMethods.SetForegroundWindow(hwnd);
 }
