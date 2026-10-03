@@ -22,6 +22,9 @@ public sealed class BrowserViewModel : INotifyPropertyChanged
     private bool startWithToolbarVisible = true;
     private bool openNewWindowsInTabs = true;
     private bool activateNewWindowTabs = true;
+    private int defaultZoomPercent = BrowserZoomPolicy.DefaultPercent;
+    private bool rememberZoomPerSite;
+    private readonly Dictionary<string, int> siteZoomPercentages = new(StringComparer.OrdinalIgnoreCase);
     private bool canGoBack;
     private bool canGoForward;
     private bool isReady;
@@ -62,6 +65,21 @@ public sealed class BrowserViewModel : INotifyPropertyChanged
         }
     }
     public bool ActivateNewWindowTabs { get => activateNewWindowTabs; private set => SetField(ref activateNewWindowTabs, value); }
+    public int DefaultZoomPercent
+    {
+        get => defaultZoomPercent;
+        private set
+        {
+            if (!SetField(ref defaultZoomPercent, value)) return;
+            OnPropertyChanged(nameof(DefaultZoomText));
+            OnPropertyChanged(nameof(CanDecreaseDefaultZoom));
+            OnPropertyChanged(nameof(CanIncreaseDefaultZoom));
+        }
+    }
+    public string DefaultZoomText => $"{DefaultZoomPercent}%";
+    public bool RememberZoomPerSite { get => rememberZoomPerSite; private set => SetField(ref rememberZoomPerSite, value); }
+    public bool CanDecreaseDefaultZoom => CanEditSettings && DefaultZoomPercent > BrowserZoomPolicy.MinimumPercent;
+    public bool CanIncreaseDefaultZoom => CanEditSettings && DefaultZoomPercent < BrowserZoomPolicy.MaximumPercent;
     public bool CanGoBack { get => canGoBack; private set => SetField(ref canGoBack, value); }
     public bool CanGoForward { get => canGoForward; private set => SetField(ref canGoForward, value); }
     public bool IsReady { get => isReady; private set => SetField(ref isReady, value); }
@@ -99,6 +117,8 @@ public sealed class BrowserViewModel : INotifyPropertyChanged
             OnPropertyChanged(nameof(CanEditSettings));
             OnPropertyChanged(nameof(CanEditNewWindowActivation));
             OnPropertyChanged(nameof(CanEditSelectedFavorite));
+            OnPropertyChanged(nameof(CanDecreaseDefaultZoom));
+            OnPropertyChanged(nameof(CanIncreaseDefaultZoom));
         }
     }
     public bool CanEditSettings => SettingsLoaded;
@@ -114,6 +134,7 @@ public sealed class BrowserViewModel : INotifyPropertyChanged
 
     public event PropertyChangedEventHandler? PropertyChanged;
     public event Action<string>? NavigationRequested;
+    public event Action? ZoomPreferencesChanged;
 
     public async Task InitializeAsync(CancellationToken cancellationToken = default)
     {
@@ -126,6 +147,10 @@ public sealed class BrowserViewModel : INotifyPropertyChanged
             ShowToolbar = StartWithToolbarVisible;
             OpenNewWindowsInTabs = settings.OpenNewWindowsInTabs;
             ActivateNewWindowTabs = settings.ActivateNewWindowTabs;
+            DefaultZoomPercent = settings.DefaultZoomPercent;
+            RememberZoomPerSite = settings.RememberZoomPerSite;
+            siteZoomPercentages.Clear();
+            foreach (var entry in settings.SiteZoomPercentages) siteZoomPercentages[entry.Key] = entry.Value;
             Favorites.Clear();
             foreach (var favorite in settings.Favorites) Favorites.Add(favorite);
             SetEditingFavorite(null);
@@ -313,6 +338,61 @@ public sealed class BrowserViewModel : INotifyPropertyChanged
             : "Las pestañas nuevas se abrirán en segundo plano.");
     }
 
+    public async Task AdjustDefaultZoomAsync(int deltaPercent)
+    {
+        if (!CanPersist()) return;
+        var next = BrowserZoomPolicy.NormalizePercent(DefaultZoomPercent + deltaPercent);
+        if (next == DefaultZoomPercent) return;
+
+        DefaultZoomPercent = next;
+        await PersistAsync(string.Format(Localization.Get("BrowserDefaultZoomSaved"), DefaultZoomPercent));
+        ZoomPreferencesChanged?.Invoke();
+    }
+
+    public async Task SetRememberZoomPerSiteAsync(bool enabled)
+    {
+        if (!CanPersist() || RememberZoomPerSite == enabled) return;
+        RememberZoomPerSite = enabled;
+        await PersistAsync(Localization.Get(enabled ? "BrowserRememberZoomEnabled" : "BrowserRememberZoomDisabled"));
+        ZoomPreferencesChanged?.Invoke();
+    }
+
+    public int GetZoomPercentForUrl(string? url)
+    {
+        if (RememberZoomPerSite &&
+            BrowserZoomPolicy.TryGetHost(url, out var host) &&
+            siteZoomPercentages.TryGetValue(host, out var percent))
+            return percent;
+
+        return DefaultZoomPercent;
+    }
+
+    public async Task RememberZoomForUrlAsync(string? url, int zoomPercent)
+    {
+        if (!RememberZoomPerSite || !SettingsLoaded ||
+            !BrowserZoomPolicy.TryGetHost(url, out var host)) return;
+
+        var normalized = BrowserZoomPolicy.NormalizePercent(zoomPercent);
+        if (siteZoomPercentages.TryGetValue(host, out var existing) && existing == normalized) return;
+
+        siteZoomPercentages[host] = normalized;
+        await PersistAsync(string.Format(Localization.Get("BrowserSiteZoomSaved"), host, normalized));
+        ZoomPreferencesChanged?.Invoke();
+    }
+
+    public async Task<int> ResetZoomForUrlAsync(string? url)
+    {
+        if (RememberZoomPerSite && SettingsLoaded &&
+            BrowserZoomPolicy.TryGetHost(url, out var host) &&
+            siteZoomPercentages.Remove(host))
+        {
+            await PersistAsync(string.Format(Localization.Get("BrowserSiteZoomReset"), host));
+            ZoomPreferencesChanged?.Invoke();
+        }
+
+        return DefaultZoomPercent;
+    }
+
     public void ResetRuntimeToolbarToPreference() => ShowToolbar = StartWithToolbarVisible;
 
     public void ReportReady()
@@ -384,6 +464,9 @@ public sealed class BrowserViewModel : INotifyPropertyChanged
                 ShowToolbar = StartWithToolbarVisible,
                 OpenNewWindowsInTabs = OpenNewWindowsInTabs,
                 ActivateNewWindowTabs = ActivateNewWindowTabs,
+                DefaultZoomPercent = DefaultZoomPercent,
+                RememberZoomPerSite = RememberZoomPerSite,
+                SiteZoomPercentages = new Dictionary<string, int>(siteZoomPercentages, StringComparer.OrdinalIgnoreCase),
                 Favorites = [.. Favorites],
             });
             SetSettingsError(string.Empty);

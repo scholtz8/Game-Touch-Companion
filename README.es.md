@@ -56,6 +56,8 @@ La misma pantalla se bloquea por defecto cuando existen alternativas. Para prueb
 
 Inicio y favoritos se guardan en `%LOCALAPPDATA%\GameTouchCompanion\browser.json`. La preferencia de iniciar Companion con la barra táctil visible se guarda desde **Personalización**; las pantallas siguen en `settings.json`. La última página no se convierte automáticamente en inicio. Si `browser.json` está corrupto, se conserva sin sobrescribir y se bloquean los cambios persistentes hasta corregirlo y reiniciar. Los errores de página ofrecen **Reintentar** e **Ir a inicio** dentro de Companion.
 
+El navegador también permite configurar un **zoom predeterminado** entre 50% y 200% en pasos de 10%. Si activas **Recordar zoom por sitio**, los botones `− / % / +` de Companion guardan un valor independiente por dominio; al pulsar el porcentaje se elimina ese valor del sitio y se vuelve al zoom predeterminado. El gesto pinch de WebView2 continúa habilitado, pero no modifica los valores persistentes guardados por sitio.
+
 Prueba opcional con WebView2 real, ejecutada en una sesión de escritorio normal (abre y cierra Companion con perfil aislado; no mide foco/touch):
 
 ```powershell

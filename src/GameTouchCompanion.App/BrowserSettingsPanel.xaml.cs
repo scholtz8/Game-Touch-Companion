@@ -41,6 +41,22 @@ public partial class BrowserSettingsPanel : UserControl
 
     private void CancelFavoriteEdit_Click(object sender, RoutedEventArgs e) => ViewModel?.CancelFavoriteEdit();
 
+    private async void DefaultZoomOut_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel is { } model) await model.AdjustDefaultZoomAsync(-10);
+    }
+
+    private async void DefaultZoomIn_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel is { } model) await model.AdjustDefaultZoomAsync(10);
+    }
+
+    private async void RememberZoomPerSite_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel is { } model && sender is CheckBox checkBox)
+            await model.SetRememberZoomPerSiteAsync(checkBox.IsChecked == true);
+    }
+
     private async void OpenNewWindowsInTabs_Click(object sender, RoutedEventArgs e)
     {
         if (ViewModel is { } model && sender is CheckBox checkBox)

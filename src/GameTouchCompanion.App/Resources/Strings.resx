@@ -1244,4 +1244,43 @@
   <data name="Dynamic183" xml:space="preserve">
     <value>No se pudo abrir la ventana solicitada en una pestaña nueva.</value>
   </data>
+  <data name="BrowserZoomHeading" xml:space="preserve">
+    <value>Zoom</value>
+  </data>
+  <data name="BrowserDefaultZoomLabel" xml:space="preserve">
+    <value>Zoom predeterminado</value>
+  </data>
+  <data name="BrowserDefaultZoomHelp" xml:space="preserve">
+    <value>Se aplica a los sitios sin un zoom guardado. Rango de 50% a 200% en pasos de 10%.</value>
+  </data>
+  <data name="BrowserRememberZoomPerSite" xml:space="preserve">
+    <value>Recordar zoom por sitio</value>
+  </data>
+  <data name="BrowserRememberZoomPerSiteHelp" xml:space="preserve">
+    <value>Cuando está activado, los botones de zoom de Companion guardan un valor independiente para cada dominio. Los sitios sin valor propio usan el zoom predeterminado.</value>
+  </data>
+  <data name="BrowserZoomOut" xml:space="preserve">
+    <value>Reducir zoom</value>
+  </data>
+  <data name="BrowserZoomIn" xml:space="preserve">
+    <value>Aumentar zoom</value>
+  </data>
+  <data name="BrowserZoomReset" xml:space="preserve">
+    <value>Restablecer al zoom predeterminado</value>
+  </data>
+  <data name="BrowserDefaultZoomSaved" xml:space="preserve">
+    <value>Zoom predeterminado: {0}%.</value>
+  </data>
+  <data name="BrowserRememberZoomEnabled" xml:space="preserve">
+    <value>Companion recordará el zoom de cada sitio.</value>
+  </data>
+  <data name="BrowserRememberZoomDisabled" xml:space="preserve">
+    <value>Companion usará el zoom predeterminado para los sitios sin ajustes guardados.</value>
+  </data>
+  <data name="BrowserSiteZoomSaved" xml:space="preserve">
+    <value>Zoom guardado para {0}: {1}%.</value>
+  </data>
+  <data name="BrowserSiteZoomReset" xml:space="preserve">
+    <value>Zoom de {0} restablecido al valor predeterminado.</value>
+  </data>
 </root>

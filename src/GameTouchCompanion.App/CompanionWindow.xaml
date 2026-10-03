@@ -132,6 +132,14 @@
                     <Button x:Name="SaveAction" Style="{StaticResource ToolbarImageButton}" Click="AddFavorite_Click" IsEnabled="{Binding IsReady}"/>
                     <Button x:Name="FavoritesAction" Style="{StaticResource ToolbarImageButton}" Click="ToggleFavorites_Click"/>
                 </WrapPanel>
+                <WrapPanel x:Name="ZoomActions" DockPanel.Dock="Right" VerticalAlignment="Center">
+                    <Button x:Name="ZoomOutAction" Content="−" Style="{StaticResource CompactTabButton}" Click="ZoomOut_Click"
+                            ToolTip="{local:Tr BrowserZoomOut}" Width="36" Height="32"/>
+                    <Button x:Name="ZoomResetAction" Content="100%" Style="{StaticResource CompactTabButton}" Click="ZoomReset_Click"
+                            ToolTip="{local:Tr BrowserZoomReset}" MinWidth="58" Height="32" Padding="7,3"/>
+                    <Button x:Name="ZoomInAction" Content="+" Style="{StaticResource CompactTabButton}" Click="ZoomIn_Click"
+                            ToolTip="{local:Tr BrowserZoomIn}" Width="36" Height="32"/>
+                </WrapPanel>
                 <WrapPanel x:Name="NavigationActions">
                     <Button x:Name="BackAction" Style="{StaticResource ToolbarImageButton}" Click="Back_Click" IsEnabled="{Binding CanGoBack}"/>
                     <Button x:Name="ForwardAction" Style="{StaticResource ToolbarImageButton}" Click="Forward_Click" IsEnabled="{Binding CanGoForward}"/>

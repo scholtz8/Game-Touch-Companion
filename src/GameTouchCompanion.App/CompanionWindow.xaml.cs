@@ -24,6 +24,7 @@ public partial class CompanionWindow : Window
         public string? LastNavigationTarget { get; set; }
         public ulong NavigationId { get; set; }
         public bool RequiresReopen { get; set; }
+        public string ZoomHost { get; set; } = string.Empty;
         public string MessageToken { get; } = Guid.NewGuid().ToString("N");
         public string Title
         {
@@ -66,6 +67,7 @@ public partial class CompanionWindow : Window
         DataContext = viewModel;
         InitializeAppearance();
         viewModel.NavigationRequested += NavigateRequested;
+        viewModel.ZoomPreferencesChanged += ZoomPreferencesChanged;
         SourceInitialized += OnSourceInitialized;
         Loaded += OnLoaded;
     }
@@ -106,6 +108,7 @@ public partial class CompanionWindow : Window
         PropertyChangedEventManager.RemoveHandler(Appearance.Current, AppearanceChanged, string.Empty);
         hwnd = nint.Zero;
         viewModel.NavigationRequested -= NavigateRequested;
+        viewModel.ZoomPreferencesChanged -= ZoomPreferencesChanged;
         SourceInitialized -= OnSourceInitialized;
         Loaded -= OnLoaded;
         windowSource?.RemoveHook(WindowProc);
@@ -282,6 +285,7 @@ public partial class CompanionWindow : Window
         viewModel.ReportNavigation(runtime.CurrentUrl);
         SyncAddressBar(runtime.CurrentUrl);
         UpdateHistory(runtime);
+        UpdateZoomControls(runtime);
         ClearPageError();
         Log.Information("Companion tab activated. Profile={Profile}; Tab={Tab}; Url={Url}", activeProfile?.DisplayName ?? "manual", runtime.Definition.Name, runtime.CurrentUrl);
     }
@@ -300,6 +304,7 @@ public partial class CompanionWindow : Window
         var contentFolder = Path.Combine(AppContext.BaseDirectory, "TouchTestPage");
         runtime.Core.SetVirtualHostNameToFolderMapping("touch-test.local", contentFolder, CoreWebView2HostResourceAccessKind.Deny);
         AttachBrowserEvents(runtime);
+        ApplyConfiguredZoom(runtime, runtime.CurrentUrl, force: true);
         if (navigateInitial) Navigate(runtime, runtime.Definition.Url);
         Log.Information("WebView created lazily for tab. Tab={Tab}; Url={Url}", runtime.Definition.Name, runtime.Definition.Url);
     }
@@ -413,10 +418,12 @@ public partial class CompanionWindow : Window
         if (isClosing || tab.Core is null || !BrowserUrlPolicy.IsAllowed(tab.Core.Source)) return;
         tab.CurrentUrl = tab.Core.Source;
         if (string.IsNullOrWhiteSpace(tab.Core.DocumentTitle)) tab.Title = BuildFallbackTabTitle(tab.CurrentUrl);
+        ApplyConfiguredZoom(tab, tab.CurrentUrl);
         if (ReferenceEquals(tab, activeTab))
         {
             viewModel.ReportNavigation(tab.CurrentUrl);
             SyncAddressBar(tab.CurrentUrl);
+            UpdateZoomControls(tab);
         }
     }
 
@@ -559,6 +566,87 @@ public partial class CompanionWindow : Window
             Log.Error(ex, "Profile switch from Companion failed. Profile={Profile}", profile.DisplayName);
             ShowError("No se pudo cambiar de perfil. Revisa Configuración y los logs.");
         }
+    }
+
+    private async void ZoomOut_Click(object sender, RoutedEventArgs e) =>
+        await AdjustActiveZoomAsync(-BrowserZoomPolicy.StepPercent);
+
+    private async void ZoomIn_Click(object sender, RoutedEventArgs e) =>
+        await AdjustActiveZoomAsync(BrowserZoomPolicy.StepPercent);
+
+    private async void ZoomReset_Click(object sender, RoutedEventArgs e)
+    {
+        if (activeTab?.View is null) return;
+        var percent = await viewModel.ResetZoomForUrlAsync(activeTab.CurrentUrl);
+        SetZoom(activeTab, percent);
+    }
+
+    private async Task AdjustActiveZoomAsync(int deltaPercent)
+    {
+        if (activeTab?.View is null) return;
+        var current = ReadZoomPercent(activeTab);
+        var next = BrowserZoomPolicy.NormalizePercent(current + deltaPercent);
+        if (next == current) return;
+
+        SetZoom(activeTab, next);
+        await viewModel.RememberZoomForUrlAsync(activeTab.CurrentUrl, next);
+    }
+
+    private void ZoomPreferencesChanged()
+    {
+        if (!Dispatcher.CheckAccess())
+        {
+            if (!Dispatcher.HasShutdownStarted) Dispatcher.BeginInvoke(ZoomPreferencesChanged);
+            return;
+        }
+
+        if (isClosing) return;
+        foreach (var tab in tabs.Values.Where(tab => tab.View is not null))
+            ApplyConfiguredZoom(tab, tab.CurrentUrl, force: true);
+    }
+
+    private void ApplyConfiguredZoom(TabRuntime tab, string? url, bool force = false)
+    {
+        if (tab.View is null) return;
+        var host = BrowserZoomPolicy.TryGetHost(url, out var normalizedHost) ? normalizedHost : string.Empty;
+        if (!force && string.Equals(tab.ZoomHost, host, StringComparison.OrdinalIgnoreCase))
+        {
+            if (ReferenceEquals(tab, activeTab)) UpdateZoomControls(tab);
+            return;
+        }
+
+        tab.ZoomHost = host;
+        SetZoom(tab, viewModel.GetZoomPercentForUrl(url));
+    }
+
+    private void SetZoom(TabRuntime tab, int percent)
+    {
+        if (tab.View is null) return;
+        var normalized = BrowserZoomPolicy.NormalizePercent(percent);
+        try
+        {
+            tab.View.ZoomFactor = normalized / 100d;
+            if (ReferenceEquals(tab, activeTab)) UpdateZoomControls(tab);
+        }
+        catch (Exception ex)
+        {
+            LogBrowserFailure("zoom", ex);
+        }
+    }
+
+    private static int ReadZoomPercent(TabRuntime tab)
+    {
+        if (tab.View is null) return BrowserZoomPolicy.DefaultPercent;
+        return BrowserZoomPolicy.NormalizePercent((int)Math.Round(tab.View.ZoomFactor * 100d));
+    }
+
+    private void UpdateZoomControls(TabRuntime? tab)
+    {
+        var percent = tab?.View is null ? viewModel.DefaultZoomPercent : ReadZoomPercent(tab);
+        ZoomResetAction.Content = $"{percent}%";
+        ZoomOutAction.IsEnabled = tab?.View is not null && percent > BrowserZoomPolicy.MinimumPercent;
+        ZoomInAction.IsEnabled = tab?.View is not null && percent < BrowserZoomPolicy.MaximumPercent;
+        ZoomResetAction.IsEnabled = tab?.View is not null;
     }
 
     private void Back_Click(object sender, RoutedEventArgs e)

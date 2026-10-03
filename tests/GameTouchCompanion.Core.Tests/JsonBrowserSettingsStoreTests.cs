@@ -17,6 +17,13 @@ public sealed class JsonBrowserSettingsStoreTests
             ShowToolbar = false,
             OpenNewWindowsInTabs = false,
             ActivateNewWindowTabs = false,
+            DefaultZoomPercent = 120,
+            RememberZoomPerSite = true,
+            SiteZoomPercentages = new Dictionary<string, int>
+            {
+                ["Example.COM"] = 90,
+                ["fextralife.com"] = 130,
+            },
             Favorites =
             [
                 new("Game wiki", "https://example.com/wiki"),
@@ -31,12 +38,19 @@ public sealed class JsonBrowserSettingsStoreTests
         Assert.Equal(expected.ShowToolbar, actual.ShowToolbar);
         Assert.Equal(expected.OpenNewWindowsInTabs, actual.OpenNewWindowsInTabs);
         Assert.Equal(expected.ActivateNewWindowTabs, actual.ActivateNewWindowTabs);
+        Assert.Equal(120, actual.DefaultZoomPercent);
+        Assert.True(actual.RememberZoomPerSite);
+        Assert.Equal(90, actual.SiteZoomPercentages["example.com"]);
+        Assert.Equal(130, actual.SiteZoomPercentages["fextralife.com"]);
         Assert.Equal(expected.Favorites, actual.Favorites);
         Assert.Equal(Path.GetFullPath(settingsPath), store.FilePath);
         var json = await File.ReadAllTextAsync(settingsPath);
         Assert.Contains("\"showToolbar\": false", json, StringComparison.Ordinal);
         Assert.Contains("\"openNewWindowsInTabs\": false", json, StringComparison.Ordinal);
         Assert.Contains("\"activateNewWindowTabs\": false", json, StringComparison.Ordinal);
+        Assert.Contains("\"defaultZoomPercent\": 120", json, StringComparison.Ordinal);
+        Assert.Contains("\"rememberZoomPerSite\": true", json, StringComparison.Ordinal);
+        Assert.Contains("\"example.com\": 90", json, StringComparison.Ordinal);
         Assert.Empty(Directory.EnumerateFiles(Path.GetDirectoryName(settingsPath)!, "*.tmp"));
     }
 
@@ -52,6 +66,9 @@ public sealed class JsonBrowserSettingsStoreTests
         Assert.True(settings.ShowToolbar);
         Assert.True(settings.OpenNewWindowsInTabs);
         Assert.True(settings.ActivateNewWindowTabs);
+        Assert.Equal(100, settings.DefaultZoomPercent);
+        Assert.False(settings.RememberZoomPerSite);
+        Assert.Empty(settings.SiteZoomPercentages);
         Assert.Empty(settings.Favorites);
         Assert.False(File.Exists(settingsPath));
         Assert.False(Directory.Exists(Path.GetDirectoryName(settingsPath)));
@@ -70,6 +87,9 @@ public sealed class JsonBrowserSettingsStoreTests
         Assert.True(settings.ShowToolbar);
         Assert.True(settings.OpenNewWindowsInTabs);
         Assert.True(settings.ActivateNewWindowTabs);
+        Assert.Equal(100, settings.DefaultZoomPercent);
+        Assert.False(settings.RememberZoomPerSite);
+        Assert.Empty(settings.SiteZoomPercentages);
         Assert.Empty(settings.Favorites);
         Assert.Equal("{}", await File.ReadAllTextAsync(settingsPath));
     }
@@ -132,6 +152,29 @@ public sealed class JsonBrowserSettingsStoreTests
         Assert.Equal(new BrowserFavorite("Local", "http://localhost:8080/wiki"), Assert.Single(saved.Favorites));
     }
 
+    [Fact]
+    public async Task SavingNormalizesRememberedZoomHosts()
+    {
+        using var temporaryDirectory = new TemporaryDirectory();
+        var store = new JsonBrowserSettingsStore(Path.Combine(temporaryDirectory.Path, "browser.json"));
+
+        await store.SaveAsync(new BrowserSettings
+        {
+            DefaultZoomPercent = 110,
+            RememberZoomPerSite = true,
+            SiteZoomPercentages = new Dictionary<string, int>
+            {
+                ["  EXAMPLE.COM.  "] = 90,
+                ["LOCALHOST"] = 120,
+            },
+        });
+
+        var saved = await store.LoadAsync();
+
+        Assert.Equal(90, saved.SiteZoomPercentages["example.com"]);
+        Assert.Equal(120, saved.SiteZoomPercentages["localhost"]);
+    }
+
     [Theory]
     [InlineData("{ invalid json }")]
     [InlineData("[]")]
@@ -172,6 +215,12 @@ public sealed class JsonBrowserSettingsStoreTests
     [InlineData("{\"homeUrl\":\"https://user:password@example.com/\"}")]
     [InlineData("{\"homeUrl\":\"file:///C:/private.json\"}")]
     [InlineData("{\"homeUrl\":\"https://touch-test.local/private.json\"}")]
+    [InlineData("{\"defaultZoomPercent\":40}")]
+    [InlineData("{\"defaultZoomPercent\":115}")]
+    [InlineData("{\"defaultZoomPercent\":210}")]
+    [InlineData("{\"siteZoomPercentages\":null}")]
+    [InlineData("{\"siteZoomPercentages\":{\"bad host!\":100}}")]
+    [InlineData("{\"siteZoomPercentages\":{\"example.com\":95}}")]
     [InlineData("{\"favorites\":null}")]
     [InlineData("{\"favorites\":[null]}")]
     [InlineData("{\"favorites\":[{\"title\":\"Example\",\"url\":null}]}")]

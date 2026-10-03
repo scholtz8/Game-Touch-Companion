@@ -116,6 +116,28 @@ public sealed class JsonBrowserSettingsStore : IBrowserSettingsStore
             throw new InvalidDataException("The browser home URL must be an allowed absolute HTTP(S) URL.");
         }
 
+        if (!BrowserZoomPolicy.IsValidPercent(settings.DefaultZoomPercent))
+        {
+            throw new InvalidDataException($"The default browser zoom must be between {BrowserZoomPolicy.MinimumPercent}% and {BrowserZoomPolicy.MaximumPercent}% in {BrowserZoomPolicy.StepPercent}% steps.");
+        }
+
+        if (settings.SiteZoomPercentages is null)
+        {
+            throw new InvalidDataException("The browser site zoom list cannot be null.");
+        }
+
+        var siteZoomPercentages = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        foreach (var entry in settings.SiteZoomPercentages)
+        {
+            if (!BrowserZoomPolicy.TryNormalizeHost(entry.Key, out var host) ||
+                !BrowserZoomPolicy.IsValidPercent(entry.Value))
+            {
+                throw new InvalidDataException("Each remembered browser zoom must contain a valid host and a zoom between 50% and 200% in 10% steps.");
+            }
+
+            siteZoomPercentages[host] = entry.Value;
+        }
+
         if (settings.Favorites is null)
         {
             throw new InvalidDataException("The browser favorites list cannot be null.");
@@ -134,6 +156,11 @@ public sealed class JsonBrowserSettingsStore : IBrowserSettingsStore
             favorites.Add(new BrowserFavorite(title, url));
         }
 
-        return settings with { HomeUrl = homeUrl, Favorites = favorites };
+        return settings with
+        {
+            HomeUrl = homeUrl,
+            SiteZoomPercentages = siteZoomPercentages,
+            Favorites = favorites
+        };
     }
 }

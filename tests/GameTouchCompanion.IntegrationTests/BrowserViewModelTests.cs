@@ -16,6 +16,9 @@ public sealed class BrowserViewModelTests
             ShowToolbar = false,
             OpenNewWindowsInTabs = false,
             ActivateNewWindowTabs = false,
+            DefaultZoomPercent = 120,
+            RememberZoomPerSite = true,
+            SiteZoomPercentages = new Dictionary<string, int> { ["example.com"] = 90 },
             Favorites = [new("Wiki", "https://example.com/wiki")],
         };
         var store = new MemoryBrowserSettingsStore(stored);
@@ -35,6 +38,11 @@ public sealed class BrowserViewModelTests
         Assert.False(viewModel.OpenNewWindowsInTabs);
         Assert.False(viewModel.ActivateNewWindowTabs);
         Assert.False(viewModel.CanEditNewWindowActivation);
+        Assert.Equal(120, viewModel.DefaultZoomPercent);
+        Assert.Equal("120%", viewModel.DefaultZoomText);
+        Assert.True(viewModel.RememberZoomPerSite);
+        Assert.Equal(90, viewModel.GetZoomPercentForUrl("https://example.com/other"));
+        Assert.Equal(120, viewModel.GetZoomPercentForUrl("https://other.example/"));
         Assert.Equal(stored.Favorites, viewModel.Favorites);
         Assert.False(viewModel.IsReady);
         Assert.Empty(viewModel.CurrentUrl);
@@ -77,6 +85,8 @@ public sealed class BrowserViewModelTests
         await viewModel.SetToolbarVisibleAsync(false);
         await viewModel.SetOpenNewWindowsInTabsAsync(false);
         await viewModel.SetActivateNewWindowTabsAsync(false);
+        await viewModel.AdjustDefaultZoomAsync(10);
+        await viewModel.SetRememberZoomPerSiteAsync(true);
 
         Assert.Equal(0, store.SaveAttempts);
         Assert.Same(original, store.Current);
@@ -86,7 +96,57 @@ public sealed class BrowserViewModelTests
         Assert.True(viewModel.OpenNewWindowsInTabs);
         Assert.True(viewModel.ActivateNewWindowTabs);
         Assert.False(viewModel.CanEditNewWindowActivation);
+        Assert.Equal(100, viewModel.DefaultZoomPercent);
+        Assert.False(viewModel.RememberZoomPerSite);
         Assert.True(viewModel.HasError);
+    }
+
+    [Fact]
+    public async Task ZoomPreferencesPersistDefaultAndPerSiteValues()
+    {
+        var store = new MemoryBrowserSettingsStore(new BrowserSettings());
+        var viewModel = new BrowserViewModel(store);
+        await viewModel.InitializeAsync();
+        var preferenceChanges = 0;
+        viewModel.ZoomPreferencesChanged += () => preferenceChanges++;
+
+        await viewModel.AdjustDefaultZoomAsync(20);
+        Assert.Equal(120, viewModel.DefaultZoomPercent);
+        Assert.Equal("120%", viewModel.DefaultZoomText);
+        Assert.True(viewModel.CanDecreaseDefaultZoom);
+        Assert.True(viewModel.CanIncreaseDefaultZoom);
+        Assert.Equal(120, store.Current.DefaultZoomPercent);
+
+        await viewModel.SetRememberZoomPerSiteAsync(true);
+        await viewModel.RememberZoomForUrlAsync("https://EXAMPLE.com/wiki", 90);
+
+        Assert.True(viewModel.RememberZoomPerSite);
+        Assert.Equal(90, viewModel.GetZoomPercentForUrl("https://example.com/guide"));
+        Assert.Equal(120, viewModel.GetZoomPercentForUrl("https://another.example/"));
+        Assert.Equal(90, store.Current.SiteZoomPercentages["example.com"]);
+
+        var reset = await viewModel.ResetZoomForUrlAsync("https://example.com/another-page");
+
+        Assert.Equal(120, reset);
+        Assert.Equal(120, viewModel.GetZoomPercentForUrl("https://example.com/wiki"));
+        Assert.Empty(store.Current.SiteZoomPercentages);
+        Assert.True(preferenceChanges >= 4);
+    }
+
+    [Fact]
+    public async Task DefaultZoomIsClampedToSupportedRange()
+    {
+        var store = new MemoryBrowserSettingsStore(new BrowserSettings());
+        var viewModel = new BrowserViewModel(store);
+        await viewModel.InitializeAsync();
+
+        await viewModel.AdjustDefaultZoomAsync(-1000);
+        Assert.Equal(50, viewModel.DefaultZoomPercent);
+        Assert.False(viewModel.CanDecreaseDefaultZoom);
+
+        await viewModel.AdjustDefaultZoomAsync(1000);
+        Assert.Equal(200, viewModel.DefaultZoomPercent);
+        Assert.False(viewModel.CanIncreaseDefaultZoom);
     }
 
     [Fact]
@@ -474,14 +534,22 @@ public sealed class BrowserViewModelTests
 
         public Task<BrowserSettings> LoadAsync(CancellationToken cancellationToken = default) =>
             LoadFailure is null
-                ? Task.FromResult(Current with { Favorites = [.. Current.Favorites] })
+                ? Task.FromResult(Current with
+                {
+                    Favorites = [.. Current.Favorites],
+                    SiteZoomPercentages = new Dictionary<string, int>(Current.SiteZoomPercentages, StringComparer.OrdinalIgnoreCase)
+                })
                 : Task.FromException<BrowserSettings>(LoadFailure);
 
         public Task SaveAsync(BrowserSettings settings, CancellationToken cancellationToken = default)
         {
             SaveAttempts++;
             if (SaveFailure is not null) return Task.FromException(SaveFailure);
-            Current = settings with { Favorites = [.. settings.Favorites] };
+            Current = settings with
+            {
+                Favorites = [.. settings.Favorites],
+                SiteZoomPercentages = new Dictionary<string, int>(settings.SiteZoomPercentages, StringComparer.OrdinalIgnoreCase)
+            };
             return Task.CompletedTask;
         }
     }
@@ -503,7 +571,11 @@ public sealed class BrowserViewModelTests
             var concurrentSaves = Interlocked.Increment(ref activeSaves);
             MaximumConcurrentSaves = Math.Max(MaximumConcurrentSaves, concurrentSaves);
             SaveAttempts++;
-            Snapshots.Add(settings with { Favorites = [.. settings.Favorites] });
+            Snapshots.Add(settings with
+            {
+                Favorites = [.. settings.Favorites],
+                SiteZoomPercentages = new Dictionary<string, int>(settings.SiteZoomPercentages, StringComparer.OrdinalIgnoreCase)
+            });
             try
             {
                 if (SaveAttempts == 1)

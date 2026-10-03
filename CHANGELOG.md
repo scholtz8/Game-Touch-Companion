@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased — Browser zoom
+
+### Added
+- Companion now includes touch-friendly **− / current zoom / +** controls. Zoom is limited to 50–200% in 10% steps, and tapping the percentage resets the current site to the configured default.
+- Browser settings now include a persistent **Default zoom** and **Remember zoom per site** preference. Per-site values are stored by normalized host in `browser.json`; sites without an override use the default.
+
+### Changed
+- Each initialized Companion tab applies the correct zoom when it opens or moves to a different host. Session-only zoom remains local to the tab when per-site remembering is disabled.
+- Existing pinch zoom remains enabled; persistent per-site values are changed only by the explicit Companion zoom controls.
+
 ## Unreleased — Favorite titles
 
 ### Added

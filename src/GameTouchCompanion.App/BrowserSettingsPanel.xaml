@@ -38,6 +38,30 @@
             <TextBlock Margin="0,6" TextWrapping="Wrap">
                 <Run Text="{local:Tr Ui088}"/><Run Text="{Binding CurrentUrl, Mode=OneWay}"/>
             </TextBlock>
+
+            <TextBlock Text="{local:Tr BrowserZoomHeading}" FontWeight="SemiBold" FontSize="20" Margin="0,20,0,10"/>
+            <TextBlock Text="{local:Tr BrowserDefaultZoomLabel}" Margin="0,0,0,6"/>
+            <StackPanel Orientation="Horizontal">
+                <Button Content="−" Width="46" Height="40" Padding="0" Margin="0,0,8,0"
+                        Click="DefaultZoomOut_Click" IsEnabled="{Binding CanDecreaseDefaultZoom}"/>
+                <Border MinWidth="76" Height="40" Padding="12,0" BorderThickness="1" CornerRadius="6"
+                        Background="{Binding ConfigurationControl, Source={x:Static local:Appearance.Current}}" BorderBrush="{Binding ConfigurationBorder, Source={x:Static local:Appearance.Current}}">
+                    <TextBlock Text="{Binding DefaultZoomText}" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="SemiBold"/>
+                </Border>
+                <Button Content="+" Width="46" Height="40" Padding="0" Margin="8,0,0,0"
+                        Click="DefaultZoomIn_Click" IsEnabled="{Binding CanIncreaseDefaultZoom}"/>
+            </StackPanel>
+            <TextBlock Text="{local:Tr BrowserDefaultZoomHelp}" TextWrapping="Wrap"
+                       Foreground="{Binding ConfigurationSecondaryForeground, Source={x:Static local:Appearance.Current}}" Margin="0,6,0,10"/>
+            <CheckBox Content="{local:Tr BrowserRememberZoomPerSite}"
+                      IsChecked="{Binding RememberZoomPerSite, Mode=OneWay}"
+                      IsEnabled="{Binding CanEditSettings}"
+                      Click="RememberZoomPerSite_Click"
+                      Margin="0,0,0,4"/>
+            <TextBlock Text="{local:Tr BrowserRememberZoomPerSiteHelp}" TextWrapping="Wrap"
+                       Foreground="{Binding ConfigurationSecondaryForeground, Source={x:Static local:Appearance.Current}}"
+                       Margin="24,0,0,6"/>
+
             <TextBlock Text="{local:Tr BrowserNewWindowsHeading}" FontWeight="SemiBold" FontSize="20" Margin="0,20,0,10"/>
             <CheckBox x:Name="OpenNewWindowsInTabs"
                       Content="{local:Tr BrowserOpenNewWindowsInTabs}"
