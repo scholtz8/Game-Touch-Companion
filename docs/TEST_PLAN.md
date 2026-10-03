@@ -325,3 +325,16 @@ Esta sección reemplaza para el build actual las instrucciones antiguas que menc
 4. **Ajustes generales:** verifica el título **Ajustes generales / General settings**, ausencia del bloque pasivo de protecciones y de botones redundantes para saltar entre pestañas, y un único **Guardar cambios / Save changes** para idioma, inicio con Windows, iniciar oculto y cerrar a bandeja.
 5. **Personalización:** desactiva **Iniciar Companion con la barra táctil visible**, guarda y abre un Companion nuevo. Barra + pestañas deben iniciar ocultas. Mostrarlas manualmente solo cambia esa sesión; al cerrar/reabrir vuelve a aplicarse la preferencia guardada.
 6. **Foco:** después de cambios de topología y reapertura automática, realiza 50+ interacciones touch con FocusProbe; las pérdidas de foreground deben permanecer en cero.
+
+## Post-MVP browser data management (Phase 8)
+
+Targeted validation after browser-data changes:
+
+1. Build Release x64.
+2. Run `BrowserViewModelTests` and `LocalizationTests`.
+3. Opt in to `BrowserRuntimeTests.LocalNavigationErrorsAndLifecycleWorkWithRealWebView2` with `GTC_RUN_WEBVIEW_TESTS=1`; the isolated runtime profile clears `AllProfile` and verifies that `browser.json` and favorites remain intact.
+4. Manual check with Companion open: clear cache and history without confirmation; clear cookies and all data only after confirmation. Verify that site sessions/data are affected as expected while favorites, game profiles, monitor selections and application preferences remain unchanged.
+5. With Companion closed, a clear action must fail safely with a visible instruction to open Companion; no WebView2 profile files or application JSON files are deleted manually.
+
+Do not run the entire suite solely for this localized phase unless another broad change justifies it.
+
