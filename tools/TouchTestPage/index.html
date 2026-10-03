@@ -24,6 +24,7 @@
     <h2>Browser navigation test</h2>
     <p><a href="second.html">Open second local page</a></p>
     <p><a href="second.html" target="_blank">New-window link (opens in Companion)</a></p>
+    <p><button id="windowOpenButton" class="big">window.open → new Companion tab</button></p>
     <p>Use the Companion toolbar to go back, forward, reload, save a favorite and return home.</p>
   </section>
   <section class="panel"><label>Text input <input placeholder="Keyboard may require configuration mode"></label></section>
@@ -38,6 +39,7 @@
   function record(e){ events++; count.textContent=events; const p=`${new Date().toISOString().slice(11,23)} ${e.type} pointerType=${e.pointerType||'-'} pointerId=${e.pointerId||'-'} x=${Math.round(e.clientX||0)} y=${Math.round(e.clientY||0)}`; log.textContent=p+'\n'+log.textContent.slice(0,6000); }
   ['pointerdown','pointermove','pointerup','click','wheel','touchstart','touchmove','touchend'].forEach(t=>document.addEventListener(t,record,{passive:true}));
   document.querySelector('#bigButton').addEventListener('click',()=>{clicks.textContent=++clickCount});
+  document.querySelector('#windowOpenButton').addEventListener('click',()=>window.open('second.html','_blank'));
   const area=document.querySelector('#dragArea'), item=document.querySelector('#dragItem'); let dragging=false;
   item.addEventListener('pointerdown',e=>{dragging=true;item.setPointerCapture(e.pointerId)});
   item.addEventListener('pointermove',e=>{if(!dragging)return;const r=area.getBoundingClientRect();item.style.left=Math.max(0,Math.min(r.width-110,e.clientX-r.left-55))+'px';item.style.top=Math.max(0,Math.min(r.height-110,e.clientY-r.top-55))+'px'});
