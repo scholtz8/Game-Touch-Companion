@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased — New-window tabs
+
+### Added
+- User-initiated `target="_blank"` links and `window.open(...)` requests can now open as temporary Companion tabs instead of replacing the current page or opening an external browser window.
+- Browser settings now include **Open new windows as tabs** and **Automatically activate the new tab** preferences. Existing `browser.json` files use safe defaults without requiring migration.
+
+### Changed
+- Automatic script popups remain blocked. Disallowed URLs, external schemes and the existing 20-tab session limit are still enforced for new-window requests.
+- When automatic activation is disabled, a requested tab initializes and loads in the background while the current tab remains selected. Closing that background tab no longer changes the active tab.
+- The packaged TouchTestPage now includes both a `target="_blank"` link and a user-initiated `window.open(...)` control for Phase 5 validation.
+
 ## Unreleased — Adaptive touch keyboard and physical URL input
 
 ### Added

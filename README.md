@@ -261,4 +261,4 @@ Game Touch Companion is licensed under the GNU General Public License v3.0 or la
 
 ### Companion touch browsing
 
-The Companion uses browser-style compact tabs whose labels follow each website title, supports per-tab close controls and blank temporary tabs, includes an editable touch address bar, and provides an in-app bottom touch keyboard for web text fields without activating a separate OS keyboard window. Hiding the navigation toolbar also hides the tab strip.
+The Companion uses browser-style compact tabs whose labels follow each website title, supports per-tab close controls and blank temporary tabs, includes an editable touch address bar, and provides an in-app bottom touch keyboard for web text fields without activating a separate OS keyboard window. User-initiated `target="_blank"` and `window.open(...)` requests can open as temporary Companion tabs, with preferences to reuse the current tab or keep new tabs in the background. Automatic popups remain blocked. Hiding the navigation toolbar also hides the tab strip.

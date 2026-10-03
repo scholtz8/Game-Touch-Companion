@@ -14,6 +14,8 @@ public sealed class BrowserViewModelTests
         {
             HomeUrl = "https://example.com/wiki",
             ShowToolbar = false,
+            OpenNewWindowsInTabs = false,
+            ActivateNewWindowTabs = false,
             Favorites = [new("Wiki", "https://example.com/wiki")],
         };
         var store = new MemoryBrowserSettingsStore(stored);
@@ -30,6 +32,9 @@ public sealed class BrowserViewModelTests
         Assert.Equal(stored.HomeUrl, viewModel.Address);
         Assert.False(viewModel.ShowToolbar);
         Assert.False(viewModel.StartWithToolbarVisible);
+        Assert.False(viewModel.OpenNewWindowsInTabs);
+        Assert.False(viewModel.ActivateNewWindowTabs);
+        Assert.False(viewModel.CanEditNewWindowActivation);
         Assert.Equal(stored.Favorites, viewModel.Favorites);
         Assert.False(viewModel.IsReady);
         Assert.Empty(viewModel.CurrentUrl);
@@ -70,12 +75,17 @@ public sealed class BrowserViewModelTests
         await viewModel.AddFavoriteAsync("https://example.com/new");
         await viewModel.RemoveFavoriteAsync(original.Favorites[0]);
         await viewModel.SetToolbarVisibleAsync(false);
+        await viewModel.SetOpenNewWindowsInTabsAsync(false);
+        await viewModel.SetActivateNewWindowTabsAsync(false);
 
         Assert.Equal(0, store.SaveAttempts);
         Assert.Same(original, store.Current);
         Assert.Equal(BrowserUrlPolicy.LocalHomeUrl, viewModel.HomeUrl);
         Assert.Empty(viewModel.Favorites);
         Assert.False(viewModel.ShowToolbar);
+        Assert.True(viewModel.OpenNewWindowsInTabs);
+        Assert.True(viewModel.ActivateNewWindowTabs);
+        Assert.False(viewModel.CanEditNewWindowActivation);
         Assert.True(viewModel.HasError);
     }
 
@@ -270,6 +280,42 @@ public sealed class BrowserViewModelTests
         viewModel.Address = "https://example.com/elsewhere";
         Assert.True(viewModel.GoHome());
         Assert.Equal("https://example.com/start", Assert.Single(navigations));
+    }
+
+    [Fact]
+    public async Task NewWindowPreferencesPersistWithoutChangingOtherBrowserSettings()
+    {
+        var initial = new BrowserSettings
+        {
+            HomeUrl = "https://example.com/home",
+            ShowToolbar = false,
+            Favorites = [new("Wiki", "https://example.com/wiki")],
+        };
+        var store = new MemoryBrowserSettingsStore(initial);
+        var viewModel = new BrowserViewModel(store);
+        await viewModel.InitializeAsync();
+
+        Assert.True(viewModel.OpenNewWindowsInTabs);
+        Assert.True(viewModel.ActivateNewWindowTabs);
+        Assert.True(viewModel.CanEditNewWindowActivation);
+
+        await viewModel.SetOpenNewWindowsInTabsAsync(false);
+        Assert.False(viewModel.CanEditNewWindowActivation);
+        await viewModel.SetActivateNewWindowTabsAsync(false);
+
+        Assert.False(viewModel.OpenNewWindowsInTabs);
+        Assert.False(viewModel.ActivateNewWindowTabs);
+        Assert.False(store.Current.OpenNewWindowsInTabs);
+        Assert.False(store.Current.ActivateNewWindowTabs);
+        Assert.Equal(initial.HomeUrl, store.Current.HomeUrl);
+        Assert.Equal(initial.ShowToolbar, store.Current.ShowToolbar);
+        Assert.Equal(initial.Favorites, store.Current.Favorites);
+        Assert.Equal(2, store.SaveAttempts);
+
+        var reloaded = new BrowserViewModel(store);
+        await reloaded.InitializeAsync();
+        Assert.False(reloaded.OpenNewWindowsInTabs);
+        Assert.False(reloaded.ActivateNewWindowTabs);
     }
 
     [Fact]

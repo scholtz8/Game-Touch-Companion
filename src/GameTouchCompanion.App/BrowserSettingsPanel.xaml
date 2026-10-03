@@ -30,6 +30,27 @@
             <TextBlock Margin="0,6" TextWrapping="Wrap">
                 <Run Text="{local:Tr Ui088}"/><Run Text="{Binding CurrentUrl, Mode=OneWay}"/>
             </TextBlock>
+            <TextBlock Text="{local:Tr BrowserNewWindowsHeading}" FontWeight="SemiBold" FontSize="20" Margin="0,20,0,10"/>
+            <CheckBox x:Name="OpenNewWindowsInTabs"
+                      Content="{local:Tr BrowserOpenNewWindowsInTabs}"
+                      IsChecked="{Binding OpenNewWindowsInTabs, Mode=OneWay}"
+                      IsEnabled="{Binding CanEditSettings}"
+                      Click="OpenNewWindowsInTabs_Click"
+                      Margin="0,0,0,4"/>
+            <TextBlock Text="{local:Tr BrowserOpenNewWindowsInTabsHelp}"
+                       TextWrapping="Wrap"
+                       Foreground="{Binding ConfigurationSecondaryForeground, Source={x:Static local:Appearance.Current}}"
+                       Margin="24,0,0,10"/>
+            <CheckBox x:Name="ActivateNewWindowTabs"
+                      Content="{local:Tr BrowserActivateNewWindowTabs}"
+                      IsChecked="{Binding ActivateNewWindowTabs, Mode=OneWay}"
+                      IsEnabled="{Binding CanEditNewWindowActivation}"
+                      Click="ActivateNewWindowTabs_Click"
+                      Margin="0,0,0,4"/>
+            <TextBlock Text="{local:Tr BrowserActivateNewWindowTabsHelp}"
+                       TextWrapping="Wrap"
+                       Foreground="{Binding ConfigurationSecondaryForeground, Source={x:Static local:Appearance.Current}}"
+                       Margin="24,0,0,6"/>
             <TextBlock Text="{local:Tr Ui090}" FontWeight="SemiBold" FontSize="20" Margin="0,18,0,10"/>
             <ListBox x:Name="FavoritesList" ItemsSource="{Binding Favorites}" SelectedItem="{Binding SelectedFavorite, Mode=TwoWay}"
                      MinHeight="90" MaxHeight="190" ScrollViewer.HorizontalScrollBarVisibility="Disabled">

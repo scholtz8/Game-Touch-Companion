@@ -6,5 +6,9 @@ public sealed record BrowserSettings
 
     public bool ShowToolbar { get; init; } = true;
 
+    public bool OpenNewWindowsInTabs { get; init; } = true;
+
+    public bool ActivateNewWindowTabs { get; init; } = true;
+
     public List<BrowserFavorite> Favorites { get; init; } = [];
 }

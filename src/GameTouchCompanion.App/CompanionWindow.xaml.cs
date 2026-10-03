@@ -193,19 +193,44 @@ public partial class CompanionWindow : Window
 
     private async void AddTemporaryTab_Click(object sender, RoutedEventArgs e)
     {
-        if (sessionTabs.Count >= 20) return;
+        if (sessionTabs.Count >= 20)
+        {
+            ReportBlocked("new-tab-limit", "Companion admite un máximo de 20 pestañas por sesión.");
+            return;
+        }
+
+        var runtime = AddTemporaryTab(BrowserUrlPolicy.BlankPageUrl);
+        await ActivateTabAsync(runtime.Definition.Id);
+        Log.Information("Temporary Companion tab added. Tab={Tab}", runtime.Definition.Id);
+    }
+
+    private TabRuntime AddTemporaryTab(string url)
+    {
         var definition = new GameProfileTab
         {
             Id = $"temp-{Guid.NewGuid():N}",
             Name = Localization.Get("Ui165"),
-            Url = BrowserUrlPolicy.BlankPageUrl,
+            Url = url,
             Order = sessionTabs.Count
         };
+        var runtime = new TabRuntime(definition);
         sessionTabs.Add(definition);
-        tabs[definition.Id] = new TabRuntime(definition);
+        tabs[definition.Id] = runtime;
         RefreshTabList();
-        await ActivateTabAsync(definition.Id);
-        Log.Information("Temporary Companion tab added. Tab={Tab}", definition.Id);
+        return runtime;
+    }
+
+    private void RemoveSessionTab(TabRuntime runtime)
+    {
+        var id = runtime.Definition.Id;
+        tabs.Remove(id);
+        sessionTabs.RemoveAll(tab => string.Equals(tab.Id, id, StringComparison.OrdinalIgnoreCase));
+        for (var i = 0; i < sessionTabs.Count; i++) sessionTabs[i] = sessionTabs[i] with { Order = i };
+
+        try { runtime.View?.Dispose(); }
+        catch (Exception ex) { LogBrowserFailure("remove-tab", ex); }
+        if (runtime.View is not null) BrowserHost.Children.Remove(runtime.View);
+        RefreshTabList();
     }
 
     private async void CloseTab_Click(object sender, RoutedEventArgs e)
@@ -219,6 +244,8 @@ public partial class CompanionWindow : Window
         var index = sessionTabs.FindIndex(tab => string.Equals(tab.Id, id, StringComparison.OrdinalIgnoreCase));
         if (index < 0) return;
 
+        var wasActive = string.Equals(activeTab?.Definition.Id, id, StringComparison.OrdinalIgnoreCase);
+
         if (tabs.Remove(id, out var runtime))
         {
             try { runtime.View?.Dispose(); } catch (Exception ex) { LogBrowserFailure("close-tab", ex); }
@@ -226,24 +253,19 @@ public partial class CompanionWindow : Window
         }
         sessionTabs.RemoveAt(index);
         for (var i = 0; i < sessionTabs.Count; i++) sessionTabs[i] = sessionTabs[i] with { Order = i };
-        activeTab = null;
+        if (wasActive) activeTab = null;
 
         if (sessionTabs.Count == 0)
         {
-            var replacement = new GameProfileTab
-            {
-                Id = $"temp-{Guid.NewGuid():N}",
-                Name = Localization.Get("Ui165"),
-                Url = BrowserUrlPolicy.BlankPageUrl,
-                Order = 0
-            };
-            sessionTabs.Add(replacement);
-            tabs[replacement.Id] = new TabRuntime(replacement);
+            AddTemporaryTab(BrowserUrlPolicy.BlankPageUrl);
         }
 
         RefreshTabList();
-        var nextIndex = Math.Clamp(index - 1, 0, sessionTabs.Count - 1);
-        await ActivateTabAsync(sessionTabs[nextIndex].Id);
+        if (wasActive || activeTab is null)
+        {
+            var nextIndex = Math.Clamp(index - 1, 0, sessionTabs.Count - 1);
+            await ActivateTabAsync(sessionTabs[nextIndex].Id);
+        }
         Log.Information("Companion tab closed. Tab={Tab}", id);
     }
 
@@ -264,7 +286,7 @@ public partial class CompanionWindow : Window
         Log.Information("Companion tab activated. Profile={Profile}; Tab={Tab}; Url={Url}", activeProfile?.DisplayName ?? "manual", runtime.Definition.Name, runtime.CurrentUrl);
     }
 
-    private async Task InitializeTabAsync(TabRuntime runtime)
+    private async Task InitializeTabAsync(TabRuntime runtime, bool navigateInitial = true)
     {
         if (environment is null) throw new InvalidOperationException("WebView2 environment is not initialized.");
         var view = new WebView2 { Visibility = Visibility.Collapsed };
@@ -278,7 +300,7 @@ public partial class CompanionWindow : Window
         var contentFolder = Path.Combine(AppContext.BaseDirectory, "TouchTestPage");
         runtime.Core.SetVirtualHostNameToFolderMapping("touch-test.local", contentFolder, CoreWebView2HostResourceAccessKind.Deny);
         AttachBrowserEvents(runtime);
-        Navigate(runtime, runtime.Definition.Url);
+        if (navigateInitial) Navigate(runtime, runtime.Definition.Url);
         Log.Information("WebView created lazily for tab. Tab={Tab}; Url={Url}", runtime.Definition.Name, runtime.Definition.Url);
     }
 
@@ -408,8 +430,75 @@ public partial class CompanionWindow : Window
     {
         e.Handled = true;
         if (isClosing) return;
-        if (e.IsUserInitiated && BrowserUrlPolicy.IsAllowed(e.Uri)) Navigate(tab, e.Uri);
-        else ReportBlocked("new-window", "Se bloqueó una ventana emergente automática o una dirección no permitida.");
+
+        if (!e.IsUserInitiated)
+        {
+            ReportBlocked("new-window-automatic", "Se bloqueó una ventana emergente automática.");
+            return;
+        }
+
+        if (!BrowserUrlPolicy.TryNormalize(e.Uri, out var normalized))
+        {
+            ReportBlocked("new-window-url", "Se bloqueó una ventana nueva con una dirección no permitida.");
+            return;
+        }
+
+        if (!viewModel.OpenNewWindowsInTabs)
+        {
+            Navigate(tab, normalized);
+            return;
+        }
+
+        if (sessionTabs.Count >= 20)
+        {
+            ReportBlocked("new-window-limit", "Companion admite un máximo de 20 pestañas por sesión.");
+            return;
+        }
+
+        var deferral = e.GetDeferral();
+        _ = OpenNewWindowInTabAsync(tab, e, normalized, deferral);
+    }
+
+    private async Task OpenNewWindowInTabAsync(
+        TabRuntime sourceTab,
+        CoreWebView2NewWindowRequestedEventArgs e,
+        string url,
+        CoreWebView2Deferral deferral)
+    {
+        TabRuntime? newTab = null;
+        try
+        {
+            if (isClosing) return;
+
+            newTab = AddTemporaryTab(url);
+            await EnsureEnvironmentAsync();
+            if (isClosing) return;
+
+            await InitializeTabAsync(newTab, navigateInitial: false);
+            if (newTab.Core is null) throw new InvalidOperationException("New-window WebView2 Core was not created.");
+
+            e.NewWindow = newTab.Core;
+            e.Handled = true;
+
+            if (viewModel.ActivateNewWindowTabs)
+                await ActivateTabAsync(newTab.Definition.Id);
+
+            Log.Information(
+                "User-initiated new window opened as Companion tab. SourceTab={SourceTab}; NewTab={NewTab}; Activate={Activate}",
+                sourceTab.Definition.Name,
+                newTab.Definition.Id,
+                viewModel.ActivateNewWindowTabs);
+        }
+        catch (Exception ex)
+        {
+            if (newTab is not null && !ReferenceEquals(newTab, activeTab)) RemoveSessionTab(newTab);
+            LogBrowserFailure("new-window-tab", ex);
+            if (!isClosing) ReportBlocked("new-window-tab", "No se pudo abrir la ventana solicitada en una pestaña nueva.");
+        }
+        finally
+        {
+            deferral.Complete();
+        }
     }
 
     private void ProcessFailed(TabRuntime tab, CoreWebView2ProcessFailedEventArgs e)

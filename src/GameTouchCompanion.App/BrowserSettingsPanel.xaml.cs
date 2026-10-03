@@ -27,6 +27,18 @@ public partial class BrowserSettingsPanel : UserControl
         if (ViewModel is { } model) await model.AddFavoriteAsync(model.Address);
     }
 
+    private async void OpenNewWindowsInTabs_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel is { } model && sender is CheckBox checkBox)
+            await model.SetOpenNewWindowsInTabsAsync(checkBox.IsChecked == true);
+    }
+
+    private async void ActivateNewWindowTabs_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel is { } model && sender is CheckBox checkBox)
+            await model.SetActivateNewWindowTabsAsync(checkBox.IsChecked == true);
+    }
+
     private void OpenFavorite_Click(object sender, RoutedEventArgs e)
     {
         if (ViewModel is { SelectedFavorite: { } favorite } model) model.Navigate(favorite.Url);

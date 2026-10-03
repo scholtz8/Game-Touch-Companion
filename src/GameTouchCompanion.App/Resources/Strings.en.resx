@@ -1190,4 +1190,43 @@
   <data name="RegistrationMaintenanceHelp" xml:space="preserve">
     <value>If you use Windows startup, update its registration after moving Game Touch Companion or extracting a new version to another folder. This action is not needed while Windows startup is disabled.</value>
   </data>
+  <data name="BrowserNewWindowsHeading" xml:space="preserve">
+    <value>New windows and tabs</value>
+  </data>
+  <data name="BrowserOpenNewWindowsInTabs" xml:space="preserve">
+    <value>Open new windows as tabs</value>
+  </data>
+  <data name="BrowserOpenNewWindowsInTabsHelp" xml:space="preserve">
+    <value>Links and window.open actions you initiate open in a temporary Companion tab. When disabled, they reuse the current tab. Automatic popups remain blocked.</value>
+  </data>
+  <data name="BrowserActivateNewWindowTabs" xml:space="preserve">
+    <value>Automatically activate the new tab</value>
+  </data>
+  <data name="BrowserActivateNewWindowTabsHelp" xml:space="preserve">
+    <value>When disabled, the tab is created and loaded in the background without changing the tab you are viewing.</value>
+  </data>
+  <data name="Dynamic176" xml:space="preserve">
+    <value>New windows will open as Companion tabs.</value>
+  </data>
+  <data name="Dynamic177" xml:space="preserve">
+    <value>New windows will reuse the current Companion tab.</value>
+  </data>
+  <data name="Dynamic178" xml:space="preserve">
+    <value>New tabs will be activated when opened.</value>
+  </data>
+  <data name="Dynamic179" xml:space="preserve">
+    <value>New tabs will open in the background.</value>
+  </data>
+  <data name="Dynamic180" xml:space="preserve">
+    <value>An automatic popup was blocked.</value>
+  </data>
+  <data name="Dynamic181" xml:space="preserve">
+    <value>A new window with a disallowed address was blocked.</value>
+  </data>
+  <data name="Dynamic182" xml:space="preserve">
+    <value>Companion supports a maximum of 20 tabs per session.</value>
+  </data>
+  <data name="Dynamic183" xml:space="preserve">
+    <value>The requested window could not be opened in a new tab.</value>
+  </data>
 </root>

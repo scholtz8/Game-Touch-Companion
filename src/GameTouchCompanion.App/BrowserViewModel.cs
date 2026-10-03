@@ -20,6 +20,8 @@ public sealed class BrowserViewModel : INotifyPropertyChanged
     private LocalizedMessage settingsError = string.Empty;
     private bool showToolbar = true;
     private bool startWithToolbarVisible = true;
+    private bool openNewWindowsInTabs = true;
+    private bool activateNewWindowTabs = true;
     private bool canGoBack;
     private bool canGoForward;
     private bool isReady;
@@ -37,6 +39,15 @@ public sealed class BrowserViewModel : INotifyPropertyChanged
     public BrowserFavorite? SelectedFavorite { get => selectedFavorite; set => SetField(ref selectedFavorite, value); }
     public bool ShowToolbar { get => showToolbar; private set => SetField(ref showToolbar, value); }
     public bool StartWithToolbarVisible { get => startWithToolbarVisible; private set => SetField(ref startWithToolbarVisible, value); }
+    public bool OpenNewWindowsInTabs
+    {
+        get => openNewWindowsInTabs;
+        private set
+        {
+            if (SetField(ref openNewWindowsInTabs, value)) OnPropertyChanged(nameof(CanEditNewWindowActivation));
+        }
+    }
+    public bool ActivateNewWindowTabs { get => activateNewWindowTabs; private set => SetField(ref activateNewWindowTabs, value); }
     public bool CanGoBack { get => canGoBack; private set => SetField(ref canGoBack, value); }
     public bool CanGoForward { get => canGoForward; private set => SetField(ref canGoForward, value); }
     public bool IsReady { get => isReady; private set => SetField(ref isReady, value); }
@@ -68,9 +79,15 @@ public sealed class BrowserViewModel : INotifyPropertyChanged
     public bool SettingsLoaded
     {
         get => settingsLoaded;
-        private set { if (SetField(ref settingsLoaded, value)) OnPropertyChanged(nameof(CanEditSettings)); }
+        private set
+        {
+            if (!SetField(ref settingsLoaded, value)) return;
+            OnPropertyChanged(nameof(CanEditSettings));
+            OnPropertyChanged(nameof(CanEditNewWindowActivation));
+        }
     }
     public bool CanEditSettings => SettingsLoaded;
+    public bool CanEditNewWindowActivation => CanEditSettings && OpenNewWindowsInTabs;
 
     public void RefreshLanguage()
     {
@@ -91,6 +108,8 @@ public sealed class BrowserViewModel : INotifyPropertyChanged
             Address = HomeUrl;
             StartWithToolbarVisible = settings.ShowToolbar;
             ShowToolbar = StartWithToolbarVisible;
+            OpenNewWindowsInTabs = settings.OpenNewWindowsInTabs;
+            ActivateNewWindowTabs = settings.ActivateNewWindowTabs;
             Favorites.Clear();
             foreach (var favorite in settings.Favorites) Favorites.Add(favorite);
             SettingsLoaded = true;
@@ -195,6 +214,24 @@ public sealed class BrowserViewModel : INotifyPropertyChanged
             : "Companion iniciará con la barra táctil oculta.");
     }
 
+    public async Task SetOpenNewWindowsInTabsAsync(bool enabled)
+    {
+        if (!CanPersist()) return;
+        OpenNewWindowsInTabs = enabled;
+        await PersistAsync(enabled
+            ? "Las ventanas nuevas se abrirán como pestañas de Companion."
+            : "Las ventanas nuevas reutilizarán la pestaña actual de Companion.");
+    }
+
+    public async Task SetActivateNewWindowTabsAsync(bool enabled)
+    {
+        if (!CanPersist()) return;
+        ActivateNewWindowTabs = enabled;
+        await PersistAsync(enabled
+            ? "Las pestañas nuevas se activarán al abrirse."
+            : "Las pestañas nuevas se abrirán en segundo plano.");
+    }
+
     public void ResetRuntimeToolbarToPreference() => ShowToolbar = StartWithToolbarVisible;
 
     public void ReportReady()
@@ -255,6 +292,8 @@ public sealed class BrowserViewModel : INotifyPropertyChanged
             {
                 HomeUrl = HomeUrl,
                 ShowToolbar = StartWithToolbarVisible,
+                OpenNewWindowsInTabs = OpenNewWindowsInTabs,
+                ActivateNewWindowTabs = ActivateNewWindowTabs,
                 Favorites = [.. Favorites],
             });
             SetSettingsError(string.Empty);

@@ -6,7 +6,7 @@ namespace GameTouchCompanion.Core.Tests;
 public sealed class JsonBrowserSettingsStoreTests
 {
     [Fact]
-    public async Task SaveAndLoadRoundTripHomeToolbarAndFavorites()
+    public async Task SaveAndLoadRoundTripBrowserPreferencesAndFavorites()
     {
         using var temporaryDirectory = new TemporaryDirectory();
         var settingsPath = Path.Combine(temporaryDirectory.Path, "nested", "browser.json");
@@ -15,6 +15,8 @@ public sealed class JsonBrowserSettingsStoreTests
         {
             HomeUrl = "https://example.com/wiki",
             ShowToolbar = false,
+            OpenNewWindowsInTabs = false,
+            ActivateNewWindowTabs = false,
             Favorites =
             [
                 new("Game wiki", "https://example.com/wiki"),
@@ -27,9 +29,14 @@ public sealed class JsonBrowserSettingsStoreTests
 
         Assert.Equal(expected.HomeUrl, actual.HomeUrl);
         Assert.Equal(expected.ShowToolbar, actual.ShowToolbar);
+        Assert.Equal(expected.OpenNewWindowsInTabs, actual.OpenNewWindowsInTabs);
+        Assert.Equal(expected.ActivateNewWindowTabs, actual.ActivateNewWindowTabs);
         Assert.Equal(expected.Favorites, actual.Favorites);
         Assert.Equal(Path.GetFullPath(settingsPath), store.FilePath);
-        Assert.Contains("\"showToolbar\": false", await File.ReadAllTextAsync(settingsPath), StringComparison.Ordinal);
+        var json = await File.ReadAllTextAsync(settingsPath);
+        Assert.Contains("\"showToolbar\": false", json, StringComparison.Ordinal);
+        Assert.Contains("\"openNewWindowsInTabs\": false", json, StringComparison.Ordinal);
+        Assert.Contains("\"activateNewWindowTabs\": false", json, StringComparison.Ordinal);
         Assert.Empty(Directory.EnumerateFiles(Path.GetDirectoryName(settingsPath)!, "*.tmp"));
     }
 
@@ -43,6 +50,8 @@ public sealed class JsonBrowserSettingsStoreTests
 
         Assert.Equal(BrowserUrlPolicy.LocalHomeUrl, settings.HomeUrl);
         Assert.True(settings.ShowToolbar);
+        Assert.True(settings.OpenNewWindowsInTabs);
+        Assert.True(settings.ActivateNewWindowTabs);
         Assert.Empty(settings.Favorites);
         Assert.False(File.Exists(settingsPath));
         Assert.False(Directory.Exists(Path.GetDirectoryName(settingsPath)));
@@ -59,6 +68,8 @@ public sealed class JsonBrowserSettingsStoreTests
 
         Assert.Equal(BrowserUrlPolicy.LocalHomeUrl, settings.HomeUrl);
         Assert.True(settings.ShowToolbar);
+        Assert.True(settings.OpenNewWindowsInTabs);
+        Assert.True(settings.ActivateNewWindowTabs);
         Assert.Empty(settings.Favorites);
         Assert.Equal("{}", await File.ReadAllTextAsync(settingsPath));
     }

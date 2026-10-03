@@ -1190,4 +1190,43 @@
   <data name="RegistrationMaintenanceHelp" xml:space="preserve">
     <value>Si usas el inicio con Windows, actualiza su registro cuando muevas Game Touch Companion o extraigas una versión nueva en otra carpeta. La acción no es necesaria cuando el inicio con Windows está desactivado.</value>
   </data>
+  <data name="BrowserNewWindowsHeading" xml:space="preserve">
+    <value>Ventanas y pestañas nuevas</value>
+  </data>
+  <data name="BrowserOpenNewWindowsInTabs" xml:space="preserve">
+    <value>Abrir ventanas nuevas como pestañas</value>
+  </data>
+  <data name="BrowserOpenNewWindowsInTabsHelp" xml:space="preserve">
+    <value>Los enlaces y window.open iniciados por ti se abren en una pestaña temporal de Companion. Si lo desactivas, reutilizan la pestaña actual. Las ventanas emergentes automáticas siguen bloqueadas.</value>
+  </data>
+  <data name="BrowserActivateNewWindowTabs" xml:space="preserve">
+    <value>Activar automáticamente la pestaña nueva</value>
+  </data>
+  <data name="BrowserActivateNewWindowTabsHelp" xml:space="preserve">
+    <value>Si está desactivado, la pestaña se crea y carga en segundo plano sin cambiar la pestaña que estás viendo.</value>
+  </data>
+  <data name="Dynamic176" xml:space="preserve">
+    <value>Las ventanas nuevas se abrirán como pestañas de Companion.</value>
+  </data>
+  <data name="Dynamic177" xml:space="preserve">
+    <value>Las ventanas nuevas reutilizarán la pestaña actual de Companion.</value>
+  </data>
+  <data name="Dynamic178" xml:space="preserve">
+    <value>Las pestañas nuevas se activarán al abrirse.</value>
+  </data>
+  <data name="Dynamic179" xml:space="preserve">
+    <value>Las pestañas nuevas se abrirán en segundo plano.</value>
+  </data>
+  <data name="Dynamic180" xml:space="preserve">
+    <value>Se bloqueó una ventana emergente automática.</value>
+  </data>
+  <data name="Dynamic181" xml:space="preserve">
+    <value>Se bloqueó una ventana nueva con una dirección no permitida.</value>
+  </data>
+  <data name="Dynamic182" xml:space="preserve">
+    <value>Companion admite un máximo de 20 pestañas por sesión.</value>
+  </data>
+  <data name="Dynamic183" xml:space="preserve">
+    <value>No se pudo abrir la ventana solicitada en una pestaña nueva.</value>
+  </data>
 </root>
