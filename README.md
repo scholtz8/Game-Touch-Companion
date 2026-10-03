@@ -111,6 +111,8 @@ The embedded browser is intentionally restricted. The application blocks or limi
 
 Third-party websites may still behave differently, and login flows, DRM, file pickers, downloads, and unusual browser interactions may require additional compatibility testing.
 
+Browser settings also provide **Browser data** actions for clearing the Companion WebView2 cache, cookies, browsing history, or all WebView2 profile data. These operations use the WebView2 profile API and do not delete `browser.json`, favorites, game profiles, monitor settings, or other Game Touch Companion preferences. Companion must be open while the data is cleared.
+
 ## Build and test
 
 From the repository root:

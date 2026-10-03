@@ -112,6 +112,24 @@
                         Click="EditFavorite_Click" IsEnabled="{Binding CanEditSelectedFavorite}"/>
                 <Button Content="{local:Tr Ui092}" Padding="16,8" Click="RemoveFavorite_Click" IsEnabled="{Binding CanEditSelectedFavorite}"/>
             </WrapPanel>
+            <TextBlock Text="{local:Tr BrowserDataHeading}" FontWeight="SemiBold" FontSize="20" Margin="0,20,0,10"/>
+            <TextBlock Text="{local:Tr BrowserDataHelp}" TextWrapping="Wrap"
+                       Foreground="{Binding ConfigurationSecondaryForeground, Source={x:Static local:Appearance.Current}}" Margin="0,0,0,10"/>
+            <WrapPanel Margin="0,0,0,4">
+                <Button Content="{local:Tr BrowserClearCache}" MinWidth="150" Padding="16,9" Margin="0,0,10,10"
+                        Click="ClearCache_Click" IsEnabled="{Binding CanClearBrowsingData}"/>
+                <Button Content="{local:Tr BrowserClearCookies}" MinWidth="150" Padding="16,9" Margin="0,0,10,10"
+                        Click="ClearCookies_Click" IsEnabled="{Binding CanClearBrowsingData}"/>
+                <Button Content="{local:Tr BrowserClearHistory}" MinWidth="150" Padding="16,9" Margin="0,0,10,10"
+                        Click="ClearHistory_Click" IsEnabled="{Binding CanClearBrowsingData}"/>
+                <Button Content="{local:Tr BrowserClearAllData}" MinWidth="190" Padding="16,9" Margin="0,0,0,10"
+                        Click="ClearAllBrowsingData_Click" IsEnabled="{Binding CanClearBrowsingData}"/>
+            </WrapPanel>
+            <TextBlock Text="{Binding BrowsingDataStatus}" TextWrapping="Wrap"
+                       Foreground="{Binding ConfigurationSecondaryForeground, Source={x:Static local:Appearance.Current}}"
+                       Margin="0,0,0,6"
+                       Visibility="{Binding HasBrowsingDataStatus, Converter={StaticResource BoolToVisibility}}"/>
+
             <!-- Passive browser status is logged in the background. Only errors remain visible. -->
             <Border Margin="0,12,0,0" Padding="14" Background="{Binding ConfigurationError, Source={x:Static local:Appearance.Current}}" CornerRadius="6"
                     Visibility="{Binding HasError, Converter={StaticResource BoolToVisibility}}">

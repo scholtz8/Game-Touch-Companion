@@ -1283,4 +1283,52 @@
   <data name="BrowserSiteZoomReset" xml:space="preserve">
     <value>Zoom de {0} restablecido al valor predeterminado.</value>
   </data>
+  <data name="BrowserDataHeading" xml:space="preserve">
+    <value>Datos del navegador</value>
+  </data>
+  <data name="BrowserDataHelp" xml:space="preserve">
+    <value>Estas acciones borran datos del perfil WebView2 de Companion. No eliminan favoritos, perfiles, preferencias ni archivos JSON de Game Touch Companion. Companion debe estar abierto.</value>
+  </data>
+  <data name="BrowserClearCache" xml:space="preserve">
+    <value>Borrar caché</value>
+  </data>
+  <data name="BrowserClearCookies" xml:space="preserve">
+    <value>Borrar cookies</value>
+  </data>
+  <data name="BrowserClearHistory" xml:space="preserve">
+    <value>Borrar historial</value>
+  </data>
+  <data name="BrowserClearAllData" xml:space="preserve">
+    <value>Borrar todos los datos</value>
+  </data>
+  <data name="BrowserDataConfirmTitle" xml:space="preserve">
+    <value>Confirmar borrado</value>
+  </data>
+  <data name="BrowserClearCookiesConfirm" xml:space="preserve">
+    <value>Se borrarán todas las cookies del perfil de Companion y puede que tengas que volver a iniciar sesión en los sitios. ¿Continuar?</value>
+  </data>
+  <data name="BrowserClearAllConfirm" xml:space="preserve">
+    <value>Se borrarán cookies, caché, historial, almacenamiento de sitios y demás datos del perfil WebView2 de Companion. Tus perfiles, favoritos y ajustes de Game Touch Companion no se borrarán. ¿Continuar?</value>
+  </data>
+  <data name="BrowserDataCompanionRequired" xml:space="preserve">
+    <value>Abre Companion antes de borrar datos del navegador.</value>
+  </data>
+  <data name="BrowserDataClearing" xml:space="preserve">
+    <value>Borrando datos del navegador…</value>
+  </data>
+  <data name="BrowserDataCacheCleared" xml:space="preserve">
+    <value>Caché del navegador borrada.</value>
+  </data>
+  <data name="BrowserDataCookiesCleared" xml:space="preserve">
+    <value>Cookies del navegador borradas. Recarga las páginas abiertas si necesitas actualizar la sesión.</value>
+  </data>
+  <data name="BrowserDataHistoryCleared" xml:space="preserve">
+    <value>Historial del navegador borrado.</value>
+  </data>
+  <data name="BrowserDataAllCleared" xml:space="preserve">
+    <value>Datos del navegador borrados. Los perfiles, favoritos y ajustes de Game Touch Companion se conservaron.</value>
+  </data>
+  <data name="BrowserDataClearFailed" xml:space="preserve">
+    <value>No se pudieron borrar los datos del navegador. Revisa los logs e inténtalo de nuevo.</value>
+  </data>
 </root>

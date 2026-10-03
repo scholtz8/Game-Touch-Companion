@@ -78,4 +78,34 @@ public partial class BrowserSettingsPanel : UserControl
     {
         if (ViewModel is { SelectedFavorite: { } favorite } model) await model.RemoveFavoriteAsync(favorite);
     }
+
+    private async void ClearCache_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel is { } model) await model.ClearBrowsingDataAsync(BrowserDataClearKind.Cache);
+    }
+
+    private async void ClearCookies_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel is not { } model || !ConfirmBrowserDataClear("BrowserClearCookiesConfirm")) return;
+        await model.ClearBrowsingDataAsync(BrowserDataClearKind.Cookies);
+    }
+
+    private async void ClearHistory_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel is { } model) await model.ClearBrowsingDataAsync(BrowserDataClearKind.History);
+    }
+
+    private async void ClearAllBrowsingData_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel is not { } model || !ConfirmBrowserDataClear("BrowserClearAllConfirm")) return;
+        await model.ClearBrowsingDataAsync(BrowserDataClearKind.All);
+    }
+
+    private static bool ConfirmBrowserDataClear(string messageKey) =>
+        AppDialog.Show(
+            Localization.Get(messageKey),
+            Localization.Get("BrowserDataConfirmTitle"),
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Warning) == MessageBoxResult.Yes;
+
 }

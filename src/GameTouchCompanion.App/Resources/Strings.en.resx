@@ -1283,4 +1283,52 @@
   <data name="BrowserSiteZoomReset" xml:space="preserve">
     <value>Zoom for {0} reset to the default.</value>
   </data>
+  <data name="BrowserDataHeading" xml:space="preserve">
+    <value>Browser data</value>
+  </data>
+  <data name="BrowserDataHelp" xml:space="preserve">
+    <value>These actions clear data from Companion’s WebView2 profile. They do not delete Game Touch Companion favorites, profiles, preferences, or JSON files. Companion must be open.</value>
+  </data>
+  <data name="BrowserClearCache" xml:space="preserve">
+    <value>Clear cache</value>
+  </data>
+  <data name="BrowserClearCookies" xml:space="preserve">
+    <value>Clear cookies</value>
+  </data>
+  <data name="BrowserClearHistory" xml:space="preserve">
+    <value>Clear history</value>
+  </data>
+  <data name="BrowserClearAllData" xml:space="preserve">
+    <value>Clear all browser data</value>
+  </data>
+  <data name="BrowserDataConfirmTitle" xml:space="preserve">
+    <value>Confirm clearing data</value>
+  </data>
+  <data name="BrowserClearCookiesConfirm" xml:space="preserve">
+    <value>All cookies in the Companion profile will be cleared and you may need to sign in to websites again. Continue?</value>
+  </data>
+  <data name="BrowserClearAllConfirm" xml:space="preserve">
+    <value>Cookies, cache, history, site storage, and other WebView2 profile data will be cleared. Your Game Touch Companion profiles, favorites, and settings will not be deleted. Continue?</value>
+  </data>
+  <data name="BrowserDataCompanionRequired" xml:space="preserve">
+    <value>Open Companion before clearing browser data.</value>
+  </data>
+  <data name="BrowserDataClearing" xml:space="preserve">
+    <value>Clearing browser data…</value>
+  </data>
+  <data name="BrowserDataCacheCleared" xml:space="preserve">
+    <value>Browser cache cleared.</value>
+  </data>
+  <data name="BrowserDataCookiesCleared" xml:space="preserve">
+    <value>Browser cookies cleared. Reload open pages if you need to refresh the session.</value>
+  </data>
+  <data name="BrowserDataHistoryCleared" xml:space="preserve">
+    <value>Browser history cleared.</value>
+  </data>
+  <data name="BrowserDataAllCleared" xml:space="preserve">
+    <value>Browser data cleared. Game Touch Companion profiles, favorites, and settings were preserved.</value>
+  </data>
+  <data name="BrowserDataClearFailed" xml:space="preserve">
+    <value>Browser data could not be cleared. Check the logs and try again.</value>
+  </data>
 </root>

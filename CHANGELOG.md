@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased — Browser data management
+
+### Added
+- Browser settings now include explicit actions to clear the Companion WebView2 cache, cookies, browsing/download history, or all WebView2 profile data. Cookies and full-profile clearing require confirmation because they can sign sites out or remove site state.
+- Browser-data actions report progress/results in Configuration and require an open Companion so clearing is performed through the active WebView2 profile API rather than by deleting profile files manually.
+
+### Changed
+- Clearing WebView2 browsing data is isolated from Game Touch Companion configuration: `browser.json`, favorites, profile definitions, monitor settings and other application preferences are not modified.
+
 ## Unreleased — Browser zoom
 
 ### Added

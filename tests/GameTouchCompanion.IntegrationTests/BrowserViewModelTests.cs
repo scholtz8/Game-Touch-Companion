@@ -524,6 +524,77 @@ public sealed class BrowserViewModelTests
         Assert.False(viewModel.HasError);
     }
 
+    [Fact]
+    public async Task ClearBrowsingDataRequestDoesNotPersistOrChangeBrowserPreferences()
+    {
+        var original = new BrowserSettings
+        {
+            HomeUrl = "https://example.com/home",
+            ShowToolbar = false,
+            OpenNewWindowsInTabs = false,
+            ActivateNewWindowTabs = false,
+            DefaultZoomPercent = 120,
+            RememberZoomPerSite = true,
+            SiteZoomPercentages = new Dictionary<string, int> { ["example.com"] = 140 },
+            Favorites = [new("Wiki", "https://example.com/wiki")],
+        };
+        var store = new MemoryBrowserSettingsStore(original);
+        var viewModel = new BrowserViewModel(store);
+        await viewModel.InitializeAsync();
+        BrowserDataClearKind? requested = null;
+        viewModel.BrowsingDataClearRequested += kind =>
+        {
+            requested = kind;
+            return Task.CompletedTask;
+        };
+
+        await viewModel.ClearBrowsingDataAsync(BrowserDataClearKind.All);
+
+        Assert.Equal(BrowserDataClearKind.All, requested);
+        Assert.Equal(0, store.SaveAttempts);
+        Assert.False(viewModel.IsClearingBrowsingData);
+        Assert.True(viewModel.CanClearBrowsingData);
+        Assert.True(viewModel.HasBrowsingDataStatus);
+        Assert.Equal(original.HomeUrl, viewModel.HomeUrl);
+        Assert.Equal(original.ShowToolbar, viewModel.StartWithToolbarVisible);
+        Assert.Equal(original.OpenNewWindowsInTabs, viewModel.OpenNewWindowsInTabs);
+        Assert.Equal(original.ActivateNewWindowTabs, viewModel.ActivateNewWindowTabs);
+        Assert.Equal(original.DefaultZoomPercent, viewModel.DefaultZoomPercent);
+        Assert.Equal(new BrowserFavorite("Wiki", "https://example.com/wiki"), Assert.Single(viewModel.Favorites));
+    }
+
+    [Fact]
+    public async Task ClearBrowsingDataRequiresAnOpenCompanionHandler()
+    {
+        var store = new MemoryBrowserSettingsStore(new BrowserSettings());
+        var viewModel = new BrowserViewModel(store);
+        await viewModel.InitializeAsync();
+
+        await viewModel.ClearBrowsingDataAsync(BrowserDataClearKind.Cache);
+
+        Assert.True(viewModel.HasError);
+        Assert.True(viewModel.HasBrowsingDataStatus);
+        Assert.False(viewModel.IsClearingBrowsingData);
+        Assert.Equal(0, store.SaveAttempts);
+    }
+
+    [Fact]
+    public async Task ClearBrowsingDataFailureIsReportedAndActionIsReenabled()
+    {
+        var store = new MemoryBrowserSettingsStore(new BrowserSettings());
+        var viewModel = new BrowserViewModel(store);
+        await viewModel.InitializeAsync();
+        viewModel.BrowsingDataClearRequested += _ => Task.FromException(new InvalidOperationException("probe"));
+
+        await viewModel.ClearBrowsingDataAsync(BrowserDataClearKind.Cookies);
+
+        Assert.True(viewModel.HasError);
+        Assert.True(viewModel.HasBrowsingDataStatus);
+        Assert.False(viewModel.IsClearingBrowsingData);
+        Assert.True(viewModel.CanClearBrowsingData);
+        Assert.Equal(0, store.SaveAttempts);
+    }
+
     private sealed class MemoryBrowserSettingsStore(BrowserSettings initial) : IBrowserSettingsStore
     {
         public string FilePath => "memory://browser.json";

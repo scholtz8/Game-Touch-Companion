@@ -94,6 +94,16 @@ public sealed class BrowserRuntimeTests
                 Assert.Equal(secondPage, model.CurrentUrl);
                 await model.AddFavoriteAsync();
                 Assert.Contains(model.Favorites, item => item.Url == secondPage);
+
+                // Phase 8: clearing the isolated WebView2 profile must use the profile API and
+                // must not touch Game Touch Companion settings/favorites stored outside that profile.
+                var browserSettingsPath = Path.Combine(testDirectory, "browser.json");
+                Assert.True(File.Exists(browserSettingsPath));
+                await model.ClearBrowsingDataAsync(BrowserDataClearKind.All);
+                Assert.False(model.HasError);
+                Assert.True(File.Exists(browserSettingsPath));
+                Assert.Contains(model.Favorites, item => item.Url == secondPage);
+
                 await model.SetToolbarVisibleAsync(false);
                 Assert.False(model.ShowToolbar);
                 await model.SetToolbarVisibleAsync(true);

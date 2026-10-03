@@ -32,6 +32,8 @@ public sealed class BrowserViewModel : INotifyPropertyChanged
     private BrowserFavorite? selectedFavorite;
     private BrowserFavorite? editingFavorite;
     private string favoriteTitle = string.Empty;
+    private bool isClearingBrowsingData;
+    private LocalizedMessage browsingDataStatus = string.Empty;
 
     public BrowserViewModel(IBrowserSettingsStore settingsStore) =>
         this.settingsStore = settingsStore ?? throw new ArgumentNullException(nameof(settingsStore));
@@ -108,6 +110,18 @@ public sealed class BrowserViewModel : INotifyPropertyChanged
     }
 
     public bool HasSettingsError => SettingsError.Length > 0;
+    public bool IsClearingBrowsingData
+    {
+        get => isClearingBrowsingData;
+        private set
+        {
+            if (!SetField(ref isClearingBrowsingData, value)) return;
+            OnPropertyChanged(nameof(CanClearBrowsingData));
+        }
+    }
+    public bool CanClearBrowsingData => !IsClearingBrowsingData;
+    public string BrowsingDataStatus => browsingDataStatus.Render();
+    public bool HasBrowsingDataStatus => BrowsingDataStatus.Length > 0;
     public bool SettingsLoaded
     {
         get => settingsLoaded;
@@ -130,11 +144,14 @@ public sealed class BrowserViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(Error));
         OnPropertyChanged(nameof(SettingsError));
         OnPropertyChanged(nameof(FavoriteActionText));
+        OnPropertyChanged(nameof(BrowsingDataStatus));
+        OnPropertyChanged(nameof(HasBrowsingDataStatus));
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
     public event Action<string>? NavigationRequested;
     public event Action? ZoomPreferencesChanged;
+    public event Func<BrowserDataClearKind, Task>? BrowsingDataClearRequested;
 
     public async Task InitializeAsync(CancellationToken cancellationToken = default)
     {
@@ -156,6 +173,7 @@ public sealed class BrowserViewModel : INotifyPropertyChanged
             SetEditingFavorite(null);
             FavoriteTitle = string.Empty;
             SelectedFavorite = null;
+            SetBrowsingDataStatus(string.Empty);
             SettingsLoaded = true;
             SetSettingsError(string.Empty);
             ReportStatus("Navegador preparado. Abre Companion para navegar.");
@@ -393,6 +411,55 @@ public sealed class BrowserViewModel : INotifyPropertyChanged
         return DefaultZoomPercent;
     }
 
+    public async Task ClearBrowsingDataAsync(BrowserDataClearKind kind)
+    {
+        if (IsClearingBrowsingData) return;
+
+        var handlers = BrowsingDataClearRequested?.GetInvocationList()
+            .Cast<Func<BrowserDataClearKind, Task>>()
+            .ToArray() ?? [];
+
+        if (handlers.Length == 0)
+        {
+            var message = ResourceMessage("BrowserDataCompanionRequired");
+            SetBrowsingDataStatus(message);
+            ReportError(message);
+            return;
+        }
+
+        IsClearingBrowsingData = true;
+        SetBrowsingDataStatus(ResourceMessage("BrowserDataClearing"));
+        try
+        {
+            foreach (var handler in handlers)
+                await handler(kind);
+
+            var key = kind switch
+            {
+                BrowserDataClearKind.Cache => "BrowserDataCacheCleared",
+                BrowserDataClearKind.Cookies => "BrowserDataCookiesCleared",
+                BrowserDataClearKind.History => "BrowserDataHistoryCleared",
+                BrowserDataClearKind.All => "BrowserDataAllCleared",
+                _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null),
+            };
+            var message = ResourceMessage(key);
+            SetBrowsingDataStatus(message);
+            ReportStatus(message);
+        }
+        catch (Exception ex)
+        {
+            Log.Warning("Clearing WebView2 browsing data failed. Kind={Kind}; Type={Type}; Code={Code}",
+                kind, ex.GetType().Name, ex.HResult);
+            var message = ResourceMessage("BrowserDataClearFailed");
+            SetBrowsingDataStatus(message);
+            ReportError(message);
+        }
+        finally
+        {
+            IsClearingBrowsingData = false;
+        }
+    }
+
     public void ResetRuntimeToolbarToPreference() => ShowToolbar = StartWithToolbarVisible;
 
     public void ReportReady()
@@ -437,6 +504,15 @@ public sealed class BrowserViewModel : INotifyPropertyChanged
         ReportStatus("Companion cerrado. Puedes volver a abrirlo desde Configuración.");
     }
 
+
+    private static LocalizedMessage ResourceMessage(string key) => new(() => Localization.Get(key));
+
+    private void SetBrowsingDataStatus(LocalizedMessage message)
+    {
+        browsingDataStatus = message;
+        OnPropertyChanged(nameof(BrowsingDataStatus));
+        OnPropertyChanged(nameof(HasBrowsingDataStatus));
+    }
 
     private void SetEditingFavorite(BrowserFavorite? favorite)
     {

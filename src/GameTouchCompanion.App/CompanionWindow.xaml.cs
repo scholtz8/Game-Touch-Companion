@@ -68,6 +68,7 @@ public partial class CompanionWindow : Window
         InitializeAppearance();
         viewModel.NavigationRequested += NavigateRequested;
         viewModel.ZoomPreferencesChanged += ZoomPreferencesChanged;
+        viewModel.BrowsingDataClearRequested += ClearBrowsingDataAsync;
         SourceInitialized += OnSourceInitialized;
         Loaded += OnLoaded;
     }
@@ -109,6 +110,7 @@ public partial class CompanionWindow : Window
         hwnd = nint.Zero;
         viewModel.NavigationRequested -= NavigateRequested;
         viewModel.ZoomPreferencesChanged -= ZoomPreferencesChanged;
+        viewModel.BrowsingDataClearRequested -= ClearBrowsingDataAsync;
         SourceInitialized -= OnSourceInitialized;
         Loaded -= OnLoaded;
         windowSource?.RemoveHook(WindowProc);
@@ -358,6 +360,29 @@ public partial class CompanionWindow : Window
         tabs.Clear();
         sessionTabs.Clear();
         activeTab = null;
+    }
+
+    private async Task ClearBrowsingDataAsync(BrowserDataClearKind kind)
+    {
+        if (isClosing) throw new InvalidOperationException("Companion is closing.");
+
+        await EnsureEnvironmentAsync();
+        var core = activeTab?.Core ?? tabs.Values.Select(runtime => runtime.Core).FirstOrDefault(candidate => candidate is not null);
+        if (core is null)
+            throw new InvalidOperationException("WebView2 is not ready to clear browsing data.");
+
+        var dataKinds = kind switch
+        {
+            BrowserDataClearKind.Cache => CoreWebView2BrowsingDataKinds.DiskCache,
+            BrowserDataClearKind.Cookies => CoreWebView2BrowsingDataKinds.Cookies,
+            BrowserDataClearKind.History => CoreWebView2BrowsingDataKinds.BrowsingHistory | CoreWebView2BrowsingDataKinds.DownloadHistory,
+            BrowserDataClearKind.All => CoreWebView2BrowsingDataKinds.AllProfile,
+            _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null),
+        };
+
+        await core.Profile.ClearBrowsingDataAsync(dataKinds);
+        Log.Information("WebView2 browsing data cleared. Kind={Kind}; DataKinds={DataKinds}; ProfileFolder={ProfileFolder}",
+            kind, dataKinds, userDataFolder);
     }
 
     private void NavigateRequested(string url)
