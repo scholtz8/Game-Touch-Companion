@@ -50,7 +50,7 @@ La misma pantalla se bloquea por defecto cuando existen alternativas. Para prueb
 
 1. En **Pantallas**, selecciona los monitores de juego y Companion.
 2. En **Navegador**, escribe una URL completa (`https://…` o `http://…`) y pulsa **Abrir Companion**. **Ir** navega si está abierto o prepara la dirección para la siguiente apertura.
-3. **Guardar como inicio** y **Añadir dirección a favoritos** conservan la dirección escrita. También puedes abrir o quitar favoritos.
+3. **Guardar como inicio** y **Añadir a favoritos** conservan la dirección escrita. Al añadir un favorito puedes indicar un título opcional; si lo dejas vacío, la lista muestra la URL. Los favoritos guardados se pueden seleccionar y editar después para cambiar su título o dirección, además de abrirlos o quitarlos.
 4. En Companion usa Atrás, Adelante, Recargar, Inicio, Guardar y Favoritos. **Guardar** añade la página actual. **Ocultar barra** deja accesibles **Mostrar barra** y **Cerrar**.
 5. **Página de prueba local** carga el test táctil; su enlace a la segunda página permite probar historial y recarga sin Internet.
 

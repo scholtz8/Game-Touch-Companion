@@ -20,9 +20,17 @@
                 <TextBox x:Name="AddressInput" MinHeight="42" VerticalContentAlignment="Center" Padding="10,4"
                          Text="{Binding Address, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" KeyDown="Address_KeyDown"/>
             </DockPanel>
+            <Label Content="{local:Tr BrowserFavoriteTitleLabel}" Target="{Binding ElementName=FavoriteTitleInput}" Padding="0,12,0,6"/>
+            <TextBox x:Name="FavoriteTitleInput" MinHeight="42" VerticalContentAlignment="Center" Padding="10,4" MaxLength="120"
+                     Text="{Binding FavoriteTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <TextBlock Text="{local:Tr BrowserFavoriteTitleHelp}" TextWrapping="Wrap"
+                       Foreground="{Binding ConfigurationSecondaryForeground, Source={x:Static local:Appearance.Current}}" Margin="0,4,0,0"/>
             <WrapPanel Margin="0,12,0,0">
                 <Button Content="{local:Tr Ui085}" Padding="16,10" Margin="0,0,10,10" Click="SetHome_Click" IsEnabled="{Binding CanEditSettings}"/>
-                <Button Content="{local:Tr Ui086}" Padding="16,10" Margin="0,0,0,10" Click="AddFavorite_Click" IsEnabled="{Binding CanEditSettings}"/>
+                <Button Content="{Binding FavoriteActionText}" Padding="16,10" Margin="0,0,10,10" Click="FavoriteAction_Click" IsEnabled="{Binding CanEditSettings}"/>
+                <Button Content="{local:Tr BrowserCancelFavoriteEdit}" Padding="16,10" Margin="0,0,0,10"
+                        Click="CancelFavoriteEdit_Click"
+                        Visibility="{Binding IsEditingFavorite, Converter={StaticResource BoolToVisibility}}"/>
             </WrapPanel>
             <TextBlock Margin="0,6" TextWrapping="Wrap">
                 <Run Text="{local:Tr Ui087}"/><Run Text="{Binding HomeUrl, Mode=OneWay}"/>
@@ -54,18 +62,31 @@
             <TextBlock Text="{local:Tr Ui090}" FontWeight="SemiBold" FontSize="20" Margin="0,18,0,10"/>
             <ListBox x:Name="FavoritesList" ItemsSource="{Binding Favorites}" SelectedItem="{Binding SelectedFavorite, Mode=TwoWay}"
                      MinHeight="90" MaxHeight="190" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Height" Value="48"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                        <Setter Property="VerticalContentAlignment" Value="Center"/>
+                    </Style>
+                </ListBox.ItemContainerStyle>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <StackPanel Margin="6">
-                            <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
-                            <TextBlock Text="{Binding Url}" Foreground="{Binding ConfigurationSecondaryForeground, Source={x:Static local:Appearance.Current}}" TextTrimming="CharacterEllipsis"/>
-                        </StackPanel>
+                        <Grid>
+                            <TextBlock Text="{Binding DisplayText}"
+                                       Margin="10,0"
+                                       VerticalAlignment="Center"
+                                       FontWeight="SemiBold"
+                                       TextTrimming="CharacterEllipsis"
+                                       ToolTip="{Binding DisplayText}"/>
+                        </Grid>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
             <WrapPanel Margin="0,10,0,12">
                 <Button Content="{local:Tr Ui091}" Padding="16,8" Margin="0,0,10,0" Click="OpenFavorite_Click"/>
-                <Button Content="{local:Tr Ui092}" Padding="16,8" Click="RemoveFavorite_Click" IsEnabled="{Binding CanEditSettings}"/>
+                <Button Content="{local:Tr BrowserEditFavorite}" Padding="16,8" Margin="0,0,10,0"
+                        Click="EditFavorite_Click" IsEnabled="{Binding CanEditSelectedFavorite}"/>
+                <Button Content="{local:Tr Ui092}" Padding="16,8" Click="RemoveFavorite_Click" IsEnabled="{Binding CanEditSelectedFavorite}"/>
             </WrapPanel>
             <!-- Passive browser status is logged in the background. Only errors remain visible. -->
             <Border Margin="0,12,0,0" Padding="14" Background="{Binding ConfigurationError, Source={x:Static local:Appearance.Current}}" CornerRadius="6"

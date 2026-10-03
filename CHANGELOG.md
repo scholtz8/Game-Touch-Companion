@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased — Favorite titles
+
+### Added
+- Browser settings now include an optional title field when adding a favorite. Existing favorites can also be selected and edited later, including changing both their title and URL.
+
+### Changed
+- Favorites now show a single label in the list: the custom title when present, otherwise the full URL. Favorite rows use a consistent fixed height, and the Companion favorites bar now uses fixed-size buttons with ellipsis for long labels so every favorite has the same footprint.
+- Profile URL cards no longer show the redundant **Automatic website title** label or explanatory copy. Runtime Companion tabs still use the loaded website title, as before.
+
 ## Unreleased — New-window tabs
 
 ### Added

@@ -267,6 +267,12 @@
   <data name="Ui086" xml:space="preserve">
     <value>Add address to Favorites</value>
   </data>
+  <data name="BrowserFavoriteTitleLabel" xml:space="preserve">
+    <value>Favorite title</value>
+  </data>
+  <data name="BrowserFavoriteTitleHelp" xml:space="preserve">
+    <value>Optional. If left blank, the URL will be shown in the list.</value>
+  </data>
   <data name="Ui087" xml:space="preserve">
     <value>Home: </value>
   </data>
@@ -284,6 +290,15 @@
   </data>
   <data name="Ui092" xml:space="preserve">
     <value>Remove favorite</value>
+  </data>
+  <data name="BrowserEditFavorite" xml:space="preserve">
+    <value>Edit favorite</value>
+  </data>
+  <data name="BrowserSaveFavoriteChanges" xml:space="preserve">
+    <value>Save changes</value>
+  </data>
+  <data name="BrowserCancelFavoriteEdit" xml:space="preserve">
+    <value>Cancel editing</value>
   </data>
   <data name="Ui093" xml:space="preserve">
     <value>Game profiles</value>
@@ -777,6 +792,9 @@
   <data name="Dynamic150" xml:space="preserve">
     <value>The path is too long for Windows startup registration.</value>
   </data>
+  <data name="Dynamic184" xml:space="preserve">
+    <value>Favorite updated.</value>
+  </data>
   <data name="Message000" xml:space="preserve">
     <value>Next</value>
   </data>
@@ -993,13 +1011,10 @@
     <value>Profile tabs</value>
   </data>
   <data name="Ui152" xml:space="preserve">
-    <value>Choose the pages that open with this profile. Each tab name is taken automatically from the website title. Mark one as primary to show it first.</value>
+    <value>Choose the pages that open with this profile. Mark one as primary to show it first.</value>
   </data>
   <data name="Ui153" xml:space="preserve">
     <value>★ Primary</value>
-  </data>
-  <data name="Ui154" xml:space="preserve">
-    <value>Automatic website title</value>
   </data>
   <data name="Ui155" xml:space="preserve">
     <value>URL</value>

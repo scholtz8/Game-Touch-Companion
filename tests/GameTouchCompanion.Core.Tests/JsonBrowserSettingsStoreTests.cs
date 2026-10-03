@@ -147,6 +147,24 @@ public sealed class JsonBrowserSettingsStoreTests
         Assert.Equal(original, await File.ReadAllTextAsync(settingsPath));
     }
 
+
+    [Theory]
+    [InlineData("{\"favorites\":[{\"title\":\"\",\"url\":\"https://example.com/guide\"}]}")]
+    [InlineData("{\"favorites\":[{\"title\":null,\"url\":\"https://example.com/guide\"}]}")]
+    public async Task BlankFavoriteTitleIsAllowedAndFallsBackToUrl(string json)
+    {
+        using var temporaryDirectory = new TemporaryDirectory();
+        var settingsPath = Path.Combine(temporaryDirectory.Path, "browser.json");
+        await File.WriteAllTextAsync(settingsPath, json);
+
+        var settings = await new JsonBrowserSettingsStore(settingsPath).LoadAsync();
+
+        var favorite = Assert.Single(settings.Favorites);
+        Assert.Equal(string.Empty, favorite.Title);
+        Assert.Equal("https://example.com/guide", favorite.Url);
+        Assert.Equal(favorite.Url, favorite.DisplayText);
+    }
+
     [Theory]
     [InlineData("null")]
     [InlineData("{\"homeUrl\":null}")]
@@ -156,8 +174,6 @@ public sealed class JsonBrowserSettingsStoreTests
     [InlineData("{\"homeUrl\":\"https://touch-test.local/private.json\"}")]
     [InlineData("{\"favorites\":null}")]
     [InlineData("{\"favorites\":[null]}")]
-    [InlineData("{\"favorites\":[{\"title\":\"\",\"url\":\"https://example.com/\"}]}")]
-    [InlineData("{\"favorites\":[{\"title\":null,\"url\":\"https://example.com/\"}]}")]
     [InlineData("{\"favorites\":[{\"title\":\"Example\",\"url\":null}]}")]
     [InlineData("{\"favorites\":[{\"title\":\"Example\",\"url\":\"javascript:alert(1)\"}]}")]
     [InlineData("{\"favorites\":[{\"title\":\"Example\",\"url\":\"file:///C:/private.txt\"}]}")]

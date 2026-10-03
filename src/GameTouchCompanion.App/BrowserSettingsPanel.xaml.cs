@@ -22,10 +22,24 @@ public partial class BrowserSettingsPanel : UserControl
         if (ViewModel is { } model) await model.SetHomeFromAddressAsync();
     }
 
-    private async void AddFavorite_Click(object sender, RoutedEventArgs e)
+    private async void FavoriteAction_Click(object sender, RoutedEventArgs e)
     {
-        if (ViewModel is { } model) await model.AddFavoriteAsync(model.Address);
+        if (ViewModel is not { } model) return;
+
+        if (model.IsEditingFavorite)
+        {
+            await model.UpdateEditingFavoriteAsync(model.Address, model.FavoriteTitle);
+            return;
+        }
+
+        var count = model.Favorites.Count;
+        await model.AddFavoriteAsync(model.Address, model.FavoriteTitle);
+        if (model.Favorites.Count > count && !model.HasSettingsError) model.FavoriteTitle = string.Empty;
     }
+
+    private void EditFavorite_Click(object sender, RoutedEventArgs e) => ViewModel?.BeginEditSelectedFavorite();
+
+    private void CancelFavoriteEdit_Click(object sender, RoutedEventArgs e) => ViewModel?.CancelFavoriteEdit();
 
     private async void OpenNewWindowsInTabs_Click(object sender, RoutedEventArgs e)
     {

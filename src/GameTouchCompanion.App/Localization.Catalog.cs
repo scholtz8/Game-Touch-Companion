@@ -125,6 +125,7 @@ public static partial class Localization
         ["Se bloqueó una ventana nueva con una dirección no permitida."] = "Dynamic181",
         ["Companion admite un máximo de 20 pestañas por sesión."] = "Dynamic182",
         ["No se pudo abrir la ventana solicitada en una pestaña nueva."] = "Dynamic183",
+        ["Favorito actualizado."] = "Dynamic184",
         ["Sin juego configurado con ventana elegible."] = "Dynamic123",
         ["Hay varios perfiles con Autoarranque para este ejecutable. Deja solo uno habilitado."] = "Dynamic124",
         ["Juego detectado; Autoarranque está desmarcado."] = "Dynamic125",

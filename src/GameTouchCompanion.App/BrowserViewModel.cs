@@ -27,6 +27,8 @@ public sealed class BrowserViewModel : INotifyPropertyChanged
     private bool isReady;
     private bool settingsLoaded;
     private BrowserFavorite? selectedFavorite;
+    private BrowserFavorite? editingFavorite;
+    private string favoriteTitle = string.Empty;
 
     public BrowserViewModel(IBrowserSettingsStore settingsStore) =>
         this.settingsStore = settingsStore ?? throw new ArgumentNullException(nameof(settingsStore));
@@ -36,7 +38,19 @@ public sealed class BrowserViewModel : INotifyPropertyChanged
     public string HomeUrl { get => homeUrl; private set => SetField(ref homeUrl, value); }
     public string? RequestedUrl { get => requestedUrl; private set => SetField(ref requestedUrl, value); }
     public ObservableCollection<BrowserFavorite> Favorites { get; } = [];
-    public BrowserFavorite? SelectedFavorite { get => selectedFavorite; set => SetField(ref selectedFavorite, value); }
+    public BrowserFavorite? SelectedFavorite
+    {
+        get => selectedFavorite;
+        set
+        {
+            if (!SetField(ref selectedFavorite, value)) return;
+            OnPropertyChanged(nameof(CanEditSelectedFavorite));
+        }
+    }
+    public string FavoriteTitle { get => favoriteTitle; set => SetField(ref favoriteTitle, value); }
+    public bool IsEditingFavorite => editingFavorite is not null;
+    public bool CanEditSelectedFavorite => CanEditSettings && SelectedFavorite is not null;
+    public string FavoriteActionText => Localization.Get(IsEditingFavorite ? "BrowserSaveFavoriteChanges" : "Ui086");
     public bool ShowToolbar { get => showToolbar; private set => SetField(ref showToolbar, value); }
     public bool StartWithToolbarVisible { get => startWithToolbarVisible; private set => SetField(ref startWithToolbarVisible, value); }
     public bool OpenNewWindowsInTabs
@@ -84,6 +98,7 @@ public sealed class BrowserViewModel : INotifyPropertyChanged
             if (!SetField(ref settingsLoaded, value)) return;
             OnPropertyChanged(nameof(CanEditSettings));
             OnPropertyChanged(nameof(CanEditNewWindowActivation));
+            OnPropertyChanged(nameof(CanEditSelectedFavorite));
         }
     }
     public bool CanEditSettings => SettingsLoaded;
@@ -94,6 +109,7 @@ public sealed class BrowserViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(Status));
         OnPropertyChanged(nameof(Error));
         OnPropertyChanged(nameof(SettingsError));
+        OnPropertyChanged(nameof(FavoriteActionText));
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -112,6 +128,9 @@ public sealed class BrowserViewModel : INotifyPropertyChanged
             ActivateNewWindowTabs = settings.ActivateNewWindowTabs;
             Favorites.Clear();
             foreach (var favorite in settings.Favorites) Favorites.Add(favorite);
+            SetEditingFavorite(null);
+            FavoriteTitle = string.Empty;
+            SelectedFavorite = null;
             SettingsLoaded = true;
             SetSettingsError(string.Empty);
             ReportStatus("Navegador preparado. Abre Companion para navegar.");
@@ -161,10 +180,7 @@ public sealed class BrowserViewModel : INotifyPropertyChanged
             return;
         }
 
-        var normalizedUri = new Uri(normalized);
-        var label = string.IsNullOrWhiteSpace(title)
-            ? (normalizedUri.Host.Length > 0 ? normalizedUri.Host : normalized)
-            : title.Trim();
+        var label = string.IsNullOrWhiteSpace(title) ? string.Empty : title.Trim();
         if (label.Any(char.IsControl))
         {
             ReportError("El nombre del favorito no puede contener caracteres de control.");
@@ -174,11 +190,76 @@ public sealed class BrowserViewModel : INotifyPropertyChanged
         await PersistAsync("Favorito guardado.");
     }
 
+
+    public void BeginEditSelectedFavorite()
+    {
+        if (!CanEditSelectedFavorite || SelectedFavorite is null) return;
+
+        SetEditingFavorite(SelectedFavorite);
+        Address = SelectedFavorite.Url;
+        FavoriteTitle = SelectedFavorite.Title ?? string.Empty;
+    }
+
+    public void CancelFavoriteEdit()
+    {
+        if (!IsEditingFavorite) return;
+        SetEditingFavorite(null);
+        FavoriteTitle = string.Empty;
+    }
+
+    public async Task UpdateEditingFavoriteAsync(string url, string? title)
+    {
+        if (!CanPersist() || editingFavorite is null) return;
+        if (!BrowserUrlPolicy.TryNormalize(url, out var normalized))
+        {
+            ReportError("El favorito necesita una dirección web válida, como un dominio, localhost, una IP o una URL HTTP/HTTPS, sin credenciales.");
+            return;
+        }
+
+        var index = Favorites.IndexOf(editingFavorite);
+        if (index < 0)
+        {
+            SetEditingFavorite(null);
+            return;
+        }
+
+        if (Favorites.Where((_, favoriteIndex) => favoriteIndex != index)
+            .Any(favorite => string.Equals(favorite.Url, normalized, StringComparison.Ordinal)))
+        {
+            ReportStatus("Esta dirección ya está en favoritos.");
+            return;
+        }
+
+        var label = string.IsNullOrWhiteSpace(title) ? string.Empty : title.Trim();
+        if (label.Any(char.IsControl))
+        {
+            ReportError("El nombre del favorito no puede contener caracteres de control.");
+            return;
+        }
+
+        var updated = new BrowserFavorite(label, normalized);
+        Favorites[index] = updated;
+        SelectedFavorite = updated;
+        SetEditingFavorite(updated);
+        await PersistAsync("Favorito actualizado.");
+
+        if (!HasSettingsError)
+        {
+            SetEditingFavorite(null);
+            FavoriteTitle = string.Empty;
+        }
+    }
+
     public async Task RemoveFavoriteAsync(BrowserFavorite favorite)
     {
         ArgumentNullException.ThrowIfNull(favorite);
         if (!CanPersist() || !Favorites.Remove(favorite)) return;
         if (SelectedFavorite == favorite) SelectedFavorite = null;
+        if (editingFavorite == favorite)
+        {
+            SetEditingFavorite(null);
+            FavoriteTitle = string.Empty;
+        }
         await PersistAsync("Favorito eliminado.");
     }
 
@@ -274,6 +355,15 @@ public sealed class BrowserViewModel : INotifyPropertyChanged
         CanGoBack = false;
         CanGoForward = false;
         ReportStatus("Companion cerrado. Puedes volver a abrirlo desde Configuración.");
+    }
+
+
+    private void SetEditingFavorite(BrowserFavorite? favorite)
+    {
+        if (ReferenceEquals(editingFavorite, favorite)) return;
+        editingFavorite = favorite;
+        OnPropertyChanged(nameof(IsEditingFavorite));
+        OnPropertyChanged(nameof(FavoriteActionText));
     }
 
     private bool CanPersist()

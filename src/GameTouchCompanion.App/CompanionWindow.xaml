@@ -153,8 +153,19 @@
                     <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Button Click="OpenFavorite_Click" Tag="{Binding}" MaxWidth="380">
-                                <StackPanel><TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/><TextBlock Text="{Binding Url}" FontSize="12" TextTrimming="CharacterEllipsis"/></StackPanel>
+                            <Button Click="OpenFavorite_Click"
+                                    Tag="{Binding}"
+                                    Width="190"
+                                    Height="48"
+                                    Margin="0,0,8,8"
+                                    Padding="12,0"
+                                    HorizontalContentAlignment="Stretch">
+                                <TextBlock Text="{Binding DisplayText}"
+                                           VerticalAlignment="Center"
+                                           FontWeight="SemiBold"
+                                           TextWrapping="NoWrap"
+                                           TextTrimming="CharacterEllipsis"
+                                           ToolTip="{Binding DisplayText}"/>
                             </Button>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>

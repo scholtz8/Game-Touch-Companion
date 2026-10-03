@@ -22,7 +22,7 @@ The project does **not** inject code into games, modify game memory, install dri
 - Persistent physical-display selection that survives normal `DISPLAY1/2/3` renumbering
 - Per-game profiles with saved URLs and display preferences
 - Always-on game detection with per-profile optional Companion auto-open
-- Favorites and configurable home page
+- Favorites with optional custom titles, later editing, consistent list rows, and configurable home page
 - Customizable Companion toolbar
 - Light and dark themes
 - English and Spanish interface

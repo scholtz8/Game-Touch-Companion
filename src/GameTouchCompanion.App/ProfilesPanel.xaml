@@ -44,7 +44,6 @@
                                     <DockPanel>
                                         <TextBlock Text="{local:Tr Ui153}" FontWeight="SemiBold" Foreground="{Binding ConfigurationNoticeForeground, Source={x:Static local:Appearance.Current}}"
                                                    Visibility="{Binding IsPrimary, Converter={StaticResource BoolVisibility}}" DockPanel.Dock="Right"/>
-                                        <TextBlock Text="{local:Tr Ui154}" FontWeight="SemiBold"/>
                                     </DockPanel>
                                     <TextBlock Text="{local:Tr Ui155}" Margin="0,6,0,0"/>
                                     <TextBox Text="{Binding Url, UpdateSourceTrigger=PropertyChanged}" Padding="8" Margin="0,4,0,8"/>

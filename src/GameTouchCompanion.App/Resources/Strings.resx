@@ -267,6 +267,12 @@
   <data name="Ui086" xml:space="preserve">
     <value>Añadir a favoritos</value>
   </data>
+  <data name="BrowserFavoriteTitleLabel" xml:space="preserve">
+    <value>Título del favorito</value>
+  </data>
+  <data name="BrowserFavoriteTitleHelp" xml:space="preserve">
+    <value>Opcional. Si lo dejas vacío, en la lista se mostrará la URL.</value>
+  </data>
   <data name="Ui087" xml:space="preserve">
     <value>Inicio: </value>
   </data>
@@ -284,6 +290,15 @@
   </data>
   <data name="Ui092" xml:space="preserve">
     <value>Quitar favorito</value>
+  </data>
+  <data name="BrowserEditFavorite" xml:space="preserve">
+    <value>Editar favorito</value>
+  </data>
+  <data name="BrowserSaveFavoriteChanges" xml:space="preserve">
+    <value>Guardar cambios</value>
+  </data>
+  <data name="BrowserCancelFavoriteEdit" xml:space="preserve">
+    <value>Cancelar edición</value>
   </data>
   <data name="Ui093" xml:space="preserve">
     <value>Perfiles de juego</value>
@@ -777,6 +792,9 @@
   <data name="Dynamic150" xml:space="preserve">
     <value>La ruta es demasiado larga para registrarla en el inicio de Windows.</value>
   </data>
+  <data name="Dynamic184" xml:space="preserve">
+    <value>Favorito actualizado.</value>
+  </data>
   <data name="Message000" xml:space="preserve">
     <value>Siguiente</value>
   </data>
@@ -993,13 +1011,10 @@
     <value>Pestañas del perfil</value>
   </data>
   <data name="Ui152" xml:space="preserve">
-    <value>Define las páginas que se abrirán con este perfil. El nombre de cada pestaña se obtiene automáticamente del título del sitio. Marca una como principal para mostrarla primero.</value>
+    <value>Define las páginas que se abrirán con este perfil. Marca una como principal para mostrarla primero.</value>
   </data>
   <data name="Ui153" xml:space="preserve">
     <value>★ Principal</value>
-  </data>
-  <data name="Ui154" xml:space="preserve">
-    <value>Título automático del sitio</value>
   </data>
   <data name="Ui155" xml:space="preserve">
     <value>URL</value>

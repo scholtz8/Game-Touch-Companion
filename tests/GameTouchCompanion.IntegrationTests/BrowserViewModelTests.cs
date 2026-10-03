@@ -157,6 +157,23 @@ public sealed class BrowserViewModelTests
     }
 
     [Fact]
+    public async Task FavoriteTitleCanBeEnteredSeparatelyFromTheAddress()
+    {
+        var store = new MemoryBrowserSettingsStore(new BrowserSettings());
+        var viewModel = new BrowserViewModel(store);
+        await viewModel.InitializeAsync();
+
+        viewModel.Address = "https://example.com/guide";
+        viewModel.FavoriteTitle = "  Mi guía  ";
+
+        await viewModel.AddFavoriteAsync(viewModel.Address, viewModel.FavoriteTitle);
+
+        Assert.Equal("  Mi guía  ", viewModel.FavoriteTitle);
+        Assert.Equal(new BrowserFavorite("Mi guía", "https://example.com/guide"), Assert.Single(viewModel.Favorites));
+        Assert.Equal(viewModel.Favorites, store.Current.Favorites);
+    }
+
+    [Fact]
     public async Task FavoritesCanonicalizeDeduplicateAndRemoveSelectedItem()
     {
         var store = new MemoryBrowserSettingsStore(new BrowserSettings());
@@ -194,8 +211,70 @@ public sealed class BrowserViewModelTests
 
         await viewModel.AddFavoriteAsync();
 
-        Assert.Equal(new BrowserFavorite("example.com", "https://example.com/current"), Assert.Single(viewModel.Favorites));
+        var favorite = Assert.Single(viewModel.Favorites);
+        Assert.Equal(new BrowserFavorite(string.Empty, "https://example.com/current"), favorite);
+        Assert.Equal("https://example.com/current", favorite.DisplayText);
         Assert.False(viewModel.HasError);
+    }
+
+
+    [Fact]
+    public async Task FavoriteWithoutTitleDisplaysItsUrl()
+    {
+        var store = new MemoryBrowserSettingsStore(new BrowserSettings());
+        var viewModel = new BrowserViewModel(store);
+        await viewModel.InitializeAsync();
+
+        await viewModel.AddFavoriteAsync("https://example.com/guide", "   ");
+
+        var favorite = Assert.Single(viewModel.Favorites);
+        Assert.Equal(string.Empty, favorite.Title);
+        Assert.Equal("https://example.com/guide", favorite.DisplayText);
+        Assert.Equal(favorite, Assert.Single(store.Current.Favorites));
+    }
+
+    [Fact]
+    public async Task SelectedFavoriteCanBeEditedAndSaved()
+    {
+        var original = new BrowserFavorite("Original", "https://example.com/old");
+        var store = new MemoryBrowserSettingsStore(new BrowserSettings { Favorites = [original] });
+        var viewModel = new BrowserViewModel(store);
+        await viewModel.InitializeAsync();
+        viewModel.SelectedFavorite = Assert.Single(viewModel.Favorites);
+
+        viewModel.BeginEditSelectedFavorite();
+
+        Assert.True(viewModel.IsEditingFavorite);
+        Assert.Equal("https://example.com/old", viewModel.Address);
+        Assert.Equal("Original", viewModel.FavoriteTitle);
+
+        await viewModel.UpdateEditingFavoriteAsync("example.com/new", "  Nuevo título  ");
+
+        var updated = Assert.Single(viewModel.Favorites);
+        Assert.Equal(new BrowserFavorite("Nuevo título", "https://example.com/new"), updated);
+        Assert.Equal(updated, viewModel.SelectedFavorite);
+        Assert.Equal(updated, Assert.Single(store.Current.Favorites));
+        Assert.False(viewModel.IsEditingFavorite);
+        Assert.Equal(string.Empty, viewModel.FavoriteTitle);
+        Assert.Equal(1, store.SaveAttempts);
+    }
+
+    [Fact]
+    public async Task EditingFavoriteCanRemoveItsTitleAndFallsBackToUrl()
+    {
+        var original = new BrowserFavorite("Original", "https://example.com/old");
+        var store = new MemoryBrowserSettingsStore(new BrowserSettings { Favorites = [original] });
+        var viewModel = new BrowserViewModel(store);
+        await viewModel.InitializeAsync();
+        viewModel.SelectedFavorite = Assert.Single(viewModel.Favorites);
+        viewModel.BeginEditSelectedFavorite();
+
+        await viewModel.UpdateEditingFavoriteAsync("https://example.com/old", "   ");
+
+        var updated = Assert.Single(viewModel.Favorites);
+        Assert.Equal(string.Empty, updated.Title);
+        Assert.Equal("https://example.com/old", updated.DisplayText);
+        Assert.False(viewModel.IsEditingFavorite);
     }
 
     [Theory]

@@ -124,14 +124,14 @@ public sealed class JsonBrowserSettingsStore : IBrowserSettingsStore
         var favorites = new List<BrowserFavorite>(settings.Favorites.Count);
         foreach (var favorite in settings.Favorites)
         {
-            if (favorite is null || string.IsNullOrWhiteSpace(favorite.Title) ||
-                favorite.Title.Any(char.IsControl) ||
+            var title = favorite?.Title?.Trim() ?? string.Empty;
+            if (favorite is null || title.Any(char.IsControl) ||
                 !BrowserUrlPolicy.TryNormalize(favorite.Url, out var url))
             {
-                throw new InvalidDataException("Each browser favorite must have a title and an allowed absolute HTTP(S) URL.");
+                throw new InvalidDataException("Each browser favorite must have an optional valid title and an allowed absolute HTTP(S) URL.");
             }
 
-            favorites.Add(new BrowserFavorite(favorite.Title.Trim(), url));
+            favorites.Add(new BrowserFavorite(title, url));
         }
 
         return settings with { HomeUrl = homeUrl, Favorites = favorites };
