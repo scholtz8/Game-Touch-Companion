@@ -27,7 +27,7 @@
                         <Button Content="{local:Tr Ui099}" Click="KeepDraft_Click" Padding="12,8"/>
                     </WrapPanel>
                 </StackPanel>
-                <Button Content="{local:Tr Ui100}" Click="New_Click" HorizontalAlignment="Left" Padding="16,8"/>
+                <Button Content="{local:Tr Ui100}" Click="New_Click" HorizontalAlignment="Left" Width="170"/>
                 <TextBlock Text="{local:Tr Ui101}" Margin="0,12,0,4"/>
                 <TextBox Text="{Binding DisplayName, UpdateSourceTrigger=PropertyChanged}" Padding="8" MaxLength="120"/>
                 <TextBlock Text="{local:Tr Ui102}" Margin="0,10,0,4"/>
@@ -48,28 +48,29 @@
                                     <TextBlock Text="{local:Tr Ui155}" Margin="0,6,0,0"/>
                                     <TextBox Text="{Binding Url, UpdateSourceTrigger=PropertyChanged}" Padding="8" Margin="0,4,0,8"/>
                                     <WrapPanel>
-                                        <Button Content="{local:Tr Ui156}" Click="PrimaryTab_Click" Tag="{Binding}" Padding="10,6" Margin="0,0,8,0"/>
-                                        <Button Content="↑" Click="MoveTabUp_Click" Tag="{Binding}" Padding="10,6" Margin="0,0,8,0"/>
-                                        <Button Content="↓" Click="MoveTabDown_Click" Tag="{Binding}" Padding="10,6" Margin="0,0,8,0"/>
-                                        <Button Content="{local:Tr Ui157}" Click="RemoveTab_Click" Tag="{Binding}" Padding="10,6"/>
+                                        <Button Content="{local:Tr Ui156}" Click="PrimaryTab_Click" Tag="{Binding}" Width="150" Margin="0,0,8,0"/>
+                                        <Button Content="↑" Click="MoveTabUp_Click" Tag="{Binding}" Width="42" Margin="0,0,8,0"/>
+                                        <Button Content="↓" Click="MoveTabDown_Click" Tag="{Binding}" Width="42" Margin="0,0,8,0"/>
+                                        <Button Content="{local:Tr Ui157}" Click="RemoveTab_Click" Tag="{Binding}" Width="150"/>
                                     </WrapPanel>
                                 </StackPanel>
                             </Border>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-                <Button Content="{local:Tr Ui158}" Click="AddTab_Click" HorizontalAlignment="Left" Padding="14,8" Margin="0,2,0,8"/>
+                <Button Content="{local:Tr Ui158}" Click="AddTab_Click" HorizontalAlignment="Left" Width="170" Margin="0,2,0,8"/>
 
                 <TextBlock Text="{local:Tr Ui104}" Margin="0,10,0,4" TextWrapping="Wrap"/>
                 <ComboBox x:Name="AvailableMonitorCombo" DisplayMemberPath="Label" MinHeight="36" SelectionChanged="AvailableMonitorCombo_SelectionChanged" AutomationProperties.Name="{local:Tr Ui105}"/>
                 <TextBlock x:Name="ProfileMonitorStatus" Margin="0,8,0,4" TextWrapping="Wrap" FontWeight="SemiBold"/>
                 <TextBlock Text="{local:Tr Ui108}" Margin="0,4" TextWrapping="Wrap" Foreground="{Binding ConfigurationSecondaryForeground, Source={x:Static local:Appearance.Current}}"/>
                 <CheckBox Content="{local:Tr Ui109}" IsChecked="{Binding AutoLaunch}" Margin="0,14"/>
-                <TextBlock Text="{local:Tr Ui110}" Foreground="{Binding ConfigurationSecondaryForeground, Source={x:Static local:Appearance.Current}}"/>
+                <TextBlock Text="{local:Tr Ui110}" TextWrapping="Wrap"
+                           Foreground="{Binding ConfigurationSecondaryForeground, Source={x:Static local:Appearance.Current}}"/>
                 <WrapPanel Margin="0,14">
-                    <Button Content="{local:Tr Ui111}" Click="Save_Click" Padding="16,10" Margin="0,0,10,0"/>
-                    <Button Content="{local:Tr Ui112}" Click="Apply_Click" Padding="16,10" Margin="0,0,10,0"/>
-                    <Button Content="{local:Tr Ui113}" Click="Delete_Click" Padding="16,10"/>
+                    <Button Content="{local:Tr Ui111}" Click="Save_Click" Width="180" Margin="0,0,10,0"/>
+                    <Button Content="{local:Tr Ui112}" Click="Apply_Click" Width="180" Margin="0,0,10,0"/>
+                    <Button Content="{local:Tr Ui113}" Click="Delete_Click" Width="180"/>
                 </WrapPanel>
                 <StackPanel Margin="0,8" Visibility="{Binding DeleteConfirmation, Converter={StaticResource BoolVisibility}}">
                     <TextBlock Text="{local:Tr Ui114}" TextWrapping="Wrap" FontWeight="SemiBold"

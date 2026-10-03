@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased — UI polish
+
+### Changed
+- Configuration controls now use more consistent touch-friendly minimum heights, padding and rounded button surfaces across Home, Screens, Browser, Profiles, Settings, Personalization and Diagnostics.
+- Related action groups use more consistent sizing where labels allow it, while longer localized labels remain free to grow instead of being clipped.
+- Long descriptive text now wraps more reliably in narrow Configuration layouts, and secondary/help copy uses the secondary foreground consistently.
+- Companion profile choices now use fixed-size touch targets with ellipsis and tooltips for long names, matching the existing fixed-size favorite and browser-tab treatment.
+- Companion buttons now provide a subtle hover border state without changing the existing no-activation behavior or browser logic.
+
 ## Unreleased — Browser data management
 
 ### Added

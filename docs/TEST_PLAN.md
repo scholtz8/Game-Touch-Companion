@@ -338,3 +338,17 @@ Targeted validation after browser-data changes:
 
 Do not run the entire suite solely for this localized phase unless another broad change justifies it.
 
+## Post-MVP UI polish (Phase 9)
+
+Targeted validation after presentation-only UI changes:
+
+1. Build Release x64 and run `LocalizationTests`; no broad suite is required for presentation-only changes.
+2. At the minimum supported Configuration size, visit Home, Screens, Browser, Profiles, Settings, Personalization and Diagnostics in both light and dark themes. Confirm there is no horizontal clipping and explanatory text wraps instead of overflowing.
+3. Check that common Configuration buttons, text boxes, combo boxes and check boxes have consistent touch-friendly height/padding and that grouped actions look aligned. Long Spanish/English labels must remain fully readable rather than being clipped by a fixed width.
+4. In Profiles, verify primary/up/down/remove and save/apply/delete action groups stay aligned when multiple tabs are present.
+5. In Companion, open the profile switcher with short and very long profile/process names. Every profile target must keep the same footprint; long text ends with an ellipsis and the full profile name is available in the tooltip.
+6. Recheck existing fixed-size Companion favorites and compact browser tabs for consistent sizing and ellipsis.
+7. Use a different Companion monitor/resolution and confirm the toolbar, tab strip, favorites and touch keyboard still fit without layout regressions.
+8. Focus/no-activation behavior must be unchanged; no additional foreground-focus test is required unless a code-behind or Win32 behavior change accompanies the UI work.
+
+Do not run the entire suite solely for this presentation-only phase.

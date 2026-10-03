@@ -80,7 +80,8 @@
             <Button x:Name="CloseAction" DockPanel.Dock="Right" Style="{StaticResource ToolbarImageButton}" Click="Close_Click" AutomationProperties.Name="{local:Tr Ui063}"/>
             <Button x:Name="ToggleToolbarAction" DockPanel.Dock="Left" Style="{StaticResource ToolbarImageButton}" Click="ToggleToolbar_Click"/>
             <Button x:Name="ProfileSwitchAction" DockPanel.Dock="Right" Click="ToggleProfiles_Click" Padding="12,7" Margin="4" Content="{local:Tr Ui159}"/>
-            <TextBlock x:Name="ActiveProfileText" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="White" Margin="10,0" Text="{local:Tr Ui160}" TextTrimming="CharacterEllipsis"/>
+            <TextBlock x:Name="ActiveProfileText" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="White" Margin="10,0"
+                       Text="{local:Tr Ui160}" TextTrimming="CharacterEllipsis" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"/>
         </DockPanel>
 
         <Border x:Name="ProfilesPanel" Grid.Row="1" Background="{Binding Surface, Source={x:Static local:Appearance.Current}}" Visibility="Collapsed" Padding="8">
@@ -89,8 +90,12 @@
                     <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Button Click="SwitchProfile_Click" Tag="{Binding}" Padding="14,10" MaxWidth="280">
-                                <StackPanel><TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold"/><TextBlock Text="{Binding ProcessName}" FontSize="12"/></StackPanel>
+                            <Button Click="SwitchProfile_Click" Tag="{Binding}" Width="240" Height="60" Padding="14,8" HorizontalContentAlignment="Stretch"
+                                    ToolTip="{Binding DisplayName}">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Text="{Binding ProcessName}" FontSize="12" TextTrimming="CharacterEllipsis"/>
+                                </StackPanel>
                             </Button>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
